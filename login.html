@@ -205,16 +205,9 @@
 
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                if (user.emailVerified) {
-                    showMessage('Successfully logged in!', 'success');
-                    window.location.href = '/my-account.html';
-                } else {
-                    // Redirect to new verification page if email is not verified
-                    window.location.href = `/verify-email.html?email=${encodeURIComponent(user.email)}`;
-                }
-
+                // User is signed in, no email verification check needed
+                showMessage('Successfully logged in!', 'success');
+                window.location.href = '/my-account.html'; // Redirect directly
             } catch (error) {
                 console.error("Login error:", error.code, error.message);
                 let errorMessage = "An unknown error occurred. Please try again.";
@@ -251,8 +244,8 @@
                 await updateProfile(user, { displayName: name });
                 // Note: Phone number would be stored in Firestore/Realtime DB in a real app
 
-                // Redirect to new verification page after signup
-                window.location.href = `/verify-email.html?email=${encodeURIComponent(user.email)}`;
+                showMessage('Account created successfully! Redirecting to your account.', 'success');
+                window.location.href = '/my-account.html'; // Redirect directly after signup
 
             } catch (error) {
                 console.error("Registration error:", error.code, error.message);

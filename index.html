@@ -85,7 +85,7 @@
                 <!-- iPhone Category -->
                 <a href="/iphone/models.html" class="homepage-card-link">
                     <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                        <img id="iphone_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/iphone_category" alt="iPhones Category" class="mx-auto mb-4 rounded-lg">
+                        <img id="iphone_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/assets/apple" alt="iPhones Category" class="mx-auto mb-4 rounded-lg w-20 h-20">
                         <h3 class="text-xl font-semibold mb-2">iPhones</h3>
                         <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
                     </div>
@@ -93,7 +93,7 @@
                 <!-- Samsung Galaxy Category -->
                 <a href="/samsung/models.html" class="homepage-card-link">
                     <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                        <img id="samsung_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/samsung/assets/samsung_category" alt="Samsung Galaxy Category" class="mx-auto mb-4 rounded-lg">
+                        <img id="samsung_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/assets/samsung" alt="Samsung Galaxy Category" class="mx-auto mb-4 rounded-lg w-20 h-20">
                         <h3 class="text-xl font-semibold mb-2">Samsung Galaxy</h3>
                         <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
                     </div>
@@ -101,7 +101,7 @@
                 <!-- Tablets Category -->
                 <a href="/tablet/models.html" class="homepage-card-link">
                     <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                        <img id="tablet_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/tablet/assets/tablet_category" alt="Tablets Category" class="mx-auto mb-4 rounded-lg">
+                        <img id="tablet_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/tablet/assets/tablet_category" alt="Tablets Category" class="mx-auto mb-4 rounded-lg w-20 h-20">
                         <h3 class="text-xl font-semibold mb-2">Tablets</h3>
                         <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
                     </div>
@@ -109,7 +109,7 @@
                 <!-- Google Phones Category -->
                 <a href="/google/models.html" class="homepage-card-link">
                     <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                        <img id="google_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/google/assets/google_category" alt="Google Phones Category" class="mx-auto mb-4 rounded-lg">
+                        <img id="google_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/assets/googlepixel" alt="Google Phones Category" class="mx-auto mb-4 rounded-lg w-20 h-20">
                         <h3 class="text-xl font-semibold mb-2">Google Phones</h3>
                         <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
                     </div>
@@ -293,12 +293,13 @@
                     };
                     img.onerror = function() {
                         if (i === extensions.length - 1 && !foundImage) {
-                            // Fallback for category images (larger placeholder)
-                            if (imgElement.id.includes('_cat_img')) {
-                                imgElement.src = "https://placehold.co/150x150/e0e7ff/4338ca?text=Category";
-                            } else {
-                                // Fallback for popular phone images (smaller placeholder)
+                            // Determine appropriate placeholder based on context
+                            if (imgElement.id.includes('_cat_img')) { // Category images on homepage
+                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category"; // Adjusted size
+                            } else if (imgElement.id.includes('_pop_img')) { // Popular phone images on homepage
                                 imgElement.src = "https://placehold.co/150x150/f0f4ff/6366f1?text=No+Image";
+                            } else { // Generic fallback
+                                imgElement.src = "https://placehold.co/150x150/cccccc/333333?text=Error";
                             }
                             imgElement.alt = "Image not found";
                         }

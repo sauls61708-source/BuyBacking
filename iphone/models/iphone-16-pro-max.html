@@ -130,7 +130,7 @@
 
                 <!-- Storage Amount Selection -->
                 <div class="mb-8">
-                    <label class="block text-2xl font-bold text-gray-800 mb-4">Select Storage Amount</label>
+                    <label for="storage" class="block text-2xl font-bold text-gray-800 mb-4">Select Storage Amount</label>
                     <select id="storage" class="mt-1 block w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-base">
                         <option value="">Select Storage</option>
                         <option value="128GB">128GB</option>
@@ -226,9 +226,18 @@
 
                 </div>
 
-                <button class="w-full bg-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+                <button id="getQuoteBtn" class="w-full bg-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
                     Get My Instant Quote!
                 </button>
+
+                <!-- Quote Display Area -->
+                <div id="quoteDisplay" class="mt-8 p-6 bg-indigo-50 rounded-xl shadow-inner hidden">
+                    <h3 class="text-2xl font-bold text-indigo-800 mb-2">Estimated Buyback Quote:</h3>
+                    <p class="text-4xl font-extrabold text-indigo-600" id="finalQuoteAmount">$0</p>
+                    <p class="text-sm text-gray-600 mt-2">This is an estimate. Final offer subject to certified inspection.</p>
+                </div>
+                <div id="quoteMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
+
             </div>
         </div>
     </main>
@@ -261,7 +270,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Function to load image with fallback extensions
+            // Function to load image with fallback extensions (for main phone image only)
             function loadImageWithFallback(imgElement) {
                 const baseSrc = imgElement.dataset.baseSrc;
                 const extensions = ['.webp', '.png', '.jpeg', '.jpg']; // Order of preference, .webp first
@@ -278,15 +287,7 @@
                     };
                     img.onerror = function() {
                         if (i === extensions.length - 1 && !foundImage) {
-                            // Determine appropriate placeholder based on context
-                            if (imgElement.id.includes('_cat_img')) { // Category images on homepage
-                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category"; // Adjusted size
-                            } else if (imgElement.id.includes('_pop_img') || imgElement.id.includes('_img')) { // Popular phone images or iPhone model images
-                                // Use the specified 680x528 dimensions for the placeholder
-                                imgElement.src = "https://placehold.co/680x528/f0f4ff/6366f1?text=No+Image";
-                            } else { // Generic fallback
-                                imgElement.src = "https://placehold.co/150x150/cccccc/333333?text=Error";
-                            }
+                            imgElement.src = "https://placehold.co/680x528/f0f4ff/6366f1?text=No+Image"; // Fallback placeholder
                             imgElement.alt = "Image not found";
                         }
                     };
@@ -300,8 +301,109 @@
                 loadImageWithFallback(mainPhoneImage);
             }
 
-            // Note: Carrier images are now using direct placehold.co URLs and don't need this JS fallback.
-            // If you later decide to use local files for carriers, you'd re-add data-base-src and call loadImageWithFallback for them.
+            // Quote Calculation Logic
+            const getQuoteBtn = document.getElementById('getQuoteBtn');
+            const quoteDisplay = document.getElementById('quoteDisplay');
+            const finalQuoteAmount = document.getElementById('finalQuoteAmount');
+            const quoteMessage = document.getElementById('quoteMessage');
+
+            function showQuoteMessage(msg, type) {
+                quoteMessage.textContent = msg;
+                quoteMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+                if (type === 'error') {
+                    quoteMessage.classList.add('bg-red-100', 'text-red-700');
+                } else if (type === 'success') {
+                    quoteMessage.classList.add('bg-green-100', 'text-green-700');
+                }
+                quoteMessage.classList.remove('hidden');
+            }
+
+            function clearQuoteMessage() {
+                quoteMessage.classList.add('hidden');
+                quoteMessage.textContent = '';
+            }
+
+            getQuoteBtn.addEventListener('click', () => {
+                clearQuoteMessage();
+                quoteDisplay.classList.add('hidden'); // Hide previous quote
+
+                const selectedCarrier = document.querySelector('input[name="carrier"]:checked');
+                const selectedStorage = document.getElementById('storage').value;
+                const q1PowerOn = document.querySelector('input[name="q1_power_on"]:checked');
+                const q2Functional = document.querySelector('input[name="q2_fully_functional"]:checked');
+                const q3NoCracks = document.querySelector('input[name="q3_no_cracks"]:checked');
+                const q4Cosmetic = document.querySelector('input[name="q4_cosmetic_condition"]:checked');
+
+                // --- 1. Validate all selections are made ---
+                if (!selectedCarrier || !selectedStorage || !q1PowerOn || !q2Functional || !q3NoCracks || !q4Cosmetic) {
+                    showQuoteMessage('Please answer all questions to get an accurate quote.', 'error');
+                    return;
+                }
+
+                // --- 2. Determine Base Price based on Storage ---
+                let currentQuote = 0;
+                switch (selectedStorage) {
+                    case '128GB':
+                        currentQuote = 400;
+                        break;
+                    case '256GB':
+                        currentQuote = 500;
+                        break;
+                    case '512GB':
+                        currentQuote = 600;
+                        break;
+                    case '1TB':
+                        currentQuote = 800;
+                        break;
+                    default:
+                        showQuoteMessage('Invalid storage selected.', 'error');
+                        return;
+                }
+
+                // --- 3. Apply Carrier Deduction ---
+                if (selectedCarrier.value !== 'Unlocked') {
+                    currentQuote -= 25;
+                }
+
+                // --- 4. Apply Power On Deduction (-50%) ---
+                if (q1PowerOn.value === 'no') {
+                    currentQuote *= 0.50; // Deduct 50%
+                }
+
+                // --- 5. Apply Fully Functional Deduction (-25%) ---
+                if (q2Functional.value === 'no') {
+                    currentQuote *= 0.75; // Deduct 25% (i.e., keep 75%)
+                }
+
+                // --- 6. Apply Cracks Deduction (-$50) ---
+                if (q3NoCracks.value === 'no') {
+                    currentQuote -= 50;
+                }
+
+                // --- 7. Apply Cosmetic Condition Deduction ---
+                switch (q4Cosmetic.value) {
+                    case 'poor':
+                        currentQuote -= 45;
+                        break;
+                    case 'fair':
+                        currentQuote -= 25;
+                        break;
+                    case 'good':
+                        currentQuote -= 15;
+                        break;
+                    case 'flawless':
+                        // No deduction
+                        break;
+                }
+
+                // Ensure quote doesn't go below zero
+                currentQuote = Math.max(0, currentQuote);
+
+                // --- 8. Display Final Quote ---
+                finalQuoteAmount.textContent = `$${currentQuote.toFixed(2)}`;
+                quoteDisplay.classList.remove('hidden');
+                showQuoteMessage('Your instant quote has been calculated!', 'success');
+            });
         });
     </script>
 </body>

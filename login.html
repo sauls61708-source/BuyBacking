@@ -129,9 +129,7 @@
     <!-- Firebase Initialization and Auth Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // getAnalytics is not directly used for login functionality in this example
-        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -147,7 +145,6 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        // const analytics = getAnalytics(app); // Uncomment if you plan to use analytics
 
         // Get elements
         const loginSection = document.getElementById('loginSection');
@@ -165,11 +162,13 @@
          */
         function showMessage(msg, type) {
             messageDiv.textContent = msg;
-            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700');
             if (type === 'error') {
                 messageDiv.classList.add('bg-red-100', 'text-red-700');
             } else if (type === 'success') {
                 messageDiv.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'info') {
+                messageDiv.classList.add('bg-yellow-100', 'text-yellow-700');
             }
             messageDiv.classList.remove('hidden');
         }
@@ -210,12 +209,10 @@
 
                 if (user.emailVerified) {
                     showMessage('Successfully logged in!', 'success');
-                    // Redirect after successful login, e.g., to the sell-device page or my-account
-                    window.location.href = '/my-account.html'; // Or any desired page
+                    window.location.href = '/my-account.html';
                 } else {
-                    showMessage('Please verify your email address to log in. Check your inbox!', 'error');
-                    // Optionally, offer to resend verification email
-                    // await sendEmailVerification(user);
+                    // Redirect to new verification page if email is not verified
+                    window.location.href = `/verify-email.html?email=${encodeURIComponent(user.email)}`;
                 }
 
             } catch (error) {
@@ -251,19 +248,11 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Update user profile (display name and potentially phone number)
-                await updateProfile(user, {
-                    displayName: name,
-                    // Firebase updateProfile doesn't directly support phoneNumber
-                    // You'd typically save phone number to Firestore or Realtime Database
-                });
+                await updateProfile(user, { displayName: name });
+                // Note: Phone number would be stored in Firestore/Realtime DB in a real app
 
-                // Send email verification
-                await sendEmailVerification(user);
-
-                showMessage('Registration successful! Please verify your email address. Check your inbox!', 'success');
-                // Optionally, redirect after registration, but keep them on login page to verify email
-                // window.location.href = '/my-account.html';
+                // Redirect to new verification page after signup
+                window.location.href = `/verify-email.html?email=${encodeURIComponent(user.email)}`;
 
             } catch (error) {
                 console.error("Registration error:", error.code, error.message);
@@ -282,18 +271,6 @@
                         errorMessage = error.message;
                 }
                 showMessage(`Registration Failed: ${errorMessage}`, 'error');
-            }
-        });
-
-        // Optional: Monitor authentication state changes
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is signed in
-                // console.log("User is logged in:", user.email, user.displayName);
-                // You could update UI elements here if needed
-            } else {
-                // User is signed out
-                // console.log("User is logged out.");
             }
         });
     </script>

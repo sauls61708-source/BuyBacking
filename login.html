@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwiftBuyBack - Login</title>
+    <title>SwiftBuyBack - Login/Sign Up</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -28,34 +28,74 @@
         </div>
     </header>
 
-    <!-- Main Content - Login Form -->
+    <!-- Main Content - Login/Sign Up Forms -->
     <main class="flex-grow flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Login to Your Account</h2>
-
+            <!-- Message Display Area -->
             <div id="message" class="mb-4 p-3 rounded-md text-sm text-center hidden"></div>
 
-            <form id="loginForm" class="space-y-6">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input type="email" id="email" name="email" required autocomplete="email"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <!-- Login Form Section -->
+            <div id="loginSection">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Login to Your Account</h2>
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="loginEmail" name="email" required autocomplete="email"
+                               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="loginPassword" name="password" required autocomplete="current-password"
+                               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Login
+                    </button>
+                </form>
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">Don't have an account?
+                        <a href="#" id="showSignupLink" class="font-medium text-indigo-600 hover:text-indigo-500 transition duration-300">Sign Up</a>
+                    </p>
                 </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="password" name="password" required autocomplete="current-password"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-                <button type="submit"
-                        class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Login
-                </button>
-            </form>
+            </div>
 
-            <div class="mt-6 text-center">
-                <p class="text-sm text-gray-600">Don't have an account?
-                    <a href="#" id="signupLink" class="font-medium text-indigo-600 hover:text-indigo-500 transition duration-300">Sign Up</a>
-                </p>
+            <!-- Sign Up Form Section (Initially Hidden) -->
+            <div id="signupSection" class="hidden">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Create Your Account</h2>
+                <form id="signupForm" class="space-y-6">
+                    <div>
+                        <label for="signupName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="signupName" name="name" required autocomplete="name"
+                               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="signupEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="signupEmail" name="email" required autocomplete="email"
+                               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="signupPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="signupPassword" name="password" required autocomplete="new-password"
+                               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <p class="mt-1 text-xs text-gray-500">Password must be at least 6 characters long.</p>
+                    </div>
+                    <div>
+                        <label for="signupPhone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
+                        <input type="tel" id="signupPhone" name="phone" autocomplete="tel"
+                               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               placeholder="e.g., +15551234567">
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Sign Up
+                    </button>
+                </form>
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">Already have an account?
+                        <a href="#" id="showLoginLink" class="font-medium text-indigo-600 hover:text-indigo-500 transition duration-300">Login</a>
+                    </p>
+                </div>
             </div>
         </div>
     </main>
@@ -89,7 +129,7 @@
     <!-- Firebase Initialization and Auth Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         // getAnalytics is not directly used for login functionality in this example
         // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
@@ -110,8 +150,12 @@
         // const analytics = getAnalytics(app); // Uncomment if you plan to use analytics
 
         // Get elements
+        const loginSection = document.getElementById('loginSection');
+        const signupSection = document.getElementById('signupSection');
         const loginForm = document.getElementById('loginForm');
-        const signupLink = document.getElementById('signupLink');
+        const signupForm = document.getElementById('signupForm');
+        const showSignupLink = document.getElementById('showSignupLink');
+        const showLoginLink = document.getElementById('showLoginLink');
         const messageDiv = document.getElementById('message');
 
         /**
@@ -127,35 +171,65 @@
             } else if (type === 'success') {
                 messageDiv.classList.add('bg-green-100', 'text-green-700');
             }
+            messageDiv.classList.remove('hidden');
         }
+
+        /**
+         * Clears any displayed messages.
+         */
+        function clearMessage() {
+            messageDiv.classList.add('hidden');
+            messageDiv.textContent = '';
+        }
+
+        // Toggle between login and signup forms
+        showSignupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginSection.classList.add('hidden');
+            signupSection.classList.remove('hidden');
+            clearMessage();
+        });
+
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+            clearMessage();
+        });
 
         // Handle Login
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = loginForm['email'].value;
-            const password = loginForm['password'].value;
+            clearMessage();
+            const email = loginForm['loginEmail'].value;
+            const password = loginForm['loginPassword'].value;
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showMessage('Successfully logged in!', 'success');
-                // Redirect after successful login, e.g., to the sell-device page or my-account
-                window.location.href = '/my-account.html'; // Or any desired page
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                if (user.emailVerified) {
+                    showMessage('Successfully logged in!', 'success');
+                    // Redirect after successful login, e.g., to the sell-device page or my-account
+                    window.location.href = '/my-account.html'; // Or any desired page
+                } else {
+                    showMessage('Please verify your email address to log in. Check your inbox!', 'error');
+                    // Optionally, offer to resend verification email
+                    // await sendEmailVerification(user);
+                }
+
             } catch (error) {
                 console.error("Login error:", error.code, error.message);
                 let errorMessage = "An unknown error occurred. Please try again.";
                 switch (error.code) {
                     case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address.';
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Invalid email or password.';
                         break;
                     case 'auth/user-disabled':
                         errorMessage = 'Your account has been disabled.';
-                        break;
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                        errorMessage = 'Invalid email or password.';
-                        break;
-                    case 'auth/invalid-credential': // Modern Firebase version uses this for wrong password/email
-                        errorMessage = 'Invalid email or password.';
                         break;
                     default:
                         errorMessage = error.message;
@@ -164,40 +238,50 @@
             }
         });
 
-        // Handle Sign Up (using the same form for simplicity, can be expanded to a separate page)
-        signupLink.addEventListener('click', async (e) => {
+        // Handle Sign Up
+        signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // For a real application, you'd navigate to a dedicated registration page.
-            // For this example, we'll prompt the user for new credentials directly.
-            const newEmail = prompt("Enter an email for registration:");
-            const newPassword = prompt("Enter a password for registration (at least 6 characters):");
+            clearMessage();
+            const name = signupForm['signupName'].value;
+            const email = signupForm['signupEmail'].value;
+            const password = signupForm['signupPassword'].value;
+            const phoneNumber = signupForm['signupPhone'].value; // Optional
 
-            if (newEmail && newPassword) {
-                try {
-                    await createUserWithEmailAndPassword(auth, newEmail, newPassword);
-                    showMessage('Registration successful! You are now logged in.', 'success');
-                    // Optionally redirect or update UI after registration
-                    window.location.href = '/my-account.html';
-                } catch (error) {
-                    console.error("Registration error:", error.code, error.message);
-                    let errorMessage = "An unknown error occurred during registration.";
-                    switch (error.code) {
-                        case 'auth/email-already-in-use':
-                            errorMessage = 'The email address is already in use by another account.';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'The email address is not valid.';
-                            break;
-                        case 'auth/weak-password':
-                            errorMessage = 'The password is too weak. Please choose a stronger password.';
-                            break;
-                        default:
-                            errorMessage = error.message;
-                    }
-                    showMessage(`Registration Failed: ${errorMessage}`, 'error');
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Update user profile (display name and potentially phone number)
+                await updateProfile(user, {
+                    displayName: name,
+                    // Firebase updateProfile doesn't directly support phoneNumber
+                    // You'd typically save phone number to Firestore or Realtime Database
+                });
+
+                // Send email verification
+                await sendEmailVerification(user);
+
+                showMessage('Registration successful! Please verify your email address. Check your inbox!', 'success');
+                // Optionally, redirect after registration, but keep them on login page to verify email
+                // window.location.href = '/my-account.html';
+
+            } catch (error) {
+                console.error("Registration error:", error.code, error.message);
+                let errorMessage = "An unknown error occurred during registration.";
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'The email address is already in use by another account.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'The email address is not valid.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'The password is too weak. Please choose a stronger password.';
+                        break;
+                    default:
+                        errorMessage = error.message;
                 }
-            } else {
-                showMessage("Registration cancelled.", "error");
+                showMessage(`Registration Failed: ${errorMessage}`, 'error');
             }
         });
 
@@ -205,16 +289,13 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 // User is signed in
-                // console.log("User is logged in:", user.email);
-                // You could update UI elements here, e.g., show "Welcome, [email]"
+                // console.log("User is logged in:", user.email, user.displayName);
+                // You could update UI elements here if needed
             } else {
                 // User is signed out
                 // console.log("User is logged out.");
             }
         });
-
-        // Note: For a real production app, consider using a dedicated registration page
-        // instead of an in-place prompt for `signupLink`.
     </script>
 
 </body>

@@ -66,11 +66,12 @@
 
     <!-- Main Content - Specific Phone Detail -->
     <main class="flex-grow container mx-auto px-4 py-12">
-        <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-center gap-8">
-            <div class="w-full md:w-1/3 text-center">
-                <img src="/iphone/assets/i16pm.png" alt="iPhone 16 Pro Max" class="mx-auto mb-6 rounded-lg shadow-md">
+        <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row items-start justify-center gap-8">
+            <div class="w-full md:w-2/5 text-center">
+                <!-- Added id and data-base-src for JavaScript image loading -->
+                <img id="phoneImage" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16pm" alt="iPhone 16 Pro Max" class="mx-auto mb-6 rounded-lg shadow-md w-full max-w-sm">
             </div>
-            <div class="w-full md:w-2/3 text-center md:text-left">
+            <div class="w-full md:w-3/5 text-center md:text-left">
                 <h1 class="text-4xl font-bold text-gray-800 mb-4">Sell Your iPhone 16 Pro Max</h1>
                 <p class="text-xl text-indigo-600 font-semibold mb-6">Get up to $800!</p>
                 <p class="text-gray-700 mb-6">
@@ -258,5 +259,32 @@
         </div>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneImage = document.getElementById('phoneImage');
+            const baseSrc = phoneImage.dataset.baseSrc; // Get the base path without extension
+            const extensions = ['.png', '.jpeg', '.jpg']; // Order of preference
+
+            let foundImage = false;
+            for (let i = 0; i < extensions.length; i++) {
+                const testSrc = baseSrc + extensions[i];
+                const img = new Image();
+                img.onload = function() {
+                    if (!foundImage) { // Only set if no other image has been found yet
+                        phoneImage.src = testSrc;
+                        foundImage = true;
+                    }
+                };
+                img.onerror = function() {
+                    // If this is the last extension and no image was found, handle fallback
+                    if (i === extensions.length - 1 && !foundImage) {
+                        phoneImage.src = "https://placehold.co/300x300/e0e7ff/4338ca?text=Image+Not+Found"; // Fallback placeholder
+                        phoneImage.alt = "Image not found";
+                    }
+                };
+                img.src = testSrc; // Start loading the image
+            }
+        });
+    </script>
 </body>
 </html>

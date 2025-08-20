@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-M-0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftBuyBack - Sell Your iPhone</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom styles for hidden radio buttons and clickable images */
+        .carrier-option input[type="radio"] {
+            display: none; /* Hide the actual radio button */
+        }
+        .carrier-option label {
+            cursor: pointer;
+            border: 2px solid transparent; /* Default border */
+            border-radius: 0.75rem; /* rounded-xl equivalent */
+            transition: all 0.2s ease-in-out;
+            display: flex; /* Use flex to center image and text */
+            flex-direction: column; /* Stack image and text vertically */
+            align-items: center; /* Center horizontally */
+            justify-content: center; /* Center vertically */
+            height: 100%; /* Ensure label takes full height of grid item */
+        }
+        .carrier-option input[type="radio"]:checked + label {
+            border-color: #4f46e5; /* Indigo-600 for checked state */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg equivalent */
+            transform: scale(1.02); /* Slight scale on selection */
+        }
+        .carrier-option label:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg on hover */
+        }
+
+        /* Styling for the clickable card */
+        .phone-card-link {
+            display: flex; /* Make the entire link a flex container */
+            flex-direction: column; /* Stack content vertically */
+            height: 100%; /* Ensure it fills the grid cell height */
+            text-decoration: none; /* Remove underline from the link */
+            color: inherit; /* Inherit text color */
+        }
+
+        /* Ensure the card retains its styling on hover via the link */
+        .phone-card-link:hover .phone-card-inner {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header (reused for consistency) -->
+    <header class="bg-white shadow-sm py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
+            <nav class="space-x-4">
+                <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <a href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content - iPhone Models Listing -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">Sell Your iPhone</h1>
+        <p class="text-lg text-center text-gray-600 mb-12">Select your iPhone model to get an instant quote and turn it into cash!</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+
+            <!-- iPhone 16 Pro Max -->
+            <a href="iphone-16-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i16pm_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16pm" alt="iPhone 16 Pro Max" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 16 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $800</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 16 Pro -->
+            <a href="iphone-16-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i16p_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16p" alt="iPhone 16 Pro" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 16 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $750</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 16 -->
+            <a href="iphone-16.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i16_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16" alt="iPhone 16" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 16</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $650</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 16 Plus -->
+            <a href="iphone-16-plus.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i16pl_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16pl" alt="iPhone 16 Plus" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 16 Plus</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $600</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 16 SE -->
+            <a href="iphone-16-se.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i16e_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16e" alt="iPhone 16 SE" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 16 SE</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $450</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 15 Pro Max -->
+            <a href="iphone-15-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i15pm_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15pm" alt="iPhone 15 Pro Max" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $700</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 15 Pro -->
+            <a href="iphone-15-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i15p_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15p" alt="iPhone 15 Pro" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $650</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 15 -->
+            <a href="iphone-15.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i15_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15" alt="iPhone 15" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 15</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $550</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 15 Plus -->
+            <a href="iphone-15-plus.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i15pl_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15pl" alt="iPhone 15 Plus" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 15 Plus</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $500</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 14 Pro Max -->
+            <a href="iphone-14-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i14pm_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14pm" alt="iPhone 14 Pro Max" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $500</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 14 Pro -->
+            <a href="iphone-14-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i14p_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14p" alt="iPhone 14 Pro" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $450</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 14 -->
+            <a href="iphone-14.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i14_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14" alt="iPhone 14" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 14</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $380</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 14 Plus -->
+            <a href="iphone-14-plus.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i14pl_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14pl" alt="iPhone 14 Plus" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 14 Plus</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 13 Pro Max -->
+            <a href="iphone-13-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i13pm_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13pm" alt="iPhone 13 Pro Max" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 13 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 13 Pro -->
+            <a href="iphone-13-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i13p_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13p" alt="iPhone 13 Pro" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 13 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 13 -->
+            <a href="iphone-13.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i13_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13" alt="iPhone 13" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 13</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 13 mini -->
+            <a href="iphone-13-mini.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i13m_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13m" alt="iPhone 13 mini" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 13 mini</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 12 Pro Max -->
+            <a href="iphone-12-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i12pm_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12pm" alt="iPhone 12 Pro Max" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 12 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 12 Pro -->
+            <a href="iphone-12-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i12p_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12p" alt="iPhone 12 Pro" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 12 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 12 -->
+            <a href="iphone-12.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i12_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12" alt="iPhone 12" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 12</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 12 mini -->
+            <a href="iphone-12-mini.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i12m_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12m" alt="iPhone 12 mini" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 12 mini</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $230</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 11 Pro Max -->
+            <a href="iphone-11-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i11pm_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i11pm" alt="iPhone 11 Pro Max" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 11 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 11 Pro -->
+            <a href="iphone-11-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i11p_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i11p" alt="iPhone 11 Pro" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 11 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone 11 -->
+            <a href="iphone-11.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i11_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i11" alt="iPhone 11" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 11</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone SE (3rd Gen) -->
+            <a href="iphone-se-3rd-gen.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="ise3_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ise3" alt="iPhone SE (3rd Gen)" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone SE (3rd Gen)</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone SE (2nd Gen) -->
+            <a href="iphone-se-2nd-gen.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="ise2_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ise2" alt="iPhone SE (2nd Gen)" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone SE (2nd Gen)</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $200</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone XR -->
+            <a href="iphone-xr.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="ixr_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ixr" alt="iPhone XR" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone XR</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $200</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone XS Max -->
+            <a href="iphone-xs-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="ixsm_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ixsm" alt="iPhone XS Max" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone XS Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone XS -->
+            <a href="iphone-xs.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="ixs_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ixs" alt="iPhone XS" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone XS</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- iPhone X -->
+            <a href="iphone-x.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="ix_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ix" alt="iPhone X" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">iPhone X</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $180</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <!-- Footer (reused for consistency) -->
+    <footer class="bg-gray-800 text-white py-12 mt-8 w-full">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4">SwiftBuyBack</h3>
+                <p class="text-gray-400">Your trusted partner for selling used smartphones. Quick quotes, fair prices, and hassle-free service.</p>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
+                    <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
+                    <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
+                </ul>
+            </div>
+            <div class="md:col-span-2 lg:col-span-1">
+                <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                <p class="text-gray-400">Email: info@swiftbuyback.com</p>
+                <p class="text-gray-400">Phone: (123) 456-7890</p>
+                <p class="text-gray-400 mt-4">&copy; 2025 SwiftBuyBack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to load image with fallback extensions
+            function loadImageWithFallback(imgElement) {
+                const baseSrc = imgElement.dataset.baseSrc;
+                const extensions = ['.webp', '.png', '.jpeg', '.jpg']; // Order of preference, .webp first
+                let foundImage = false;
+
+                for (let i = 0; i < extensions.length; i++) {
+                    const testSrc = baseSrc + extensions[i];
+                    const img = new Image();
+                    img.onload = function() {
+                        if (!foundImage) {
+                            imgElement.src = testSrc;
+                            foundImage = true;
+                        }
+                    };
+                    img.onerror = function() {
+                        if (i === extensions.length - 1 && !foundImage) {
+                            // Determine appropriate placeholder based on context
+                            if (imgElement.id.includes('_cat_img')) { // Category images on homepage
+                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category"; // Adjusted size
+                            } else if (imgElement.id.includes('_pop_img') || imgElement.id.includes('_img')) { // Popular phone images or iPhone model images
+                                // Use the specified 680x528 dimensions for the placeholder
+                                imgElement.src = "https://placehold.co/680x528/f0f4ff/6366f1?text=No+Image";
+                            } else { // Generic fallback
+                                imgElement.src = "https://placehold.co/150x150/cccccc/333333?text=Error";
+                            }
+                            imgElement.alt = "Image not found";
+                        }
+                    };
+                    img.src = testSrc;
+                }
+            }
+
+            // Apply to all images on the page that have data-base-src
+            const allImages = document.querySelectorAll('img[data-base-src]');
+            allImages.forEach(img => {
+                loadImageWithFallback(img);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwiftBuyBack - Login</title>
+    <title>SwiftBuyBack - Sell Your iPhone</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,51 +17,221 @@
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Header (reused from index.html for consistency) -->
+    <!-- Header (reused for consistency) -->
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
+            <a href="/index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
             <nav class="space-x-4">
                 <a href="/sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
-                <a href="/login.html" class="text-indigo-700 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+                <a href="/login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
             </nav>
         </div>
     </header>
 
-    <!-- Main Content - Login Form -->
-    <main class="flex-grow flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Login to Your Account</h2>
+    <!-- Main Content - iPhone Models Listing -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">Sell Your iPhone</h1>
+        <p class="text-lg text-center text-gray-600 mb-12">Select your iPhone model to get an instant quote and turn it into cash!</p>
 
-            <div id="message" class="mb-4 p-3 rounded-md text-sm text-center hidden"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
 
-            <form id="loginForm" class="space-y-6">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input type="email" id="email" name="email" required autocomplete="email"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="password" name="password" required autocomplete="current-password"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-                <button type="submit"
-                        class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Login
-                </button>
-            </form>
-
-            <div class="mt-6 text-center">
-                <p class="text-sm text-gray-600">Don't have an account?
-                    <a href="#" id="signupLink" class="font-medium text-indigo-600 hover:text-indigo-500 transition duration-300">Sign Up</a>
-                </p>
+            <!-- iPhone 16 Pro Max -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+16+Pro+Max" alt="iPhone 16 Pro Max" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 16 Pro Max</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $800</p>
+                <a href="/phones/iphone-16-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
             </div>
+
+            <!-- iPhone 16 Pro -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+16+Pro" alt="iPhone 16 Pro" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 16 Pro</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $750</p>
+                <a href="/phones/iphone-16-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 16 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+16" alt="iPhone 16" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 16</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $650</p>
+                <a href="/phones/iphone-16.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 15 Pro Max -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+15+Pro+Max" alt="iPhone 15 Pro Max" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro Max</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $700</p>
+                <a href="/phones/iphone-15-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 15 Pro -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+15+Pro" alt="iPhone 15 Pro" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $650</p>
+                <a href="/phones/iphone-15-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 15 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+15" alt="iPhone 15" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 15</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $550</p>
+                <a href="/phones/iphone-15.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 14 Pro Max -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+14+Pro+Max" alt="iPhone 14 Pro Max" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro Max</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $500</p>
+                <a href="/phones/iphone-14-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 14 Pro -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+14+Pro" alt="iPhone 14 Pro" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $450</p>
+                <a href="/phones/iphone-14-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 14 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+14" alt="iPhone 14" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 14</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $380</p>
+                <a href="/phones/iphone-14.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 13 Pro Max -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+13+Pro+Max" alt="iPhone 13 Pro Max" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 13 Pro Max</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
+                <a href="/phones/iphone-13-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 13 Pro -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+13+Pro" alt="iPhone 13 Pro" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 13 Pro</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
+                <a href="/phones/iphone-13-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 13 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+13" alt="iPhone 13" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 13</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                <a href="/phones/iphone-13.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 13 mini -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+13+mini" alt="iPhone 13 mini" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 13 mini</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
+                <a href="/phones/iphone-13-mini.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 12 Pro Max -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+12+Pro+Max" alt="iPhone 12 Pro Max" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 12 Pro Max</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
+                <a href="/phones/iphone-12-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 12 Pro -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+12+Pro" alt="iPhone 12 Pro" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 12 Pro</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                <a href="/phones/iphone-12-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 12 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+12" alt="iPhone 12" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 12</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
+                <a href="/phones/iphone-12.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 12 mini -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+12+mini" alt="iPhone 12 mini" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 12 mini</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $230</p>
+                <a href="/phones/iphone-12-mini.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 11 Pro Max -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+11+Pro+Max" alt="iPhone 11 Pro Max" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 11 Pro Max</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                <a href="/phones/iphone-11-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 11 Pro -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+11+Pro" alt="iPhone 11 Pro" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 11 Pro</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
+                <a href="/phones/iphone-11-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone 11 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+11" alt="iPhone 11" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone 11</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
+                <a href="/phones/iphone-11.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone XR -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+XR" alt="iPhone XR" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone XR</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $200</p>
+                <a href="/phones/iphone-xr.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone XS Max -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+XS+Max" alt="iPhone XS Max" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone XS Max</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
+                <a href="/phones/iphone-xs-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone XS -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+XS" alt="iPhone XS" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone XS</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
+                <a href="/phones/iphone-xs.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
+            <!-- iPhone X -->
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
+                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+X" alt="iPhone X" class="mx-auto mb-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2">iPhone X</h3>
+                <p class="text-indigo-600 font-bold mb-4">Starting from $180</p>
+                <a href="/phones/iphone-x.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
+            </div>
+
         </div>
     </main>
 
-    <!-- Footer (reused from index.html for consistency) -->
-    <footer class="bg-gray-800 text-white py-12 mt-8 rounded-t-3xl mx-auto max-w-7xl shadow-lg w-full">
+    <!-- Footer (reused for consistency) -->
+    <footer class="bg-gray-800 text-white py-12 mt-8 w-full">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div>
                 <h3 class="text-xl font-bold mb-4">SwiftBuyBack</h3>
@@ -70,7 +240,7 @@
             <div>
                 <h3 class="text-xl font-bold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="/index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
                     <li><a href="/sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
                     <li><a href="/my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
                     <li><a href="/about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
@@ -85,137 +255,6 @@
             </div>
         </div>
     </footer>
-
-    <!-- Firebase Initialization and Auth Logic -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // getAnalytics is not directly used for login functionality in this example
-        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
-            authDomain: "buyback-a0f05.firebaseapp.com",
-            projectId: "buyback-a0f05",
-            storageBucket: "buyback-a0f05.firebasestorage.app",
-            messagingSenderId: "876430429098",
-            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
-            measurementId: "G-6WWQN44JHT"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        // const analytics = getAnalytics(app); // Uncomment if you plan to use analytics
-
-        // Get elements
-        const loginForm = document.getElementById('loginForm');
-        const signupLink = document.getElementById('signupLink');
-        const messageDiv = document.getElementById('message');
-
-        /**
-         * Displays a message to the user (success or error).
-         * @param {string} msg - The message to display.
-         * @param {string} type - 'success' or 'error'.
-         */
-        function showMessage(msg, type) {
-            messageDiv.textContent = msg;
-            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
-            if (type === 'error') {
-                messageDiv.classList.add('bg-red-100', 'text-red-700');
-            } else if (type === 'success') {
-                messageDiv.classList.add('bg-green-100', 'text-green-700');
-            }
-        }
-
-        // Handle Login
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = loginForm['email'].value;
-            const password = loginForm['password'].value;
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showMessage('Successfully logged in!', 'success');
-                // Redirect after successful login, e.g., to the sell-device page or my-account
-                window.location.href = '/my-account.html'; // Or any desired page
-            } catch (error) {
-                console.error("Login error:", error.code, error.message);
-                let errorMessage = "An unknown error occurred. Please try again.";
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'Your account has been disabled.';
-                        break;
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                        errorMessage = 'Invalid email or password.';
-                        break;
-                    case 'auth/invalid-credential': // Modern Firebase version uses this for wrong password/email
-                        errorMessage = 'Invalid email or password.';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                showMessage(`Login Failed: ${errorMessage}`, 'error');
-            }
-        });
-
-        // Handle Sign Up (using the same form for simplicity, can be expanded to a separate page)
-        signupLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            // For a real application, you'd navigate to a dedicated registration page.
-            // For this example, we'll prompt the user for new credentials directly.
-            const newEmail = prompt("Enter an email for registration:");
-            const newPassword = prompt("Enter a password for registration (at least 6 characters):");
-
-            if (newEmail && newPassword) {
-                try {
-                    await createUserWithEmailAndPassword(auth, newEmail, newPassword);
-                    showMessage('Registration successful! You are now logged in.', 'success');
-                    // Optionally redirect or update UI after registration
-                    window.location.href = '/my-account.html';
-                } catch (error) {
-                    console.error("Registration error:", error.code, error.message);
-                    let errorMessage = "An unknown error occurred during registration.";
-                    switch (error.code) {
-                        case 'auth/email-already-in-use':
-                            errorMessage = 'The email address is already in use by another account.';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'The email address is not valid.';
-                            break;
-                        case 'auth/weak-password':
-                            errorMessage = 'The password is too weak. Please choose a stronger password.';
-                            break;
-                        default:
-                            errorMessage = error.message;
-                    }
-                    showMessage(`Registration Failed: ${errorMessage}`, 'error');
-                }
-            } else {
-                showMessage("Registration cancelled.", "error");
-            }
-        });
-
-        // Optional: Monitor authentication state changes
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is signed in
-                // console.log("User is logged in:", user.email);
-                // You could update UI elements here, e.g., show "Welcome, [email]"
-            } else {
-                // User is signed out
-                // console.log("User is logged out.");
-            }
-        });
-
-        // Note: For a real production app, consider using a dedicated registration page
-        // instead of an in-place prompt for `signupLink`.
-    </script>
 
 </body>
 </html>

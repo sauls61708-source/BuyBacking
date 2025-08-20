@@ -13,6 +13,18 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+        /* Styling for the clickable card on the homepage */
+        .homepage-card-link {
+            display: flex; /* Make the entire link a flex container */
+            flex-direction: column; /* Stack content vertically */
+            height: 100%; /* Ensure it fills the grid cell height */
+            text-decoration: none; /* Remove underline from the link */
+            color: inherit; /* Inherit text color */
+        }
+        .homepage-card-link:hover .homepage-card-inner {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -70,26 +82,38 @@
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">Shop by Category</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                    <img src="https://placehold.co/150x150/e0e7ff/4338ca?text=iPhone" alt="iPhones" class="mx-auto mb-4 rounded-lg">
-                    <h3 class="text-xl font-semibold mb-2">iPhones</h3>
-                    <a href="/iphone/models.html" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 inline-block">Shop Now</a>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                    <img src="https://placehold.co/150x150/e0e7ff/4338ca?text=Samsung" alt="Samsung Galaxy" class="mx-auto mb-4 rounded-lg">
-                    <h3 class="text-xl font-semibold mb-2">Samsung Galaxy</h3>
-                    <a href="/samsung/models.html" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 inline-block">Shop Now</a>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                    <img src="https://placehold.co/150x150/e0e7ff/4338ca?text=Tablets" alt="Tablets" class="mx-auto mb-4 rounded-lg">
-                    <h3 class="text-xl font-semibold mb-2">Tablets</h3>
-                    <a href="/tablet/models.html" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 inline-block">Shop Now</a>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                    <img src="https://placehold.co/150x150/e0e7ff/4338ca?text=Google" alt="Google Phones" class="mx-auto mb-4 rounded-lg">
-                    <h3 class="text-xl font-semibold mb-2">Google Phones</h3>
-                    <a href="/google/models.html" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 inline-block">Shop Now</a>
-                </div>
+                <!-- iPhone Category -->
+                <a href="/iphone/models.html" class="homepage-card-link">
+                    <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                        <img id="iphone_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/iphone_category" alt="iPhones Category" class="mx-auto mb-4 rounded-lg">
+                        <h3 class="text-xl font-semibold mb-2">iPhones</h3>
+                        <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
+                    </div>
+                </a>
+                <!-- Samsung Galaxy Category -->
+                <a href="/samsung/models.html" class="homepage-card-link">
+                    <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                        <img id="samsung_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/samsung/assets/samsung_category" alt="Samsung Galaxy Category" class="mx-auto mb-4 rounded-lg">
+                        <h3 class="text-xl font-semibold mb-2">Samsung Galaxy</h3>
+                        <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
+                    </div>
+                </a>
+                <!-- Tablets Category -->
+                <a href="/tablet/models.html" class="homepage-card-link">
+                    <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                        <img id="tablet_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/tablet/assets/tablet_category" alt="Tablets Category" class="mx-auto mb-4 rounded-lg">
+                        <h3 class="text-xl font-semibold mb-2">Tablets</h3>
+                        <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
+                    </div>
+                </a>
+                <!-- Google Phones Category -->
+                <a href="/google/models.html" class="homepage-card-link">
+                    <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                        <img id="google_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/google/assets/google_category" alt="Google Phones Category" class="mx-auto mb-4 rounded-lg">
+                        <h3 class="text-xl font-semibold mb-2">Google Phones</h3>
+                        <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
+                    </div>
+                </a>
             </div>
         </div>
     </section>
@@ -99,61 +123,77 @@
         <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">Popular Phones We Buy</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             <!-- iPhone 15 Pro Max -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+15" alt="iPhone 15 Pro Max" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro Max</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $700</p>
-                <a href="/phones/iphone-15-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
-            </div>
+            <a href="/phones/iphone-15-pro-max.html" class="homepage-card-link">
+                <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i15pm_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15pm" alt="iPhone 15 Pro Max" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $700</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
             <!-- iPhone 14 Pro -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+14" alt="iPhone 14 Pro" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $450</p>
-                <a href="/phones/iphone-14-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
-            </div>
+            <a href="/phones/iphone-14-pro.html" class="homepage-card-link">
+                <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i14p_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14p" alt="iPhone 14 Pro" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $450</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
             <!-- iPhone 13 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPhone+13" alt="iPhone 13" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 13</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
-                <a href="/phones/iphone-13.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
-            </div>
+            <a href="/phones/iphone-13.html" class="homepage-card-link">
+                <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="i13_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13" alt="iPhone 13" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 13</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
             <!-- Samsung Galaxy S24 Ultra -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=S24+Ultra" alt="Samsung Galaxy S24 Ultra" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">Samsung Galaxy S24 Ultra</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $600</p>
-                <a href="/phones/samsung-galaxy-s24-ultra.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
-            </div>
+            <a href="/phones/samsung-galaxy-s24-ultra.html" class="homepage-card-link">
+                <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s24u_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/samsung/assets/s24u" alt="Samsung Galaxy S24 Ultra" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">Samsung Galaxy S24 Ultra</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $600</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
             <!-- Samsung Galaxy S22 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=S22" alt="Samsung Galaxy S22" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">Samsung Galaxy S22</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
-                <a href="/phones/samsung-galaxy-s22.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
-            </div>
+            <a href="/phones/samsung-galaxy-s22.html" class="homepage-card-link">
+                <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s22_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/samsung/assets/s22" alt="Samsung Galaxy S22" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">Samsung Galaxy S22</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
             <!-- Google Pixel 8 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=Pixel+8" alt="Google Pixel 8" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">Google Pixel 8</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
-                <a href="/phones/google-pixel-8.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
-            </div>
+            <a href="/phones/google-pixel-8.html" class="homepage-card-link">
+                <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="gp8_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/google/assets/gp8" alt="Google Pixel 8" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">Google Pixel 8</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
             <!-- Tablet iPad Pro (M2) -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=iPad+Pro" alt="Tablet iPad Pro (M2)" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">Tablet iPad Pro (M2)</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $550</p>
-                <a href="/phones/ipad-pro-m2.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
-            </div>
+            <a href="/phones/ipad-pro-m2.html" class="homepage-card-link">
+                <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="ipm2_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/tablet/assets/ipm2" alt="Tablet iPad Pro (M2)" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">Tablet iPad Pro (M2)</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $550</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
             <!-- Samsung Galaxy Tab S9 Ultra -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
-                <img src="https://placehold.co/150x150/f0f4ff/6366f1?text=Tab+S9" alt="Samsung Galaxy Tab S9 Ultra" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">Samsung Galaxy Tab S9 Ultra</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
-                <a href="/phones/samsung-galaxy-tab-s9-ultra.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block">Sell This</a>
-            </div>
+            <a href="/phones/samsung-galaxy-tab-s9-ultra.html" class="homepage-card-link">
+                <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="tbs9u_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/tablet/assets/tbs9u" alt="Samsung Galaxy Tab S9 Ultra" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">Samsung Galaxy Tab S9 Ultra</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
         </div>
     </section>
 
@@ -198,7 +238,7 @@
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-lg flex items-start space-x-4">
-                    <div class="text-4xl">🌟</div>
+                    <div class="4xl">🌟</div>
                     <div>
                         <p class="text-gray-700 mb-2">"The best experience selling a device online. Highly recommend SwiftBuyBack!"</p>
                         <p class="font-semibold text-gray-800">- Enthusiastic User</p>
@@ -234,5 +274,45 @@
         </div>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to load image with fallback extensions
+            function loadImageWithFallback(imgElement) {
+                const baseSrc = imgElement.dataset.baseSrc;
+                const extensions = ['.png', '.jpeg', '.jpg']; // Order of preference
+                let foundImage = false;
+
+                for (let i = 0; i < extensions.length; i++) {
+                    const testSrc = baseSrc + extensions[i];
+                    const img = new Image();
+                    img.onload = function() {
+                        if (!foundImage) {
+                            imgElement.src = testSrc;
+                            foundImage = true;
+                        }
+                    };
+                    img.onerror = function() {
+                        if (i === extensions.length - 1 && !foundImage) {
+                            // Fallback for category images (larger placeholder)
+                            if (imgElement.id.includes('_cat_img')) {
+                                imgElement.src = "https://placehold.co/150x150/e0e7ff/4338ca?text=Category";
+                            } else {
+                                // Fallback for popular phone images (smaller placeholder)
+                                imgElement.src = "https://placehold.co/150x150/f0f4ff/6366f1?text=No+Image";
+                            }
+                            imgElement.alt = "Image not found";
+                        }
+                    };
+                    img.src = testSrc;
+                }
+            }
+
+            // Apply to all images on the homepage that have data-base-src
+            const homepageImages = document.querySelectorAll('img[data-base-src]');
+            homepageImages.forEach(img => {
+                loadImageWithFallback(img);
+            });
+        });
+    </script>
 </body>
 </html>

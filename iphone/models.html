@@ -13,6 +13,44 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+        /* Custom styles for hidden radio buttons and clickable images */
+        .carrier-option input[type="radio"] {
+            display: none; /* Hide the actual radio button */
+        }
+        .carrier-option label {
+            cursor: pointer;
+            border: 2px solid transparent; /* Default border */
+            border-radius: 0.75rem; /* rounded-xl equivalent */
+            transition: all 0.2s ease-in-out;
+            display: flex; /* Use flex to center image and text */
+            flex-direction: column; /* Stack image and text vertically */
+            align-items: center; /* Center horizontally */
+            justify-content: center; /* Center vertically */
+            height: 100%; /* Ensure label takes full height of grid item */
+        }
+        .carrier-option input[type="radio"]:checked + label {
+            border-color: #4f46e5; /* Indigo-600 for checked state */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg equivalent */
+            transform: scale(1.02); /* Slight scale on selection */
+        }
+        .carrier-option label:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg on hover */
+        }
+
+        /* Styling for the clickable card */
+        .phone-card-link {
+            display: flex; /* Make the entire link a flex container */
+            flex-direction: column; /* Stack content vertically */
+            height: 100%; /* Ensure it fills the grid cell height */
+            text-decoration: none; /* Remove underline from the link */
+            color: inherit; /* Inherit text color */
+        }
+
+        /* Ensure the card retains its styling on hover via the link */
+        .phone-card-link:hover .phone-card-inner {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
@@ -36,196 +74,244 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
 
             <!-- iPhone 16 Pro Max -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16pm.png" alt="iPhone 16 Pro Max" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 16 Pro Max</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $800</p>
-                <a href="/iphone/models/iphone-16-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-16-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16pm.png" alt="iPhone 16 Pro Max" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 16 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $800</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 16 Pro -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16p.png" alt="iPhone 16 Pro" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 16 Pro</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $750</p>
-                <a href="/iphone/models/iphone-16-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-16-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16p.png" alt="iPhone 16 Pro" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 16 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $750</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 16 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16.png" alt="iPhone 16" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 16</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $650</p>
-                <a href="/iphone/models/iphone-16.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-16.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16.png" alt="iPhone 16" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 16</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $650</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 15 Pro Max -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15pm.png" alt="iPhone 15 Pro Max" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro Max</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $700</p>
-                <a href="/iphone/models/iphone-15-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-15-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15pm.png" alt="iPhone 15 Pro Max" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $700</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 15 Pro -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15p.png" alt="iPhone 15 Pro" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $650</p>
-                <a href="/iphone/models/iphone-15-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-15-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15p.png" alt="iPhone 15 Pro" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 15 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $650</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 15 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15.png" alt="iPhone 15" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 15</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $550</p>
-                <a href="/iphone/models/iphone-15.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-15.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15.png" alt="iPhone 15" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 15</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $550</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 14 Pro Max -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14pm.png" alt="iPhone 14 Pro Max" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro Max</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $500</p>
-                <a href="/iphone/models/iphone-14-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-14-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14pm.png" alt="iPhone 14 Pro Max" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $500</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 14 Pro -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14p.png" alt="iPhone 14 Pro" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $450</p>
-                <a href="/iphone/models/iphone-14-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-14-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14p.png" alt="iPhone 14 Pro" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 14 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $450</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 14 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14.png" alt="iPhone 14" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 14</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $380</p>
-                <a href="/iphone/models/iphone-14.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-14.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14.png" alt="iPhone 14" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 14</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $380</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 13 Pro Max -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13pm.png" alt="iPhone 13 Pro Max" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 13 Pro Max</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
-                <a href="/iphone/models/iphone-13-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-13-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13pm.png" alt="iPhone 13 Pro Max" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 13 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 13 Pro -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13p.png" alt="iPhone 13 Pro" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 13 Pro</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
-                <a href="/iphone/models/iphone-13-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-13-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13p.png" alt="iPhone 13 Pro" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 13 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 13 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13.png" alt="iPhone 13" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 13</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
-                <a href="/iphone/models/iphone-13.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-13.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13.png" alt="iPhone 13" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 13</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 13 mini -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13m.png" alt="iPhone 13 mini" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 13 mini</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
-                <a href="/iphone/models/iphone-13-mini.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-13-mini.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13m.png" alt="iPhone 13 mini" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 13 mini</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 12 Pro Max -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12pm.png" alt="iPhone 12 Pro Max" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 12 Pro Max</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
-                <a href="/iphone/models/iphone-12-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-12-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12pm.png" alt="iPhone 12 Pro Max" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 12 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 12 Pro -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12p.png" alt="iPhone 12 Pro" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 12 Pro</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
-                <a href="/iphone/models/iphone-12-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-12-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12p.png" alt="iPhone 12 Pro" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 12 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 12 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12.png" alt="iPhone 12" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 12</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
-                <a href="/iphone/models/iphone-12.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-12.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12.png" alt="iPhone 12" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 12</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 12 mini -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12m.png" alt="iPhone 12 mini" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 12 mini</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $230</p>
-                <a href="/iphone/models/iphone-12-mini.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-12-mini.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i12m.png" alt="iPhone 12 mini" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 12 mini</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $230</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 11 Pro Max -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i11pm.png" alt="iPhone 11 Pro Max" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 11 Pro Max</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
-                <a href="/iphone/models/iphone-11-pro-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-11-pro-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i11pm.png" alt="iPhone 11 Pro Max" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 11 Pro Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 11 Pro -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i11p.png" alt="iPhone 11 Pro" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 11 Pro</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
-                <a href="/iphone/models/iphone-11-pro.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-11-pro.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i11p.png" alt="iPhone 11 Pro" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 11 Pro</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone 11 -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i11.png" alt="iPhone 11" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone 11</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
-                <a href="/iphone/models/iphone-11.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-11.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i11.png" alt="iPhone 11" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone 11</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone XR -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ixr.png" alt="iPhone XR" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone XR</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $200</p>
-                <a href="/iphone/models/iphone-xr.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-xr.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ixr.png" alt="iPhone XR" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone XR</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $200</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone XS Max -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ixsm.png" alt="iPhone XS Max" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone XS Max</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
-                <a href="/iphone/models/iphone-xs-max.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-xs-max.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ixsm.png" alt="iPhone XS Max" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone XS Max</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone XS -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ixs.png" alt="iPhone XS" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone XS</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
-                <a href="/iphone/models/iphone-xs.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-xs.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ixs.png" alt="iPhone XS" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone XS</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
             <!-- iPhone X -->
-            <div class="bg-white p-6 rounded-xl shadow-lg text-center flex flex-col transform hover:scale-105 transition duration-300">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ix.png" alt="iPhone X" class="mx-auto mb-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-2">iPhone X</h3>
-                <p class="text-indigo-600 font-bold mb-4">Starting from $180</p>
-                <a href="/iphone/models/iphone-x.html" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full hover:bg-gray-300 transition duration-300 inline-block mt-auto">Sell This</a>
-            </div>
+            <a href="/iphone/models/iphone-x.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/ix.png" alt="iPhone X" class="mx-auto mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">iPhone X</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $180</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
 
         </div>
     </main>

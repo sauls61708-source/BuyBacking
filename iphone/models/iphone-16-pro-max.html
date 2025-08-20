@@ -56,10 +56,10 @@
     <!-- Header (reused for consistency) -->
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
-            <a href="/index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
+            <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
             <nav class="space-x-4">
-                <a href="/sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
-                <a href="/login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+                <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <a href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
             </nav>
         </div>
     </header>
@@ -68,8 +68,8 @@
     <main class="flex-grow container mx-auto px-4 py-12">
         <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row items-start justify-center gap-8">
             <div class="w-full md:w-2/5 text-center">
-                <!-- Added id and data-base-src for JavaScript image loading -->
-                <img id="phoneImage" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16pm" alt="iPhone 16 Pro Max" class="mx-auto mb-6 rounded-lg shadow-md w-full max-w-sm">
+                <!-- Image now directly points to the .webp file -->
+                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16pm.webp" alt="iPhone 16 Pro Max" class="mx-auto mb-6 rounded-lg shadow-md w-full max-w-sm">
             </div>
             <div class="w-full md:w-3/5 text-center md:text-left">
                 <h1 class="text-4xl font-bold text-gray-800 mb-4">Sell Your iPhone 16 Pro Max</h1>
@@ -89,7 +89,7 @@
                         <div class="carrier-option">
                             <input type="radio" id="att" name="carrier" value="ATT" class="sr-only">
                             <label for="att" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=AT%26T" alt="AT&T Logo" class="mx-auto mb-2 rounded-lg">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=AT%26T" alt="AT&T Logo" class="mx-auto mb-2 rounded-lg w-20 h-20">
                                 <span class="block text-gray-700 font-medium">AT&T</span>
                             </label>
                         </div>
@@ -97,7 +97,7 @@
                         <div class="carrier-option">
                             <input type="radio" id="tmobile" name="carrier" value="TMobile" class="sr-only">
                             <label for="tmobile" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=T-Mobile" alt="T-Mobile Logo" class="mx-auto mb-2 rounded-lg">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=T-Mobile" alt="T-Mobile Logo" class="mx-auto mb-2 rounded-lg w-20 h-20">
                                 <span class="block text-gray-700 font-medium">T-Mobile</span>
                             </label>
                         </div>
@@ -105,7 +105,7 @@
                         <div class="carrier-option">
                             <input type="radio" id="verizon" name="carrier" value="Verizon" class="sr-only">
                             <label for="verizon" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=Verizon" alt="Verizon Logo" class="mx-auto mb-2 rounded-lg">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=Verizon" alt="Verizon Logo" class="mx-auto mb-2 rounded-lg w-20 h-20">
                                 <span class="block text-gray-700 font-medium">Verizon</span>
                             </label>
                         </div>
@@ -113,7 +113,7 @@
                         <div class="carrier-option">
                             <input type="radio" id="unlocked" name="carrier" value="Unlocked" class="sr-only">
                             <label for="unlocked" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=Unlocked" alt="Unlocked Phone Icon" class="mx-auto mb-2 rounded-lg">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=Unlocked" alt="Unlocked Phone Icon" class="mx-auto mb-2 rounded-lg w-20 h-20">
                                 <span class="block text-gray-700 font-medium">Unlocked</span>
                             </label>
                         </div>
@@ -121,7 +121,7 @@
                         <div class="carrier-option">
                             <input type="radio" id="other-carrier" name="carrier" value="Other" class="sr-only">
                             <label for="other-carrier" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=Other" alt="Other Carrier Icon" class="mx-auto mb-2 rounded-lg">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=Other" alt="Other Carrier Icon" class="mx-auto mb-2 rounded-lg w-20 h-20">
                                 <span class="block text-gray-700 font-medium">Other</span>
                             </label>
                         </div>
@@ -130,7 +130,7 @@
 
                 <!-- Storage Amount Selection -->
                 <div class="mb-8">
-                    <label for="storage" class="block text-2xl font-bold text-gray-800 mb-4">Select Storage Amount</label>
+                    <label class="block text-2xl font-bold text-gray-800 mb-4">Select Storage Amount</label>
                     <select id="storage" class="mt-1 block w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-base">
                         <option value="">Select Storage</option>
                         <option value="128GB">128GB</option>
@@ -243,11 +243,11 @@
             <div>
                 <h3 class="text-xl font-bold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="/index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
-                    <li><a href="/sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
-                    <li><a href="/my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
-                    <li><a href="/about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
-                    <li><a href="/contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
+                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
+                    <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
+                    <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
                 </ul>
             </div>
             <div class="md:col-span-2 lg:col-span-1">
@@ -261,29 +261,47 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const phoneImage = document.getElementById('phoneImage');
-            const baseSrc = phoneImage.dataset.baseSrc; // Get the base path without extension
-            const extensions = ['.png', '.jpeg', '.jpg']; // Order of preference
+            // Function to load image with fallback extensions
+            function loadImageWithFallback(imgElement) {
+                const baseSrc = imgElement.dataset.baseSrc;
+                const extensions = ['.webp', '.png', '.jpeg', '.jpg']; // Order of preference, .webp first
+                let foundImage = false;
 
-            let foundImage = false;
-            for (let i = 0; i < extensions.length; i++) {
-                const testSrc = baseSrc + extensions[i];
-                const img = new Image();
-                img.onload = function() {
-                    if (!foundImage) { // Only set if no other image has been found yet
-                        phoneImage.src = testSrc;
-                        foundImage = true;
-                    }
-                };
-                img.onerror = function() {
-                    // If this is the last extension and no image was found, handle fallback
-                    if (i === extensions.length - 1 && !foundImage) {
-                        phoneImage.src = "https://placehold.co/300x300/e0e7ff/4338ca?text=Image+Not+Found"; // Fallback placeholder
-                        phoneImage.alt = "Image not found";
-                    }
-                };
-                img.src = testSrc; // Start loading the image
+                for (let i = 0; i < extensions.length; i++) {
+                    const testSrc = baseSrc + extensions[i];
+                    const img = new Image();
+                    img.onload = function() {
+                        if (!foundImage) {
+                            imgElement.src = testSrc;
+                            foundImage = true;
+                        }
+                    };
+                    img.onerror = function() {
+                        if (i === extensions.length - 1 && !foundImage) {
+                            // Determine appropriate placeholder based on context
+                            if (imgElement.id.includes('_cat_img')) { // Category images on homepage
+                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category"; // Adjusted size
+                            } else if (imgElement.id.includes('_pop_img') || imgElement.id.includes('_img')) { // Popular phone images or iPhone model images
+                                // Use the specified 680x528 dimensions for the placeholder
+                                imgElement.src = "https://placehold.co/680x528/f0f4ff/6366f1?text=No+Image";
+                            } else { // Generic fallback
+                                imgElement.src = "https://placehold.co/150x150/cccccc/333333?text=Error";
+                            }
+                            imgElement.alt = "Image not found";
+                        }
+                    };
+                    img.src = testSrc;
+                }
             }
+
+            // Apply to main phone image
+            const mainPhoneImage = document.getElementById('phoneImage');
+            if (mainPhoneImage) {
+                loadImageWithFallback(mainPhoneImage);
+            }
+
+            // Note: Carrier images are now using direct placehold.co URLs and don't need this JS fallback.
+            // If you later decide to use local files for carriers, you'd re-add data-base-src and call loadImageWithFallback for them.
         });
     </script>
 </body>

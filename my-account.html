@@ -57,19 +57,24 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Full Name:</label>
-                        <p id="userName" class="mt-1 text-lg text-gray-900 font-semibold">John Doe</p>
+                        <p id="userName" class="mt-1 text-lg text-gray-900 font-semibold">Loading...</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Email Address:</label>
-                        <p id="userEmail" class="mt-1 text-lg text-gray-900 font-semibold">john.doe@example.com</p>
+                        <p id="userEmail" class="mt-1 text-lg text-gray-900 font-semibold">Loading...</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Phone Number:</label>
-                        <p id="userPhone" class="mt-1 text-lg text-gray-900 font-semibold">(555) 123-4567</p>
+                        <label for="userPhone" class="block text-sm font-medium text-gray-700">Phone Number:</label>
+                        <input type="tel" id="userPhone" name="userPhone"
+                               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               placeholder="e.g., +15551234567">
                     </div>
                 </div>
 
                 <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                    <button id="saveInfoBtn" class="w-full sm:w-auto bg-indigo-600 text-white py-2 px-6 rounded-md font-semibold hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Save Changes
+                    </button>
                     <button id="changePasswordBtn" class="w-full sm:w-auto bg-indigo-500 text-white py-2 px-6 rounded-md font-semibold hover:bg-indigo-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Change Password
                     </button>
@@ -93,33 +98,12 @@
                                 <th class="py-3 px-6 text-center">Status</th>
                             </tr>
                         </thead>
-                        <tbody class="text-gray-700 text-sm font-light">
-                            <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                <td class="py-3 px-6 text-left whitespace-nowrap">#SB001</td>
-                                <td class="py-3 px-6 text-left">2025-07-15</td>
-                                <td class="py-3 px-6 text-left">iPhone 16 Pro Max 256GB</td>
-                                <td class="py-3 px-6 text-left">$750.00</td>
-                                <td class="py-3 px-6 text-center"><span class="bg-green-200 text-green-800 py-1 px-3 rounded-full text-xs">Completed</span></td>
-                            </tr>
-                            <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                <td class="py-3 px-6 text-left whitespace-nowrap">#SB002</td>
-                                <td class="py-3 px-6 text-left">2025-08-01</td>
-                                <td class="py-3 px-6 text-left">iPhone 15 128GB</td>
-                                <td class="py-3 px-6 text-left">$500.00</td>
-                                <td class="py-3 px-6 text-center"><span class="bg-yellow-200 text-yellow-800 py-1 px-3 rounded-full text-xs">Pending</span></td>
-                            </tr>
-                            <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                <td class="py-3 px-6 text-left whitespace-nowrap">#SB003</td>
-                                <td class="py-3 px-6 text-left">2025-08-10</td>
-                                <td class="py-3 px-6 text-left">iPhone 14 Pro 512GB</td>
-                                <td class="py-3 px-6 text-left">$450.00</td>
-                                <td class="py-3 px-6 text-center"><span class="bg-blue-200 text-blue-800 py-1 px-3 rounded-full text-xs">In Review</span></td>
-                            </tr>
-                            <!-- More orders can be added here -->
+                        <tbody id="ordersTableBody" class="text-gray-700 text-sm font-light">
+                            <!-- Order data will be loaded here from Firestore -->
                         </tbody>
                     </table>
                 </div>
-                <p class="text-gray-600 mt-4 text-center">No other orders found.</p>
+                <p id="noOrdersMessage" class="text-gray-600 mt-4 text-center hidden">No orders found.</p>
             </div>
         </div>
     </main>
@@ -152,22 +136,18 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Your Firebase configuration (replace with your actual config if deploying)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
-            authDomain: "buyback-a0f05.firebaseapp.com",
-            projectId: "buyback-a0f05",
-            storageBucket: "buyback-a0f05.firebasestorage.app",
-            messagingSenderId: "876430429098",
-            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
-            measurementId: "G-6WWQN44JHT"
-        };
+        // Firebase configuration from the environment
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
         // Get elements
         const accountInfoTab = document.getElementById('accountInfoTab');
@@ -176,22 +156,29 @@
         const orderHistorySection = document.getElementById('orderHistorySection');
         const userName = document.getElementById('userName');
         const userEmail = document.getElementById('userEmail');
-        const userPhone = document.getElementById('userPhone');
+        const userPhoneInput = document.getElementById('userPhone'); // Changed to input
+        const saveInfoBtn = document.getElementById('saveInfoBtn'); // New save button
         const logoutBtn = document.getElementById('logoutBtn');
         const messageDiv = document.getElementById('message');
+        const ordersTableBody = document.getElementById('ordersTableBody');
+        const noOrdersMessage = document.getElementById('noOrdersMessage');
+
+        let currentUserId = null; // To store the current user's ID
 
         /**
          * Displays a message to the user (success or error).
          * @param {string} msg - The message to display.
-         * @param {string} type - 'success' or 'error'.
+         * @param {string} type - 'success', 'error', or 'info'.
          */
         function showMessage(msg, type) {
             messageDiv.textContent = msg;
-            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700');
             if (type === 'error') {
                 messageDiv.classList.add('bg-red-100', 'text-red-700');
             } else if (type === 'success') {
                 messageDiv.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'info') {
+                messageDiv.classList.add('bg-yellow-100', 'text-yellow-700');
             }
             messageDiv.classList.remove('hidden');
         }
@@ -219,8 +206,13 @@
                 accountInfoSection.classList.remove('hidden');
                 accountInfoTab.classList.add('active');
             } else if (tabToShow === 'orderHistory') {
+                accountInfoTab.classList.remove('active'); // Ensure account info tab is not active
                 orderHistorySection.classList.remove('hidden');
                 orderHistoryTab.classList.add('active');
+                // Load orders when the tab is shown
+                if (currentUserId) {
+                    loadOrders(currentUserId);
+                }
             }
             clearMessage();
         }
@@ -228,6 +220,43 @@
         // Event listeners for tabs
         accountInfoTab.addEventListener('click', () => showTab('accountInfo'));
         orderHistoryTab.addEventListener('click', () => showTab('orderHistory'));
+
+        /**
+         * Saves user account information (like phone number) to Firestore.
+         * @param {string} userId - The ID of the current user.
+         * @param {string} phoneNumber - The phone number to save.
+         */
+        async function saveAccountInfo(userId, phoneNumber) {
+            if (!userId) {
+                showMessage('User not authenticated. Please log in.', 'error');
+                return;
+            }
+
+            saveInfoBtn.disabled = true;
+            saveInfoBtn.textContent = 'Saving...';
+            clearMessage();
+
+            try {
+                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'userProfile');
+                await setDoc(userDocRef, { phoneNumber: phoneNumber }, { merge: true });
+                showMessage('Account information saved successfully!', 'success');
+            } catch (error) {
+                console.error("Error saving account info:", error);
+                showMessage('Failed to save account information. Please try again.', 'error');
+            } finally {
+                saveInfoBtn.disabled = false;
+                saveInfoBtn.textContent = 'Save Changes';
+            }
+        }
+
+        // Event listener for Save Changes button
+        saveInfoBtn.addEventListener('click', () => {
+            if (currentUserId) {
+                saveAccountInfo(currentUserId, userPhoneInput.value);
+            } else {
+                showMessage('Please log in to save your information.', 'error');
+            }
+        });
 
         // Handle Logout
         logoutBtn.addEventListener('click', async () => {
@@ -241,22 +270,95 @@
             }
         });
 
+        /**
+         * Loads and displays user's orders from Firestore.
+         * @param {string} userId - The ID of the current user.
+         */
+        function loadOrders(userId) {
+            if (!userId) {
+                ordersTableBody.innerHTML = '';
+                noOrdersMessage.classList.remove('hidden');
+                return;
+            }
+
+            const ordersCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/orders`);
+            const q = query(ordersCollectionRef);
+
+            // Use onSnapshot for real-time updates
+            onSnapshot(q, (snapshot) => {
+                ordersTableBody.innerHTML = ''; // Clear existing orders
+                if (snapshot.empty) {
+                    noOrdersMessage.classList.remove('hidden');
+                } else {
+                    noOrdersMessage.classList.add('hidden');
+                    snapshot.forEach(doc => {
+                        const order = doc.data();
+                        const row = `
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="py-3 px-6 text-left whitespace-nowrap">${doc.id}</td>
+                                <td class="py-3 px-6 text-left">${order.date || 'N/A'}</td>
+                                <td class="py-3 px-6 text-left">${order.device || 'N/A'}</td>
+                                <td class="py-3 px-6 text-left">$${(order.quote || 0).toFixed(2)}</td>
+                                <td class="py-3 px-6 text-center">
+                                    <span class="${getStatusBadgeClass(order.status)} py-1 px-3 rounded-full text-xs">${order.status || 'N/A'}</span>
+                                </td>
+                            </tr>
+                        `;
+                        ordersTableBody.innerHTML += row;
+                    });
+                }
+            }, (error) => {
+                console.error("Error fetching orders:", error);
+                showMessage('Failed to load orders. Please try again.', 'error');
+                ordersTableBody.innerHTML = '';
+                noOrdersMessage.classList.remove('hidden');
+            });
+        }
+
+        /**
+         * Returns Tailwind CSS classes for order status badges.
+         * @param {string} status - The order status.
+         * @returns {string} - Tailwind CSS classes for the badge.
+         */
+        function getStatusBadgeClass(status) {
+            switch (status.toLowerCase()) {
+                case 'completed':
+                    return 'bg-green-200 text-green-800';
+                case 'pending':
+                    return 'bg-yellow-200 text-yellow-800';
+                case 'in review':
+                    return 'bg-blue-200 text-blue-800';
+                case 'cancelled':
+                    return 'bg-red-200 text-red-800';
+                default:
+                    return 'bg-gray-200 text-gray-800';
+            }
+        }
+
         // Firebase Auth State Listener
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // User is signed in, update account info
+                currentUserId = user.uid; // Set the current user ID
                 userName.textContent = user.displayName || 'N/A';
                 userEmail.textContent = user.email || 'N/A';
-                // For phone number, you'd typically fetch from a database if stored there
-                // userPhone.textContent = user.phoneNumber || 'N/A'; // Firebase auth.currentUser.phoneNumber might not be always available directly
-                
-                // Example: Mock phone number if not available from Firebase directly
-                if (!user.phoneNumber) {
-                    userPhone.textContent = '(555) 123-4567 (Mock)'; // Replace with actual fetch from DB
+
+                // Fetch phone number from Firestore
+                const userDocRef = doc(db, `artifacts/${appId}/users/${currentUserId}/profile`, 'userProfile');
+                try {
+                    const docSnap = await getDoc(userDocRef);
+                    if (docSnap.exists()) {
+                        userPhoneInput.value = docSnap.data().phoneNumber || '';
+                    } else {
+                        userPhoneInput.value = ''; // Clear if no phone number saved
+                    }
+                } catch (error) {
+                    console.error("Error fetching user profile:", error);
+                    showMessage('Failed to load phone number. Please try again.', 'error');
                 }
 
                 // Show account info by default
                 showTab('accountInfo');
+
             } else {
                 // User is signed out, redirect to login page
                 window.location.href = '/login.html';
@@ -269,6 +371,19 @@
             // In a real app, you'd redirect to a password reset page or open a modal
         });
 
+        // Initial sign-in with custom token if available, otherwise anonymously
+        if (initialAuthToken) {
+            signInWithCustomToken(auth, initialAuthToken).catch((error) => {
+                console.error("Error signing in with custom token:", error);
+                signInAnonymously(auth).catch((anonError) => {
+                    console.error("Error signing in anonymously:", anonError);
+                });
+            });
+        } else {
+            signInAnonymously(auth).catch((anonError) => {
+                console.error("Error signing in anonymously:", anonError);
+            });
+        }
     </script>
 </body>
 </html>

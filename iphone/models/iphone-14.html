@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftBuyBack - Sell iPhone 14</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom styles for hidden radio buttons and clickable images */
+        .carrier-option input[type="radio"] {
+            display: none; /* Hide the actual radio button */
+        }
+        .carrier-option label {
+            cursor: pointer;
+            border: 2px solid transparent; /* Default border */
+            border-radius: 0.75rem; /* rounded-xl equivalent */
+            transition: all 0.2s ease-in-out;
+            display: flex; /* Use flex to center image and text */
+            flex-direction: column; /* Stack image and text vertically */
+            align-items: center; /* Center horizontally */
+            justify-content: center; /* Center vertically */
+            height: 100%; /* Ensure label takes full height of grid item */
+        }
+        .carrier-option input[type="radio"]:checked + label {
+            border-color: #4f46e5; /* Indigo-600 for checked state */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg equivalent */
+            transform: scale(1.02); /* Slight scale on selection */
+        }
+        .carrier-option label:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg on hover */
+        }
+
+        /* Basic styling for radio buttons that are visually hidden but still accessible */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header (reused for consistency) -->
+    <header class="bg-white shadow-sm py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
+            <nav class="space-x-4">
+                <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <a href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content - Specific Phone Detail -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row items-start justify-center gap-8">
+            <div class="w-full md:w-2/5 text-center">
+                <!-- Image now directly points to the .webp file for iPhone 14 -->
+                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14.webp" alt="iPhone 14" class="mx-auto mb-6 rounded-lg shadow-md w-full max-w-sm">
+            </div>
+            <div class="w-full md:w-3/5 text-center md:text-left">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">Sell Your iPhone 14</h1>
+                <p class="text-xl text-indigo-600 font-semibold mb-6">Get up to $380!</p>
+                <p class="text-gray-700 mb-6">
+                    Ready to sell your iPhone 14? Get an instant, competitive quote for your device today.
+                    We offer a quick, transparent, and hassle-free process with free shipping and certified inspection.
+                    Turn your old phone into cash quickly and easily!
+                </p>
+
+                <!-- Carrier Selection -->
+                <div class="mb-8">
+                    <label class="block text-2xl font-bold text-gray-800 mb-4">Select Your Carrier</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 justify-center">
+
+                        <!-- AT&T -->
+                        <div class="carrier-option">
+                            <input type="radio" id="att" name="carrier" value="ATT" class="sr-only">
+                            <label for="att" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=AT%26T" alt="AT&T Logo" class="mx-auto mb-2 rounded-lg w-20 h-20">
+                                <span class="block text-gray-700 font-medium">AT&T</span>
+                            </label>
+                        </div>
+                        <!-- T-Mobile -->
+                        <div class="carrier-option">
+                            <input type="radio" id="tmobile" name="carrier" value="TMobile" class="sr-only">
+                            <label for="tmobile" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=T-Mobile" alt="T-Mobile Logo" class="mx-auto mb-2 rounded-lg w-20 h-20">
+                                <span class="block text-gray-700 font-medium">T-Mobile</span>
+                            </label>
+                        </div>
+                        <!-- Verizon -->
+                        <div class="carrier-option">
+                            <input type="radio" id="verizon" name="carrier" value="Verizon" class="sr-only">
+                            <label for="verizon" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=Verizon" alt="Verizon Logo" class="mx-auto mb-2 rounded-lg w-20 h-20">
+                                <span class="block text-gray-700 font-medium">Verizon</span>
+                            </label>
+                        </div>
+                        <!-- Unlocked -->
+                        <div class="carrier-option">
+                            <input type="radio" id="unlocked" name="carrier" value="Unlocked" class="sr-only">
+                            <label for="unlocked" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=Unlocked" alt="Unlocked Phone Icon" class="mx-auto mb-2 rounded-lg w-20 h-20">
+                                <span class="block text-gray-700 font-medium">Unlocked</span>
+                            </label>
+                        </div>
+                        <!-- Other -->
+                        <div class="carrier-option">
+                            <input type="radio" id="other-carrier" name="carrier" value="Other" class="sr-only">
+                            <label for="other-carrier" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
+                                <img src="https://placehold.co/80x80/ffffff/000000?text=Other" alt="Other Carrier Icon" class="mx-auto mb-2 rounded-lg w-20 h-20">
+                                <span class="block text-gray-700 font-medium">Other</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Storage Amount Selection -->
+                <div class="mb-8">
+                    <label for="storage" class="block text-2xl font-bold text-gray-800 mb-4">Select Storage Amount</label>
+                    <select id="storage" class="mt-1 block w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-base">
+                        <option value="">Select Storage</option>
+                        <option value="128GB">128GB</option>
+                        <option value="256GB">256GB</option>
+                        <option value="512GB">512GB</option>
+                        <option value="1TB">1TB</option>
+                    </select>
+                </div>
+
+                <!-- Condition Questions -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Let’s determine the condition</h2>
+
+                    <!-- Question 1 -->
+                    <div class="mb-6 bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <p class="text-lg font-semibold text-gray-700 mb-3">1. Does the device power on?</p>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="q1_power_on" value="yes" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="q1_power_on" value="no" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="mb-6 bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <p class="text-lg font-semibold text-gray-700 mb-3">2. Is the screen fully functional and free of defects?</p>
+                        <ul class="list-disc list-inside text-gray-600 mb-4 ml-4">
+                            <li>Screen fully lights up and works</li>
+                            <li>All exterior buttons respond</li>
+                            <li>Front and back cameras, and flash work</li>
+                            <li>Speakers and microphones function</li>
+                            <li>Headphone jack and charging port work</li>
+                            <li>Cellular, Wi-Fi, Bluetooth, and GPS connect</li>
+                            <li>Touchscreen and voice commands respond</li>
+                            <li>Facial recognition and fingerprint sensor work</li>
+                            <li>Battery health is good and holds a charge</li>
+                        </ul>
+                        <p class="text-sm text-gray-500 mb-3">Please select "Yes" only if *all* of the above are fully working.</p>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="q2_fully_functional" value="yes" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="q2_fully_functional" value="no" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="mb-6 bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <p class="text-lg font-semibold text-gray-700 mb-3">3. Are the front and back free of cracks?</p>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="q3_no_cracks" value="yes" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="q3_no_cracks" value="no" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="mb-6 bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <p class="text-lg font-semibold text-gray-700 mb-3">4. What’s the overall cosmetic condition?</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            <label class="flex items-center p-3 border border-gray-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                                <input type="radio" name="q4_cosmetic_condition" value="flawless" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">Flawless</span>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                                <input type="radio" name="q4_cosmetic_condition" value="good" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">Good</span>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                                <input type="radio" name="q4_cosmetic_condition" value="fair" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">Fair</span>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                                <input type="radio" name="q4_cosmetic_condition" value="poor" class="form-radio text-indigo-600 h-5 w-5">
+                                <span class="ml-2 text-gray-700">Poor</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="getQuoteBtn" class="w-full bg-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+                    Get My Instant Quote!
+                </button>
+
+                <!-- Quote Display Area -->
+                <div id="quoteDisplay" class="mt-8 p-6 bg-indigo-50 rounded-xl shadow-inner hidden">
+                    <h3 class="text-2xl font-bold text-indigo-800 mb-2">Estimated Buyback Quote:</h3>
+                    <p class="text-4xl font-extrabold text-indigo-600" id="finalQuoteAmount">$0</p>
+                    <p class="text-sm text-gray-600 mt-2">This is an estimate. Final offer subject to certified inspection.</p>
+                </div>
+                <div id="quoteMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (reused for consistency) -->
+    <footer class="bg-gray-800 text-white py-12 mt-8 w-full">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4">SwiftBuyBack</h3>
+                <p class="text-gray-400">Your trusted partner for selling used smartphones. Quick quotes, fair prices, and hassle-free service.</p>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
+                    <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
+                    <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
+                </ul>
+            </div>
+            <div class="md:col-span-2 lg:col-span-1">
+                <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                <p class="text-gray-400">Email: info@swiftbuyback.com</p>
+                <p class="text-gray-400">Phone: (123) 456-7890</p>
+                <p class="text-gray-400 mt-4">&copy; 2025 SwiftBuyBack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to load image with fallback extensions (for main phone image only)
+            function loadImageWithFallback(imgElement) {
+                const baseSrc = imgElement.dataset.baseSrc;
+                const extensions = ['.webp', '.png', '.jpeg', '.jpg']; // Order of preference, .webp first
+                let foundImage = false;
+
+                for (let i = 0; i < extensions.length; i++) {
+                    const testSrc = baseSrc + extensions[i];
+                    const img = new Image();
+                    img.onload = function() {
+                        if (!foundImage) {
+                            imgElement.src = testSrc;
+                            foundImage = true;
+                        }
+                    };
+                    img.onerror = function() {
+                        if (i === extensions.length - 1 && !foundImage) {
+                            imgElement.src = "https://placehold.co/680x528/f0f4ff/6366f1?text=No+Image"; // Fallback placeholder
+                            imgElement.alt = "Image not found";
+                        }
+                    };
+                    img.src = testSrc;
+                }
+            }
+
+            // Apply to main phone image
+            const mainPhoneImage = document.querySelector('img[alt="iPhone 14"]'); // Updated alt to "iPhone 14"
+            // If you want to use data-base-src for the main image, you would add data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14" to the img tag.
+            // if (mainPhoneImage) {
+            //     loadImageWithFallback(mainPhoneImage);
+            // }
+
+
+            // Quote Calculation Logic
+            const getQuoteBtn = document.getElementById('getQuoteBtn');
+            const quoteDisplay = document.getElementById('quoteDisplay');
+            const finalQuoteAmount = document.getElementById('finalQuoteAmount');
+            const quoteMessage = document.getElementById('quoteMessage');
+
+            /**
+             * Displays a message to the user regarding the quote calculation.
+             * @param {string} msg - The message to display.
+             * @param {'error'|'success'} type - The type of message, which determines styling.
+             */
+            function showQuoteMessage(msg, type) {
+                quoteMessage.textContent = msg;
+                // Remove existing styling classes to prevent conflicts
+                quoteMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+                if (type === 'error') {
+                    quoteMessage.classList.add('bg-red-100', 'text-red-700');
+                } else if (type === 'success') {
+                    quoteMessage.classList.add('bg-green-100', 'text-green-700');
+                }
+                quoteMessage.classList.remove('hidden'); // Make the message visible
+            }
+
+            /**
+             * Hides and clears any displayed quote messages.
+             */
+            function clearQuoteMessage() {
+                quoteMessage.classList.add('hidden'); // Hide the message
+                quoteMessage.textContent = ''; // Clear its content
+            }
+
+            // Event listener for the "Get My Instant Quote!" button
+            getQuoteBtn.addEventListener('click', () => {
+                clearQuoteMessage(); // Clear any previous messages
+                quoteDisplay.classList.add('hidden'); // Hide the previous quote display
+
+                // Get selected values from the form inputs
+                const selectedCarrier = document.querySelector('input[name="carrier"]:checked');
+                const selectedStorage = document.getElementById('storage').value;
+                const q1PowerOn = document.querySelector('input[name="q1_power_on"]:checked');
+                const q2Functional = document.querySelector('input[name="q2_fully_functional"]:checked');
+                const q3NoCracks = document.querySelector('input[name="q3_no_cracks']:checked');
+                const q4Cosmetic = document.querySelector('input[name="q4_cosmetic_condition"]:checked');
+
+                // --- 1. Validate all selections are made ---
+                if (!selectedCarrier || !selectedStorage || !q1PowerOn || !q2Functional || !q3NoCracks || !q4Cosmetic) {
+                    showQuoteMessage('Please answer all questions to get an accurate quote.', 'error');
+                    return; // Stop execution if any selection is missing
+                }
+
+                // --- 2. Determine Base Price based on Storage ---
+                let currentQuote = 0;
+                switch (selectedStorage) {
+                    case '128GB':
+                        currentQuote = 180; // Base price for 128GB (iPhone 14)
+                        break;
+                    case '256GB':
+                        currentQuote = 260; // Base price for 256GB (iPhone 14)
+                        break;
+                    case '512GB':
+                        currentQuote = 320; // Base price for 512GB (iPhone 14)
+                        break;
+                    case '1TB':
+                        currentQuote = 380; // Base price for 1TB (iPhone 14)
+                        break;
+                    default:
+                        showQuoteMessage('Invalid storage selected.', 'error');
+                        return;
+                }
+
+                // --- 3. Apply Carrier Deduction ---
+                // Deduct $25 if the phone is not unlocked
+                if (selectedCarrier.value !== 'Unlocked') {
+                    currentQuote -= 25;
+                }
+
+                // --- 4. Apply Power On Deduction (-50%) ---
+                // If the device does not power on, half the current quote
+                if (q1PowerOn.value === 'no') {
+                    currentQuote *= 0.50;
+                }
+
+                // --- 5. Apply Fully Functional Deduction (-25%) ---
+                // If the device is not fully functional, deduct 25%
+                if (q2Functional.value === 'no') {
+                    currentQuote *= 0.75; // Keep 75% of the current quote
+                }
+
+                // --- 6. Apply Cracks Deduction (-$50) ---
+                // Deduct $50 if there are cracks on the front or back
+                if (q3NoCracks.value === 'no') {
+                    currentQuote -= 50;
+                }
+
+                // --- 7. Apply Cosmetic Condition Deduction ---
+                // Apply deductions based on cosmetic condition
+                switch (q4Cosmetic.value) {
+                    case 'poor':
+                        currentQuote -= 45;
+                        break;
+                    case 'fair':
+                        currentQuote -= 25;
+                        break;
+                    case 'good':
+                        currentQuote -= 15;
+                        break;
+                    case 'flawless':
+                        // No deduction for flawless condition
+                        break;
+                }
+
+                // Ensure the quote doesn't go below zero
+                currentQuote = Math.max(0, currentQuote);
+
+                // --- 8. Display Final Quote ---
+                finalQuoteAmount.textContent = `$${currentQuote.toFixed(2)}`; // Format to 2 decimal places
+                quoteDisplay.classList.remove('hidden'); // Make the quote display visible
+                showQuoteMessage('Your instant quote has been calculated!', 'success'); // Show success message
+            });
+        });
+    </script>
+</body>
+</html>

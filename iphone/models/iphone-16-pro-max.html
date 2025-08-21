@@ -7,38 +7,50 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        .carrier-option input[type="radio"], .payment-option input[type="radio"] { display: none; }
-        .carrier-option label, .payment-option label {
-            cursor: pointer; border: 2px solid transparent; border-radius: 0.75rem;
-            transition: all 0.2s ease-in-out; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; height: 100%;
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .carrier-option input[type="radio"]:checked + label, .payment-option input[type="radio"]:checked + label {
-            border-color: #4f46e5; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transform: scale(1.02);
+        /* Custom styles for hidden radio buttons and clickable images */
+        .carrier-option input[type="radio"],
+        .payment-option input[type="radio"] {
+            display: none; /* Hide the actual radio button */
         }
-        .carrier-option label:hover, .payment-option label:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .carrier-option label,
+        .payment-option label {
+            cursor: pointer;
+            border: 2px solid transparent; /* Default border */
+            border-radius: 0.75rem; /* rounded-xl equivalent */
+            transition: all 0.2s ease-in-out;
+            display: flex; /* Use flex to center image and text */
+            flex-direction: column; /* Stack image and text vertically */
+            align-items: center; /* Center horizontally */
+            justify-content: center; /* Center vertically */
+            height: 100%; /* Ensure label takes full height of grid item */
+        }
+        .carrier-option input[type="radio"]:checked + label,
+        .payment-option input[type="radio"]:checked + label {
+            border-color: #4f46e5; /* Indigo-600 for checked state */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg equivalent */
+            transform: scale(1.02); /* Slight scale on selection */
+        }
+        .carrier-option label:hover,
+        .payment-option label:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg on hover */
+        }
+        
+        /* Basic styling for radio buttons that are visually hidden but still accessible */
         .sr-only {
-            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
-        }
-        /* Style for the blurred section */
-        .blurred-content {
-            filter: blur(4px);
-            pointer-events: none; /* Prevents interaction with blurred elements */
-            transition: filter 0.3s ease-in-out;
-        }
-        .blurred-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent white overlay */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.75rem; /* Match parent's border-radius */
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
         }
     </style>
 </head>
@@ -48,10 +60,8 @@
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
             <nav class="space-x-4">
-                <a href="sell.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
-                <!-- Login link now triggers modal -->
-                <a href="#" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300" id="loginLink">Login</a>
-                <a href="#" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300 hidden" id="logoutLink">Logout</a>
+                <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <a href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
             </nav>
         </div>
     </header>
@@ -209,107 +219,99 @@
                 </div>
                 <div id="quoteMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
 
-                <div id="nextSteps" class="mt-12 relative rounded-xl transition-all duration-300">
-                    <div id="nextStepsOverlay" class="blurred-overlay hidden">
-                        <button id="signInToContinueBtn" class="bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-base shadow-lg hover:bg-indigo-700 transition duration-300">
-                            Sign In to Continue
-                        </button>
+                <div id="nextSteps" class="mt-12 hidden">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">How would you like to get paid?</h2>
+
+                    <div class="mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="payment-option">
+                            <input type="radio" id="venmo" name="payment_method" value="venmo" class="sr-only">
+                            <label for="venmo" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
+                                <span class="text-3xl block mb-2">📱</span>
+                                <span class="font-semibold block">Venmo</span>
+                            </label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="zelle" name="payment_method" value="zelle" class="sr-only">
+                            <label for="zelle" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
+                                <span class="text-3xl block mb-2">💸</span>
+                                <span class="font-semibold block">Zelle</span>
+                            </label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="paypal" name="payment_method" value="paypal" class="sr-only">
+                            <label for="paypal" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
+                                <span class="text-3xl block mb-2">🅿️</span>
+                                <span class="font-semibold block">PayPal</span>
+                            </label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="echeck" name="payment_method" value="echeck" class="sr-only">
+                            <label for="echeck" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
+                                <span class="text-3xl block mb-2">🏦</span>
+                                <span class="font-semibold block">eCheck</span>
+                            </label>
+                        </div>
                     </div>
 
-                    <div id="nextStepsContent" class="transition-all duration-300">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6">How would you like to get paid?</h2>
-
-                        <div class="mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div class="payment-option">
-                                <input type="radio" id="venmo" name="payment_method" value="venmo" class="sr-only">
-                                <label for="venmo" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
-                                    <span class="text-3xl block mb-2">📱</span>
-                                    <span class="font-semibold block">Venmo</span>
-                                </label>
+                    <div id="venmoFields" class="mb-8 p-6 bg-gray-50 rounded-lg shadow-sm hidden">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Venmo Details</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="venmoUsername" class="block text-sm font-medium text-gray-700">Venmo Username</label>
+                                <input type="text" id="venmoUsername" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
-                            <div class="payment-option">
-                                <input type="radio" id="zelle" name="payment_method" value="zelle" class="sr-only">
-                                <label for="zelle" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
-                                    <span class="text-3xl block mb-2">💸</span>
-                                    <span class="font-semibold block">Zelle</span>
-                                </label>
-                            </div>
-                            <div class="payment-option">
-                                <input type="radio" id="paypal" name="payment_method" value="paypal" class="sr-only">
-                                <label for="paypal" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
-                                    <span class="text-3xl block mb-2">🅿️</span>
-                                    <span class="font-semibold block">PayPal</span>
-                                </label>
-                            </div>
-                            <div class="payment-option">
-                                <input type="radio" id="echeck" name="payment_method" value="echeck" class="sr-only">
-                                <label for="echeck" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
-                                    <span class="text-3xl block mb-2">🏦</span>
-                                    <span class="font-semibold block">eCheck</span>
-                                </label>
+                            <div>
+                                <label for="venmoUsernameConfirm" class="block text-sm font-medium text-gray-700">Verify Venmo Username</label>
+                                <input type="text" id="venmoUsernameConfirm" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                         </div>
+                    </div>
 
-                        <div id="venmoFields" class="mb-8 p-6 bg-gray-50 rounded-lg shadow-sm hidden">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-3">Venmo Details</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label for="venmoUsername" class="block text-sm font-medium text-gray-700">Venmo Username</label>
-                                    <input type="text" id="venmoUsername" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                </div>
-                                <div>
-                                    <label for="venmoUsernameConfirm" class="block text-sm font-medium text-gray-700">Verify Venmo Username</label>
-                                    <input type="text" id="venmoUsernameConfirm" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                </div>
-                            </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h2>
+                    <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="fullName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                            <input type="email" id="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="streetAddress" class="block text-sm font-medium text-gray-700">Street Address</label>
+                            <input type="text" id="streetAddress" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                        </div>
+                        <div>
+                            <label for="city" class="block text-sm font-medium text-gray-700">City</label>
+                            <input type="text" id="city" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                        </div>
+                        <div>
+                            <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                            <input type="text" id="state" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                        </div>
+                        <div>
+                            <label for="zipCode" class="block text-sm font-medium text-gray-700">ZIP Code</label>
+                            <input type="text" id="zipCode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                        </div>
+                    </div>
+
+                    <div id="orderOverview" class="mt-8 p-6 bg-indigo-50 rounded-xl shadow-inner hidden">
+                        <h3 class="text-2xl font-bold text-indigo-800 mb-4">Order Overview</h3>
+                        <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Device:</span> iPhone 16 Pro Max</p>
+                        <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Estimated Payout:</span> <span id="overviewQuote" class="text-indigo-600">$0</span></p>
+                        <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Payment Method:</span> <span id="overviewPayment">Not Selected</span></p>
+                        <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Shipping Address:</span> <span id="overviewAddress">Not Entered</span></p>
+
+                        <div class="mt-6 border p-4 rounded-lg bg-white shadow-sm">
+                            <label class="flex items-start">
+                                <input type="checkbox" id="termsAccepted" class="form-checkbox h-5 w-5 text-indigo-600 mt-1">
+                                <span class="ml-2 text-sm text-gray-700">I accept the terms and conditions and certify that this device is not lost or stolen.</span>
+                            </label>
                         </div>
 
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h2>
-                        <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
-                                <input type="text" id="fullName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                            </div>
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                                <input type="email" id="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label for="streetAddress" class="block text-sm font-medium text-gray-700">Street Address</label>
-                                <input type="text" id="streetAddress" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                            </div>
-                            <div>
-                                <label for="city" class="block text-sm font-medium text-gray-700">City</label>
-                                <input type="text" id="city" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                            </div>
-                            <div>
-                                <label for="state" class="block text-sm font-medium text-gray-700">State</label>
-                                <input type="text" id="state" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                            </div>
-                            <div>
-                                <label for="zipCode" class="block text-sm font-medium text-gray-700">ZIP Code</label>
-                                <input type="text" id="zipCode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                            </div>
-                        </div>
-
-                        <div id="orderOverview" class="mt-8 p-6 bg-indigo-50 rounded-xl shadow-inner hidden">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">Order Overview</h3>
-                            <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Device:</span> iPhone 16 Pro Max</p>
-                            <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Estimated Payout:</span> <span id="overviewQuote" class="text-indigo-600">$0</span></p>
-                            <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Payment Method:</span> <span id="overviewPayment">Not Selected</span></p>
-                            <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Shipping Address:</span> <span id="overviewAddress">Not Entered</span></p>
-
-                            <div class="mt-6 border p-4 rounded-lg bg-white shadow-sm">
-                                <label class="flex items-start">
-                                    <input type="checkbox" id="termsAccepted" class="form-checkbox h-5 w-5 text-indigo-600 mt-1">
-                                    <span class="ml-2 text-sm text-gray-700">I accept the terms and conditions and certify that this device is not lost or stolen.</span>
-                                </label>
-                            </div>
-
-                            <button id="sendPhoneBtn" class="w-full mt-6 bg-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
-                                Send Phone In Now
-                            </button>
-                        </div>
+                        <button id="sendPhoneBtn" class="w-full mt-6 bg-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+                            Send Phone In Now
+                        </button>
                     </div>
                 </div>
             </div>
@@ -326,7 +328,7 @@
                 <h3 class="text-xl font-bold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
                     <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
-                    <li><a href="sell.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
                     <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
                     <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
                     <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
@@ -341,57 +343,13 @@
         </div>
     </footer>
 
-    <!-- Login/Sign Up Modal -->
-    <div id="authModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm"></div>
-        <div class="relative bg-white p-8 rounded-lg shadow-xl w-full max-w-sm">
-            <h2 class="text-2xl font-bold text-center mb-6" id="authModalTitle">Log In</h2>
-            <form id="authForm">
-                <div class="mb-4">
-                    <label for="modalEmail" class="block text-sm font-medium text-gray-700">Email Address</label>
-                    <input type="email" id="modalEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" required>
-                </div>
-                <div class="mb-4">
-                    <label for="modalPassword" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="modalPassword" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" required>
-                </div>
-                <button type="submit" id="authSubmitBtn" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-indigo-700 transition duration-300">Log In</button>
-            </form>
-            <p id="authErrorMessage" class="text-red-600 text-sm text-center mt-3 hidden"></p>
-            <div class="text-center text-sm text-gray-600 mt-4">
-                <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold" id="toggleAuthMode">Don't have an account? Sign Up</a>
-            </div>
-            <div class="mt-4 text-center">
-                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Firebase configuration and initialization
-            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            let currentUserId = null;
-            let isAuthReady = false;
-
-            // UI Elements
             const getQuoteBtn = document.getElementById('getQuoteBtn');
             const quoteDisplay = document.getElementById('quoteDisplay');
             const finalQuoteAmount = document.getElementById('finalQuoteAmount');
             const quoteMessage = document.getElementById('quoteMessage');
             const nextSteps = document.getElementById('nextSteps');
-            const nextStepsOverlay = document.getElementById('nextStepsOverlay');
-            const nextStepsContent = document.getElementById('nextStepsContent');
-            const signInToContinueBtn = document.getElementById('signInToContinueBtn');
             const venmoFields = document.getElementById('venmoFields');
             const orderOverview = document.getElementById('orderOverview');
             const overviewQuote = document.getElementById('overviewQuote');
@@ -399,186 +357,40 @@
             const overviewAddress = document.getElementById('overviewAddress');
             const sendPhoneBtn = document.getElementById('sendPhoneBtn');
 
-            const loginLink = document.getElementById('loginLink');
-            const logoutLink = document.getElementById('logoutLink');
-
-            // Modal elements
-            const authModal = document.getElementById('authModal');
-            const authForm = document.getElementById('authForm');
-            const modalEmail = document.getElementById('modalEmail');
-            const modalPassword = document.getElementById('modalPassword');
-            const authSubmitBtn = document.getElementById('authSubmitBtn');
-            const authModalTitle = document.getElementById('authModalTitle');
-            const toggleAuthMode = document.getElementById('toggleAuthMode');
-            const authErrorMessage = document.getElementById('authErrorMessage');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-
             let finalQuote = 0;
-            let isSignUpMode = false; // To toggle between login and signup in modal
 
-            // Firebase Auth State Listener
-            onAuthStateChanged(auth, async (user) => {
-                isAuthReady = true;
-                if (user) {
-                    currentUserId = user.uid;
-                    loginLink.classList.add('hidden');
-                    logoutLink.classList.remove('hidden');
-                    nextStepsContent.classList.remove('blurred-content');
-                    nextStepsOverlay.classList.add('hidden');
-                    sendPhoneBtn.textContent = 'Send Phone In Now';
-                } else {
-                    currentUserId = crypto.randomUUID(); // Fallback for anonymous user
-                    loginLink.classList.remove('hidden');
-                    logoutLink.classList.add('hidden');
-                    // Only blur if a quote has been generated
-                    if (quoteDisplay.classList.contains('hidden') === false) {
-                        nextStepsContent.classList.add('blurred-content');
-                        nextStepsOverlay.classList.remove('hidden');
-                    }
-                    sendPhoneBtn.textContent = 'Sign In to Continue';
-                }
-            });
+            const BACKEND_URL = 'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev';
 
-            // Initial Firebase Custom Token Sign-in
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                signInWithCustomToken(auth, __initial_auth_token).catch((error) => {
-                    console.error("Error signing in with custom token:", error);
-                    // Fallback to anonymous sign-in if custom token fails
-                    signInAnonymously(auth).catch(e => console.error("Error signing in anonymously:", e));
-                });
-            } else {
-                signInAnonymously(auth).catch(e => console.error("Error signing in anonymously:", e));
-            }
-
-            // UI Message Display Helper
-            function showUIMessage(element, msg, type) {
-                element.textContent = msg;
-                element.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+            function showQuoteMessage(msg, type) {
+                quoteMessage.textContent = msg;
+                quoteMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
                 if (type === 'error') {
-                    element.classList.add('bg-red-100', 'text-red-700');
+                    quoteMessage.classList.add('bg-red-100', 'text-red-700');
                 } else if (type === 'success') {
-                    element.classList.add('bg-green-100', 'text-green-700');
+                    quoteMessage.classList.add('bg-green-100', 'text-green-700');
                 }
-                element.classList.remove('hidden');
+                quoteMessage.classList.remove('hidden');
             }
 
-            function clearUIMessage(element) {
-                element.classList.add('hidden');
-                element.textContent = '';
+            function clearQuoteMessage() {
+                quoteMessage.classList.add('hidden');
+                quoteMessage.textContent = '';
             }
 
-            // Modal Functions
-            function openAuthModal(mode = 'login') {
-                isSignUpMode = (mode === 'signup');
-                authModalTitle.textContent = isSignUpMode ? 'Sign Up' : 'Log In';
-                authSubmitBtn.textContent = isSignUpMode ? 'Sign Up' : 'Log In';
-                toggleAuthMode.textContent = isSignUpMode ? 'Already have an account? Log In' : 'Don\'t have an account? Sign Up';
-                modalEmail.value = '';
-                modalPassword.value = '';
-                clearUIMessage(authErrorMessage);
-                authModal.classList.remove('hidden');
-            }
-
-            function closeAuthModal() {
-                authModal.classList.add('hidden');
-            }
-
-            // Event Listeners for Authentication
-            loginLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                openAuthModal('login');
-            });
-
-            logoutLink.addEventListener('click', async (e) => {
-                e.preventDefault();
-                try {
-                    await signOut(auth);
-                    showUIMessage(quoteMessage, 'Logged out successfully!', 'success');
-                    // No need to call checkAuthStatus, onAuthStateChanged handles it
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    showUIMessage(quoteMessage, 'Error logging out. Please try again.', 'error');
-                }
-            });
-
-            toggleAuthMode.addEventListener('click', (e) => {
-                e.preventDefault();
-                isSignUpMode = !isSignUpMode;
-                authModalTitle.textContent = isSignUpMode ? 'Sign Up' : 'Log In';
-                authSubmitBtn.textContent = isSignUpMode ? 'Sign Up' : 'Log In';
-                toggleAuthMode.textContent = isSignUpMode ? 'Already have an account? Log In' : 'Don\'t have an account? Sign Up';
-                clearUIMessage(authErrorMessage);
-            });
-
-            closeModalBtn.addEventListener('click', closeAuthModal);
-            signInToContinueBtn.addEventListener('click', () => openAuthModal('login'));
-
-            authForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = modalEmail.value;
-                const password = modalPassword.value;
-                clearUIMessage(authErrorMessage);
-
-                if (!email || !password) {
-                    showUIMessage(authErrorMessage, 'Please enter both email and password.', 'error');
-                    return;
-                }
-
-                try {
-                    if (isSignUpMode) {
-                        await createUserWithEmailAndPassword(auth, email, password);
-                        showUIMessage(authErrorMessage, 'Account created and logged in successfully!', 'success');
-                    } else {
-                        await signInWithEmailAndPassword(auth, email, password);
-                        showUIMessage(authErrorMessage, 'Logged in successfully!', 'success');
-                    }
-                    setTimeout(closeAuthModal, 1000); // Close modal after a short delay
-                    // onAuthStateChanged will handle UI updates
-                } catch (error) {
-                    let errorMessage = 'An unexpected error occurred. Please try again.';
-                    if (error.code) {
-                        switch (error.code) {
-                            case 'auth/invalid-email':
-                                errorMessage = 'Invalid email address format.';
-                                break;
-                            case 'auth/user-not-found':
-                            case 'auth/wrong-password':
-                                errorMessage = 'Invalid email or password.';
-                                break;
-                            case 'auth/email-already-in-use':
-                                errorMessage = 'This email is already in use. Please log in or use a different email.';
-                                break;
-                            case 'auth/weak-password':
-                                errorMessage = 'Password should be at least 6 characters.';
-                                break;
-                            case 'auth/operation-not-allowed':
-                                errorMessage = 'Email/Password sign-in is not enabled for this Firebase project or the domain is not authorized. Please check your Firebase console under Authentication > Sign-in method and Authentication > Settings (Authorized domains).';
-                                break;
-                            default:
-                                errorMessage = error.message;
-                        }
-                    }
-                    showUIMessage(authErrorMessage, errorMessage, 'error');
-                    console.error('Auth error:', error.code, error.message);
-                }
-            });
-
-            // Quote Calculation Logic
             getQuoteBtn.addEventListener('click', () => {
-                clearUIMessage(quoteMessage);
+                clearQuoteMessage();
                 quoteDisplay.classList.add('hidden');
-                nextSteps.classList.remove('hidden'); // Ensure nextSteps section is visible
+                nextSteps.classList.add('hidden');
 
                 const selectedCarrier = document.querySelector('input[name="carrier"]:checked');
                 const selectedStorage = document.getElementById('storage').value;
                 const q1PowerOn = document.querySelector('input[name="q1_power_on"]:checked');
                 const q2Functional = document.querySelector('input[name="q2_fully_functional"]:checked');
-                const q3NoCracks = document.querySelector('input[name="q3_no_cracks]:checked');
-                const q4Cosmetic = document.querySelector('input[name="q4_cosmetic_condition]:checked');
+                const q3NoCracks = document.querySelector('input[name="q3_no_cracks"]:checked');
+                const q4Cosmetic = document.querySelector('input[name="q4_cosmetic_condition"]:checked');
 
                 if (!selectedCarrier || !selectedStorage || !q1PowerOn || !q2Functional || !q3NoCracks || !q4Cosmetic) {
-                    showUIMessage(quoteMessage, 'Please answer all questions to get an accurate quote.', 'error');
-                    nextSteps.classList.add('hidden'); // Hide next steps if questions incomplete
+                    showQuoteMessage('Please answer all questions to get an accurate quote.', 'error');
                     return;
                 }
 
@@ -588,7 +400,7 @@
                     case '256GB': currentQuote = 500; break;
                     case '512GB': currentQuote = 600; break;
                     case '1TB': currentQuote = 800; break;
-                    default: showUIMessage(quoteMessage, 'Invalid storage selected.', 'error'); return;
+                    default: showQuoteMessage('Invalid storage selected.', 'error'); return;
                 }
 
                 if (selectedCarrier.value !== 'Unlocked') { currentQuote -= 25; }
@@ -604,21 +416,10 @@
                 finalQuote = Math.max(0, currentQuote);
                 finalQuoteAmount.textContent = `$${finalQuote.toFixed(2)}`;
                 quoteDisplay.classList.remove('hidden');
-                showUIMessage(quoteMessage, 'Your instant quote has been calculated! Please proceed to the next step.', 'success');
-                
-                // Apply blur if not logged in
-                if (!auth.currentUser) {
-                    nextStepsContent.classList.add('blurred-content');
-                    nextStepsOverlay.classList.remove('hidden');
-                    sendPhoneBtn.textContent = 'Sign In to Continue'; // Update button text
-                } else {
-                    nextStepsContent.classList.remove('blurred-content');
-                    nextStepsOverlay.classList.add('hidden');
-                    sendPhoneBtn.textContent = 'Send Phone In Now';
-                }
+                showQuoteMessage('Your instant quote has been calculated! Please proceed to the next step.', 'success');
+                nextSteps.classList.remove('hidden');
             });
 
-            // Payment method and shipping input updates
             document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     venmoFields.classList.add('hidden');
@@ -652,76 +453,80 @@
                 orderOverview.classList.remove('hidden');
             }
 
-            // Order Submission (Firebase Firestore)
             sendPhoneBtn.addEventListener('click', async () => {
-                if (!auth.currentUser || !auth.currentUser.uid) {
-                    showUIMessage(quoteMessage, 'You must be logged in to submit an order. Opening login modal...', 'error');
-                    openAuthModal('login');
-                    return;
-                }
-
                 const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value;
                 const termsAccepted = document.getElementById('termsAccepted').checked;
                 const fullName = document.getElementById('fullName').value;
-                const email = document.getElementById('email').value;
                 const streetAddress = document.getElementById('streetAddress').value;
                 const city = document.getElementById('city').value;
                 const state = document.getElementById('state').value;
                 const zipCode = document.getElementById('zipCode').value;
 
-                if (!selectedPayment || !fullName || !email || !streetAddress || !city || !state || !zipCode) {
-                    showUIMessage(quoteMessage, 'Please fill out all required fields.', 'error');
+                if (!selectedPayment || !fullName || !streetAddress || !city || !state || !zipCode) {
+                    showQuoteMessage('Please fill out all required fields.', 'error');
                     return;
                 }
                 if (!termsAccepted) {
-                    showUIMessage(quoteMessage, 'You must accept the terms and conditions.', 'error');
+                    showQuoteMessage('You must accept the terms and conditions.', 'error');
                     return;
                 }
                 if (selectedPayment === 'venmo') {
                     const venmoUsername = document.getElementById('venmoUsername').value;
                     const venmoUsernameConfirm = document.getElementById('venmoUsernameConfirm').value;
                     if (!venmoUsername || venmoUsername !== venmoUsernameConfirm) {
-                        showUIMessage(quoteMessage, 'Please enter and verify your Venmo username correctly.', 'error');
+                        showQuoteMessage('Please enter and verify your Venmo username correctly.', 'error');
                         return;
                     }
                 }
 
                 const orderData = {
                     device: "iPhone 16 Pro Max",
-                    carrier: document.querySelector('input[name="carrier]:checked').value,
+                    carrier: document.querySelector('input[name="carrier"]:checked').value,
                     storage: document.getElementById('storage').value,
                     condition_power_on: document.querySelector('input[name="q1_power_on"]:checked').value,
                     condition_functional: document.querySelector('input[name="q2_fully_functional"]:checked').value,
-                    condition_cracks: document.querySelector('input[name="q3_no_cracks]:checked').value,
-                    condition_cosmetic: document.querySelector('input[name="q4_cosmetic_condition]:checked').value,
+                    condition_cracks: document.querySelector('input[name="q3_no_cracks"]:checked').value,
+                    condition_cosmetic: document.querySelector('input[name="q4_cosmetic_condition"]:checked').value,
                     estimatedQuote: finalQuote,
                     paymentMethod: selectedPayment,
-                    paymentDetails: selectedPayment === 'venmo' ? { venmoUsername: document.getElementById('venmoUsername').value } : {},
+                    paymentDetails: {},
                     shippingInfo: {
                         fullName,
-                        email,
+                        email: document.getElementById('email').value,
                         streetAddress,
                         city,
                         state,
                         zipCode
                     },
                     termsAccepted: termsAccepted,
-                    userId: auth.currentUser.uid,
-                    timestamp: new Date()
                 };
 
-                try {
-                    showUIMessage(quoteMessage, 'Submitting your order...', 'success');
-                    // Store order in user's private collection
-                    const ordersCollectionRef = collection(db, `artifacts/${appId}/users/${auth.currentUser.uid}/orders`);
-                    await addDoc(ordersCollectionRef, orderData);
+                if (selectedPayment === 'venmo') {
+                    orderData.paymentDetails.venmoUsername = document.getElementById('venmoUsername').value;
+                }
 
-                    showUIMessage(quoteMessage, 'Your order has been submitted successfully! We will send a shipping label to your email shortly.', 'success');
+                try {
+                    showQuoteMessage('Submitting your order...', 'success');
+                    const response = await fetch(`${BACKEND_URL}/api/submit-order`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(orderData),
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Failed to submit order.');
+                    }
+
+                    showQuoteMessage('Your order has been submitted successfully! We will send a shipping label to your email shortly.', 'success');
                     sendPhoneBtn.disabled = true;
                     sendPhoneBtn.textContent = 'Order Submitted!';
                 } catch (e) {
-                    console.error("Error submitting order to Firestore: ", e);
-                    showUIMessage(quoteMessage, 'There was an error submitting your order. Please try again.', 'error');
+                    console.error("Error submitting order: ", e);
+                    showQuoteMessage('There was an error submitting your order. Please try again.', 'error');
                 }
             });
         });

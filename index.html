@@ -64,7 +64,7 @@
         <div class="container mx-auto px-4">
             <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Turn Your Old Phone into Cash!</h1>
             <p class="text-lg md:text-xl mb-8 opacity-90">Quick, easy, and transparent buyback for iPhones and Samsung Galaxy devices.</p>
-            <a href="sell-device.html" class="bg-white text-indigo-700 px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-gray-100 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 inline-block">
+            <a href="sell-device.html" class="inline-block bg-white text-indigo-700 px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-gray-100 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 inline-block">
                 Sell Your Phone Now!
             </a>
         </div>
@@ -349,6 +349,17 @@
                 userMonogramLink.classList.add('hidden');
             }
         });
+
+        // Add a click listener to the monogram link to check authentication
+        userMonogramLink.addEventListener('click', (event) => {
+            if (!auth.currentUser) {
+                // If user is not authenticated, prevent default navigation and redirect to login
+                event.preventDefault(); // Stop the link from navigating
+                window.location.href = 'login.html'; // Redirect to login page
+            }
+            // If user is authenticated, the link will proceed normally to my-account.html
+        });
+
 
         // Initial sign-in with custom token if available, otherwise anonymously
         if (initialAuthToken) {

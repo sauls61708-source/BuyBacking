@@ -23,14 +23,16 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- Middleware ---
+// The corrected CORS configuration.
+// Replace 'https://toratyosef.github.io' with your actual frontend URL if it changes.
 app.use(cors({
-  origin: '*', // Keep for development flexibility or specify other allowed origins
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+    origin: 'https://toratyosef.github.io', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
-// NEW: Serve static files (your admin frontend) from the 'public' directory
+// Serve static files (your admin frontend) from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- Root Path Handler ---
@@ -42,10 +44,8 @@ app.get('/', (req, res) => {
 app.post('/api/submit-order', async (req, res) => {
     try {
         const orderData = req.body;
-        // Generate a unique ID for the order
         const newOrderRef = db.collection('orders').doc();
 
-        // Add a timestamp and initial status to the data
         const dataToSave = {
             ...orderData,
             status: 'pending_shipment',
@@ -70,7 +70,6 @@ app.post('/api/submit-order', async (req, res) => {
 // Endpoint to get all pending orders
 app.get('/api/orders', async (req, res) => {
     try {
-        // Query the main 'orders' collection for pending shipments
         const snapshot = await db.collection('orders').where('status', '==', 'pending_shipment').get();
         const orders = [];
         snapshot.forEach(doc => {
@@ -80,6 +79,23 @@ app.get('/api/orders', async (req, res) => {
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
+    }
+});
+
+// Endpoint to get a single order by ID
+app.get('/api/orders/:orderId', async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const doc = await db.collection('orders').doc(orderId).get();
+
+        if (!doc.exists) {
+            return res.status(404).json({ error: 'Order not found.' });
+        }
+
+        res.status(200).json(doc.data());
+    } catch (error) {
+        console.error('Error fetching single order:', error);
+        res.status(500).json({ error: 'Failed to fetch order details', details: error.message });
     }
 });
 

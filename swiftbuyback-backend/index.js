@@ -117,27 +117,30 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
         const orderData = orderDoc.data();
+        
+        // ADDED LOGS HERE
+        console.log("Order Data:", orderData);
+        if (!orderData || !orderData.shippingInfo) {
+            console.error('Missing shipping info in order data for order:', orderId);
+            return res.status(400).json({ error: 'Order data is missing shipping information.' });
+        }
         const shippingDetails = orderData.shippingInfo;
+        
+        // MORE SPECIFIC LOGS
+        console.log("Shipping Details:", shippingDetails);
 
         const uspsConsumerKey = process.env.USPS_CONSUMER_KEY;
         const uspsConsumerSecret = process.env.USPS_CONSUMER_SECRET;
         const uspsApiUrl = 'https://api.usps.com/production/shipping/v1/labels';
 
-        // Check for missing API credentials
         if (!uspsConsumerKey || !uspsConsumerSecret) {
             console.error("USPS API credentials not set in environment variables.");
-            // Return a clear JSON error to the frontend
             return res.status(500).json({ error: 'USPS API credentials missing. Please set USPS_CONSUMER_KEY and USPS_CONSUMER_SECRET.' });
         }
 
-        // Placeholder for the real API call
         let uspsLabelUrl = `https://example.com/usps-label-simulated-${orderId}.pdf`; 
         
         try {
-            // This is where you would make the real API call.
-            // Replace this section with your actual USPS API integration.
-            // The real USPS API is likely XML-based, not JSON.
-            // This is a mock to ensure the code works without an actual API key.
             console.log("Simulating USPS label generation for order:", orderId);
 
         } catch (uspsError) {
@@ -146,7 +149,6 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
                 console.error("USPS Response Data:", uspsError.response.data);
                 console.error("USPS Response Status:", uspsError.response.status);
             }
-            // Return a specific JSON error to the frontend
             return res.status(502).json({ error: 'Failed to get a response from USPS API.' });
         }
 
@@ -164,7 +166,6 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
         res.status(500).json({ error: 'Failed to generate label', details: error.message });
     }
 });
-
 // Endpoint to update order status
 app.put('/api/orders/:orderId/status', async (req, res) => {
     const orderId = req.params.orderId;

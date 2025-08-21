@@ -51,6 +51,76 @@
             transform: scale(1.05);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
         }
+
+        /* Modal specific styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 2rem; /* p-8 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            max-width: 90%;
+            width: 450px; /* Adjusted width for modal */
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Tab styles */
+        .tab-button {
+            padding: 0.75rem 1.5rem; /* px-6 py-3 */
+            font-weight: 600; /* font-semibold */
+            border-bottom-width: 2px;
+            border-color: transparent;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            border-color: #4f46e5; /* indigo-600 */
+            color: #4f46e5; /* indigo-600 */
+        }
+        .tab-button:hover {
+            color: #4f46e5; /* indigo-600 */
+        }
+        /* Styles for the circular monogram */
+        .initials-monogram {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #ffffff; /* White text for contrast */
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
@@ -59,9 +129,20 @@
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
-            <nav class="space-x-4">
+            <nav class="space-x-4 flex items-center">
                 <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
-                <a href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+                
+                <!-- Login link (visible when not logged in) - Now opens modal -->
+                <a id="login-link" href="#" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+
+                <!-- User menu (hidden by default, visible when logged in) -->
+                <div id="user-menu-container" class="relative hidden">
+                    <div id="user-monogram" class="initials-monogram cursor-pointer bg-indigo-500 text-white"></div>
+                    <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden">
+                        <a href="my-account.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Account</a>
+                        <button id="dropdown-logout-button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                    </div>
+                </div>
             </nav>
         </div>
     </header>
@@ -402,23 +483,84 @@
         </div>
     </footer>
 
+    <!-- Login/Signup Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="flex border-b border-gray-200 mb-6">
+                <button id="login-tab-button" class="tab-button active flex-1">Login</button>
+                <button id="signup-tab-button" class="tab-button flex-1">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form-container">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Login to Your Account</h2>
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label for="login-email" class="sr-only">Email</label>
+                        <input type="email" id="login-email" placeholder="Email" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="login-password" class="sr-only">Password</label>
+                        <input type="password" id="login-password" placeholder="Password" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-indigo-600 text-white px-6 py-3 rounded-md font-bold text-lg hover:bg-indigo-700 transition duration-300">
+                        Login
+                    </button>
+                    <p id="login-error-message" class="text-red-600 text-center text-sm mt-2 hidden"></p>
+                </form>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div id="signup-form-container" class="hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Create a New Account</h2>
+                <form id="signup-form" class="space-y-4">
+                    <div>
+                        <label for="signup-display-name" class="sr-only">Display Name (Optional)</label>
+                        <input type="text" id="signup-display-name" placeholder="Display Name (Optional)"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="signup-email" class="sr-only">Email</label>
+                        <input type="email" id="signup-email" placeholder="Email" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="signup-password" class="sr-only">Password</label>
+                        <input type="password" id="signup-password" placeholder="Password" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-indigo-600 text-white px-6 py-3 rounded-md font-bold text-lg hover:bg-indigo-700 transition duration-300">
+                        Sign Up
+                    </button>
+                    <p id="signup-error-message" class="text-red-600 text-center text-sm mt-2 hidden"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
-        // Firebase SDK Imports
+        // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously, 
+                 signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Make 'auth' globally accessible for console debugging
         let authInstance; 
 
-        document.addEventListener('DOMContentLoaded', async function() { 
+        document.addEventListener('DOMContentLoaded', async function() {
             // --- Firebase Initialization and Authentication ---
             const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
             const app = initializeApp(firebaseConfig);
             authInstance = getAuth(app); // Assign to global variable
             window.firebaseAuth = authInstance; // Explicitly attach to window for console access
 
-            let currentUserId = null; 
-            let authReady = false; 
+            let currentUserId = null;
+            let authReady = false;
 
             // First, attempt to sign in or get current user state
             try {
@@ -429,23 +571,43 @@
                 }
                 currentUserId = authInstance.currentUser.uid;
                 console.log("Firebase authentication attempted on models.html. User ID:", currentUserId);
-                authReady = true; 
+                authReady = true;
             } catch (error) {
                 console.error("Initial Firebase authentication failed on models.html:", error);
-                authReady = true; 
+                authReady = true;
             }
 
             // Listen for auth state changes after initial attempt
-            onAuthStateChanged(authInstance, (user) => { // Use authInstance here
-                if (authReady) { 
-                    if (!user) {
-                        console.log("User not signed in after initial auth attempt on models.html. Redirecting to login.");
-                        const currentPageUrl = encodeURIComponent(window.location.href);
-                        const loginUrl = `https://toratyosef.github.io/BuyBacking/login.html?redirect_to=${currentPageUrl}`;
-                        window.location.replace(loginUrl);
-                    } else {
+            onAuthStateChanged(authInstance, (user) => {
+                if (authReady) {
+                    if (user) {
+                        // User is signed in
                         currentUserId = user.uid;
                         console.log("User signed in via onAuthStateChanged on models.html. User ID:", currentUserId);
+                        loginLink.classList.add('hidden');
+                        userMenuContainer.classList.remove('hidden');
+
+                        // Generate initials
+                        let initials = '??';
+                        if (user.displayName) {
+                            const nameParts = user.displayName.split(' ').filter(part => part.length > 0);
+                            if (nameParts.length > 1) {
+                                initials = nameParts[0][0] + nameParts[nameParts.length - 1][0];
+                            } else if (nameParts.length === 1) {
+                                initials = nameParts[0][0];
+                            }
+                        } else if (user.email) {
+                            initials = user.email[0];
+                        }
+                        userMonogram.textContent = initials.toUpperCase();
+                        userMonogram.style.backgroundColor = getRandomLightColor();
+
+                    } else {
+                        // User is signed out
+                        console.log("User not signed in on models.html.");
+                        loginLink.classList.remove('hidden');
+                        userMenuContainer.classList.add('hidden');
+                        userDropdown.classList.add('hidden'); // Ensure dropdown is hidden when logged out
                     }
                 }
             });
@@ -453,7 +615,7 @@
             // Function to load image with fallback extensions
             function loadImageWithFallback(imgElement) {
                 const baseSrc = imgElement.dataset.baseSrc;
-                const extensions = ['.webp', '.png', '.jpeg', '.jpg']; 
+                const extensions = ['.webp', '.png', '.jpeg', '.jpg'];
                 let foundImage = false;
 
                 for (let i = 0; i < extensions.length; i++) {
@@ -467,11 +629,11 @@
                     };
                     img.onerror = function() {
                         if (i === extensions.length - 1 && !foundImage) {
-                            if (imgElement.id.includes('_cat_img')) { 
-                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category"; 
-                            } else if (imgElement.id.includes('_pop_img') || imgElement.id.includes('_img')) { 
+                            if (imgElement.id.includes('_cat_img')) {
+                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category";
+                            } else if (imgElement.id.includes('_pop_img') || imgElement.id.includes('_img')) {
                                 imgElement.src = "https://placehold.co/680x528/f0f4ff/6366f1?text=No+Image";
-                            } else { 
+                            } else {
                                 imgElement.src = "https://placehold.co/150x150/cccccc/333333?text=Error";
                             }
                             imgElement.alt = "Image not found";
@@ -485,6 +647,171 @@
             const allImages = document.querySelectorAll('img[data-base-src]');
             allImages.forEach(img => {
                 loadImageWithFallback(img);
+            });
+
+            // --- Header Link Management based on Firebase Auth State ---
+            const loginLink = document.getElementById('login-link');
+            const userMenuContainer = document.getElementById('user-menu-container');
+            const userMonogram = document.getElementById('user-monogram');
+            const userDropdown = document.getElementById('user-dropdown');
+            const dropdownLogoutButton = document.getElementById('dropdown-logout-button');
+
+            // Function to generate a random light background color for monogram
+            function getRandomLightColor() {
+                const hue = Math.floor(Math.random() * 360);
+                const saturation = Math.floor(Math.random() * 30) + 70;
+                const lightness = Math.floor(Math.random() * 20) + 70;
+                return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            }
+
+            // Toggle dropdown visibility when monogram is clicked
+            userMonogram.addEventListener('click', function(event) {
+                event.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!userMenuContainer.contains(event.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+
+            // Handle the logout button click from the dropdown
+            dropdownLogoutButton.addEventListener('click', async function() {
+                try {
+                    await signOut(authInstance); // Use authInstance here
+                } catch (error) {
+                    console.error("Logout error:", error);
+                    // Use a custom modal or message box instead of alert()
+                    console.log('Failed to log out. Please try again.'); // Log to console for now
+                }
+            });
+
+            // --- Modal Elements and Logic ---
+            const authModal = document.getElementById('auth-modal');
+            const closeModalButton = authModal.querySelector('.close-button');
+            const loginTabButton = document.getElementById('login-tab-button');
+            const signupTabButton = document.getElementById('signup-tab-button');
+            const loginFormContainer = document.getElementById('login-form-container');
+            const signupFormContainer = document.getElementById('signup-form-container');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const loginErrorMessage = document.getElementById('login-error-message');
+            const signupErrorMessage = document.getElementById('signup-error-message');
+
+            // Function to show the modal
+            loginLink.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default link behavior
+                authModal.style.display = 'flex'; // Use flex to center
+                loginErrorMessage.classList.add('hidden'); // Clear previous errors
+                signupErrorMessage.classList.add('hidden');
+            });
+
+            // Function to close the modal
+            closeModalButton.addEventListener('click', () => {
+                authModal.style.display = 'none';
+            });
+
+            // Close modal if clicking outside content
+            window.addEventListener('click', (event) => {
+                if (event.target == authModal) {
+                    authModal.style.display = 'none';
+                }
+            });
+
+            // Tab switching logic
+            loginTabButton.addEventListener('click', () => {
+                loginTabButton.classList.add('active');
+                signupTabButton.classList.remove('active');
+                loginFormContainer.classList.remove('hidden');
+                signupFormContainer.classList.add('hidden');
+                loginErrorMessage.classList.add('hidden'); // Clear errors on tab switch
+                signupErrorMessage.classList.add('hidden');
+            });
+
+            signupTabButton.addEventListener('click', () => {
+                signupTabButton.classList.add('active');
+                loginTabButton.classList.remove('active');
+                signupFormContainer.classList.remove('hidden');
+                loginFormContainer.classList.add('hidden');
+                loginErrorMessage.classList.add('hidden'); // Clear errors on tab switch
+                signupErrorMessage.classList.add('hidden');
+            });
+
+            // Login Form Submission
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = loginForm.querySelector('#login-email').value;
+                const password = loginForm.querySelector('#login-password').value;
+                loginErrorMessage.classList.add('hidden'); // Hide previous errors
+
+                try {
+                    await signInWithEmailAndPassword(authInstance, email, password);
+                    authModal.style.display = 'none'; // Close modal on success
+                    // onAuthStateChanged will handle UI update
+                } catch (error) {
+                    console.error("Login error:", error);
+                    let message = "An unknown error occurred.";
+                    switch (error.code) {
+                        case 'auth/invalid-email':
+                            message = "Invalid email address format.";
+                            break;
+                        case 'auth/user-disabled':
+                            message = "Your account has been disabled.";
+                            break;
+                        case 'auth/user-not-found':
+                        case 'auth/wrong-password':
+                            message = "Invalid email or password.";
+                            break;
+                        case 'auth/too-many-requests':
+                            message = "Too many login attempts. Please try again later.";
+                            break;
+                        default:
+                            message = error.message;
+                    }
+                    loginErrorMessage.textContent = message;
+                    loginErrorMessage.classList.remove('hidden');
+                }
+            });
+
+            // Sign Up Form Submission
+            signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const displayName = signupForm.querySelector('#signup-display-name').value;
+                const email = signupForm.querySelector('#signup-email').value;
+                const password = signupForm.querySelector('#signup-password').value;
+                signupErrorMessage.classList.add('hidden'); // Hide previous errors
+
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
+                    if (displayName) {
+                        await updateProfile(userCredential.user, { displayName: displayName });
+                    }
+                    authModal.style.display = 'none'; // Close modal on success
+                    // onAuthStateChanged will handle UI update
+                } catch (error) {
+                    console.error("Signup error:", error);
+                    let message = "An unknown error occurred.";
+                    switch (error.code) {
+                        case 'auth/email-already-in-use':
+                            message = "This email is already in use.";
+                            break;
+                        case 'auth/invalid-email':
+                            message = "Invalid email address format.";
+                            break;
+                        case 'auth/operation-not-allowed':
+                            message = "Email/password accounts are not enabled.";
+                            break;
+                        case 'auth/weak-password':
+                            message = "Password is too weak. Must be at least 6 characters.";
+                            break;
+                        default:
+                            message = error.message;
+                    }
+                    signupErrorMessage.textContent = message;
+                    signupErrorMessage.classList.remove('hidden');
+                }
             });
         });
     </script>

@@ -1,14 +1,14 @@
-[debug] [2025-08-21T20:04:05.521Z] ----------------------------------------------------------------------
-[debug] [2025-08-21T20:04:05.523Z] Command:       /usr/local/share/nvm/versions/node/v20.19.4/bin/node /usr/local/share/nvm/versions/node/v20.19.4/bin/firebase init functions
-[debug] [2025-08-21T20:04:05.523Z] CLI Version:   14.13.0
-[debug] [2025-08-21T20:04:05.523Z] Platform:      linux
-[debug] [2025-08-21T20:04:05.523Z] Node Version:  v20.19.4
-[debug] [2025-08-21T20:04:05.523Z] Time:          Thu Aug 21 2025 20:04:05 GMT+0000 (Coordinated Universal Time)
-[debug] [2025-08-21T20:04:05.524Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
-[debug] [2025-08-21T20:04:05.524Z] ----------------------------------------------------------------------
+[debug] [2025-08-21T20:05:09.862Z] ----------------------------------------------------------------------
+[debug] [2025-08-21T20:05:09.864Z] Command:       /usr/local/share/nvm/versions/node/v20.19.4/bin/node /usr/local/share/nvm/versions/node/v20.19.4/bin/firebase init functions
+[debug] [2025-08-21T20:05:09.864Z] CLI Version:   14.13.0
+[debug] [2025-08-21T20:05:09.864Z] Platform:      linux
+[debug] [2025-08-21T20:05:09.864Z] Node Version:  v20.19.4
+[debug] [2025-08-21T20:05:09.864Z] Time:          Thu Aug 21 2025 20:05:09 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-08-21T20:05:09.865Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
+[debug] [2025-08-21T20:05:09.865Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2025-08-21T20:04:05.528Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2025-08-21T20:04:05.528Z] > authorizing via signed-in user (saulsetton16@gmail.com)
+[debug] [2025-08-21T20:05:09.870Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-21T20:05:09.870Z] > authorizing via signed-in user (saulsetton87@gmail.com)
 [info] 
      ######## #### ########  ######## ########     ###     ######  ########
      ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
@@ -31,3 +31,39 @@ Before we get started, keep in mind:
 [info] You can create multiple project aliases by running firebase use --add, 
 [info] but for now we'll just set up a default project.
 [info] 
+[debug] [2025-08-21T20:05:17.191Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:17.192Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:17.194Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2025-08-21T20:05:17.487Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2025-08-21T20:05:17.487Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[info] i  Using project buyback-a0f05 (BuyBack) 
+[info] 
+=== Functions Setup
+[debug] [2025-08-21T20:05:18.421Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-21T20:05:18.421Z] > authorizing via signed-in user (saulsetton87@gmail.com)
+[debug] [2025-08-21T20:05:18.421Z] [iam] checking project buyback-a0f05 for permissions ["firebase.projects.get"]
+[debug] [2025-08-21T20:05:18.422Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:18.422Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:18.422Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions [none]
+[debug] [2025-08-21T20:05:18.422Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions x-goog-quota-user=projects/buyback-a0f05
+[debug] [2025-08-21T20:05:18.422Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-08-21T20:05:18.534Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions 200
+[debug] [2025-08-21T20:05:18.534Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-08-21T20:05:18.535Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:18.535Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:18.536Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:18.536Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:18.536Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-08-21T20:05:18.536Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/buyback-a0f05
+[debug] [2025-08-21T20:05:18.538Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/runtimeconfig.googleapis.com [none]
+[debug] [2025-08-21T20:05:18.538Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/buyback-a0f05
+[debug] [2025-08-21T20:05:18.770Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/runtimeconfig.googleapis.com 200
+[debug] [2025-08-21T20:05:18.770Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2025-08-21T20:05:18.812Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/cloudfunctions.googleapis.com 200
+[debug] [2025-08-21T20:05:18.812Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-08-21T20:05:18.813Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:18.813Z] Checked if tokens are valid: true, expires at: 1755810302153
+[debug] [2025-08-21T20:05:18.813Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/cloudfunctions.googleapis.com:enable [none]
+[debug] [2025-08-21T20:05:18.813Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/cloudfunctions.googleapis.com:enable x-goog-quota-user=projects/buyback-a0f05
+[debug] [2025-08-21T20:05:19.313Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/cloudfunctions.googleapis.com:enable 200
+[debug] [2025-08-21T20:05:19.313Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/buyback-a0f05/services/cloudfunctions.googleapis.com:enable [omitted]

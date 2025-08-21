@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwiftBuyBack - My Account</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -36,29 +35,25 @@
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Header (reused for consistency) -->
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
             <nav class="space-x-4 flex items-center">
-                <a href="/sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
-                <!-- Login Link (shown when not logged in) -->
-                <a href="/login.html" id="loginHeaderLink" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
-                <!-- Monogram (shown when logged in) -->
+                <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <a id="account-link" href="my-account.html" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">My Account</a>
+                <a id="login-link" href="login.html" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+                <button id="logout-button" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Logout</button>
                 <div id="userMonogram" class="initials-monogram hidden cursor-pointer"></div>
             </nav>
         </div>
     </header>
 
-    <!-- Main Content - My Account -->
     <main class="flex-grow container mx-auto px-4 py-12">
         <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl mx-auto">
             <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">My Account</h1>
 
-            <!-- Message Display Area -->
             <div id="message" class="mb-6 p-3 rounded-md text-sm text-center hidden"></div>
 
-            <!-- Tabs for Navigation -->
             <div class="flex border-b border-gray-200 mb-8">
                 <button id="accountInfoTab" class="tab-button active flex-1 py-3 px-4 text-center text-lg font-medium text-gray-700 rounded-t-lg border-b-2 border-transparent hover:border-indigo-400 hover:text-indigo-600 transition duration-300">
                     Account Information
@@ -68,7 +63,6 @@
                 </button>
             </div>
 
-            <!-- Account Information Section -->
             <div id="accountInfoSection" class="tab-content">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-6">Your Details</h2>
                 <div class="space-y-4">
@@ -101,7 +95,6 @@
                 </div>
             </div>
 
-            <!-- Order History Section (Initially Hidden) -->
             <div id="orderHistorySection" class="tab-content hidden">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-6">Your Past Orders</h2>
                 <div class="overflow-x-auto">
@@ -116,8 +109,7 @@
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody" class="text-gray-700 text-sm font-light">
-                            <!-- Order data will be loaded here from Firestore -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
                 <p id="noOrdersMessage" class="text-gray-600 mt-4 text-center hidden">No orders found.</p>
@@ -125,7 +117,6 @@
         </div>
     </main>
 
-    <!-- Footer (reused for consistency) -->
     <footer class="bg-gray-800 text-white py-12 mt-8 w-full">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div>
@@ -135,11 +126,11 @@
             <div>
                 <h3 class="text-xl font-bold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="/index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
-                    <li><a href="/sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
-                    <li><a href="/my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
-                    <li><a href="/about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
-                    <li><a href="/contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
+                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
+                    <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
+                    <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
                 </ul>
             </div>
             <div class="md:col-span-2 lg:col-span-1">
@@ -153,13 +144,19 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase configuration from the environment
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
+            authDomain: "buyback-a0f05.firebaseapp.com",
+            projectId: "buyback-a0f05",
+            storageBucket: "buyback-a0f05.firebasestorage.app",
+            messagingSenderId: "876430429098",
+            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
+            measurementId: "G-6WWQN44JHT"
+        };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -167,8 +164,10 @@
         const db = getFirestore(app);
 
         // Get elements
-        const loginHeaderLink = document.getElementById('loginHeaderLink'); // New: Login link in header
-        const userMonogram = document.getElementById('userMonogram');     // New: Monogram div in header
+        const loginLink = document.getElementById('login-link');
+        const accountLink = document.getElementById('account-link');
+        const logoutButton = document.getElementById('logout-button');
+        const userMonogram = document.getElementById('userMonogram');
         const accountInfoTab = document.getElementById('accountInfoTab');
         const orderHistoryTab = document.getElementById('orderHistoryTab');
         const accountInfoSection = document.getElementById('accountInfoSection');
@@ -182,53 +181,44 @@
         const ordersTableBody = document.getElementById('ordersTableBody');
         const noOrdersMessage = document.getElementById('noOrdersMessage');
 
-        let currentUserId = null; // To store the current user's ID
+        let currentUserId = null;
 
-        /**
-         * Displays a message to the user (success or error).
-         * @param {string} msg - The message to display.
-         * @param {string} type - 'success', 'error', or 'info'.
-         */
+        // --- Helper Functions ---
+        
         function showMessage(msg, type) {
             messageDiv.textContent = msg;
-            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700');
-            if (type === 'error') {
-                messageDiv.classList.add('bg-red-100', 'text-red-700');
-            } else if (type === 'success') {
-                messageDiv.classList.add('bg-green-100', 'text-green-700');
-            } else if (type === 'info') {
-                messageDiv.classList.add('bg-yellow-100', 'text-yellow-700');
-            }
-            messageDiv.classList.remove('hidden');
+            messageDiv.className = `mb-6 p-3 rounded-md text-sm text-center ${type === 'success' ? 'bg-green-100 text-green-700' : type === 'error' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`;
         }
-
-        /**
-         * Clears any displayed messages.
-         */
+        
         function clearMessage() {
             messageDiv.classList.add('hidden');
             messageDiv.textContent = '';
         }
+        
+        function getStatusBadgeClass(status) {
+            switch (status.toLowerCase()) {
+                case 'completed': return 'bg-green-200 text-green-800';
+                case 'pending': return 'bg-yellow-200 text-yellow-800';
+                case 'in review': return 'bg-blue-200 text-blue-800';
+                case 'cancelled': return 'bg-red-200 text-red-800';
+                default: return 'bg-gray-200 text-gray-800';
+            }
+        }
 
-        // Tab switching logic
+        // --- Tab and UI Logic ---
+
         function showTab(tabToShow) {
-            // Hide all tab contents
             accountInfoSection.classList.add('hidden');
             orderHistorySection.classList.add('hidden');
-
-            // Deactivate all tab buttons
             accountInfoTab.classList.remove('active');
             orderHistoryTab.classList.remove('active');
 
-            // Show the selected tab content and activate its button
             if (tabToShow === 'accountInfo') {
                 accountInfoSection.classList.remove('hidden');
                 accountInfoTab.classList.add('active');
             } else if (tabToShow === 'orderHistory') {
-                accountInfoTab.classList.remove('active'); // Ensure account info tab is not active
                 orderHistorySection.classList.remove('hidden');
                 orderHistoryTab.classList.add('active');
-                // Load orders when the tab is shown
                 if (currentUserId) {
                     loadOrders(currentUserId);
                 }
@@ -236,76 +226,35 @@
             clearMessage();
         }
 
-        // Event listeners for tabs
         accountInfoTab.addEventListener('click', () => showTab('accountInfo'));
         orderHistoryTab.addEventListener('click', () => showTab('orderHistory'));
-
-        /**
-         * Saves user account information (like phone number) to Firestore.
-         * @param {string} userId - The ID of the current user.
-         * @param {string} phoneNumber - The phone number to save.
-         */
-        async function saveAccountInfo(userId, phoneNumber) {
-            if (!userId) {
-                showMessage('User not authenticated. Please log in.', 'error');
-                return;
-            }
-
-            saveInfoBtn.disabled = true;
-            saveInfoBtn.textContent = 'Saving...';
-            clearMessage();
-
-            try {
-                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'userProfile');
-                await setDoc(userDocRef, { phoneNumber: phoneNumber }, { merge: true });
-                showMessage('Account information saved successfully!', 'success');
-            } catch (error) {
-                console.error("Error saving account info:", error);
-                showMessage('Failed to save account information. Please try again.', 'error');
-            } finally {
-                saveInfoBtn.disabled = false;
-                saveInfoBtn.textContent = 'Save Changes';
-            }
-        }
-
-        // Event listener for Save Changes button
-        saveInfoBtn.addEventListener('click', () => {
-            if (currentUserId) {
-                saveAccountInfo(currentUserId, userPhoneInput.value);
-            } else {
-                showMessage('Please log in to save your information.', 'error');
-            }
-        });
-
-        // Handle Logout
-        logoutBtn.addEventListener('click', async () => {
+        
+        // --- Firebase Functions ---
+        
+        // Function to handle logout
+        async function handleLogout() {
             try {
                 await signOut(auth);
-                // Redirect to login page after logout
-                window.location.href = '/login.html';
+                localStorage.removeItem('isLoggedIn'); // Remove local flag
+                window.location.href = 'index.html'; // Redirect to home or login page
             } catch (error) {
                 console.error("Logout error:", error);
                 showMessage('Failed to log out. Please try again.', 'error');
             }
-        });
-
-        /**
-         * Loads and displays user's orders from Firestore.
-         * @param {string} userId - The ID of the current user.
-         */
+        }
+        
+        // Function to load and display user's orders
         function loadOrders(userId) {
             if (!userId) {
                 ordersTableBody.innerHTML = '';
                 noOrdersMessage.classList.remove('hidden');
                 return;
             }
-
-            const ordersCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/orders`);
-            const q = query(ordersCollectionRef);
-
-            // Use onSnapshot for real-time updates
-            onSnapshot(q, (snapshot) => {
-                ordersTableBody.innerHTML = ''; // Clear existing orders
+            
+            const ordersCollectionRef = collection(db, `users/${userId}/orders`);
+            
+            onSnapshot(ordersCollectionRef, (snapshot) => {
+                ordersTableBody.innerHTML = '';
                 if (snapshot.empty) {
                     noOrdersMessage.classList.remove('hidden');
                 } else {
@@ -314,7 +263,7 @@
                         const order = doc.data();
                         const row = `
                             <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                <td class="py-3 px-6 text-left whitespace-nowrap">${doc.id}</td>
+                                <td class="py-3 px-6 text-left whitespace-nowrap">${doc.id.substring(0, 8)}...</td>
                                 <td class="py-3 px-6 text-left">${order.date || 'N/A'}</td>
                                 <td class="py-3 px-6 text-left">${order.device || 'N/A'}</td>
                                 <td class="py-3 px-6 text-left">$${(order.quote || 0).toFixed(2)}</td>
@@ -333,106 +282,87 @@
                 noOrdersMessage.classList.remove('hidden');
             });
         }
-
-        /**
-         * Returns Tailwind CSS classes for order status badges.
-         * @param {string} status - The order status.
-         * @returns {string} - Tailwind CSS classes for the badge.
-         */
-        function getStatusBadgeClass(status) {
-            switch (status.toLowerCase()) {
-                case 'completed':
-                    return 'bg-green-200 text-green-800';
-                case 'pending':
-                    return 'bg-yellow-200 text-yellow-800';
-                case 'in review':
-                    return 'bg-blue-200 text-blue-800';
-                case 'cancelled':
-                    return 'bg-red-200 text-red-800';
-                default:
-                    return 'bg-gray-200 text-gray-800';
+        
+        // Function to save user account information to Firestore
+        async function saveAccountInfo(userId, phoneNumber) {
+            if (!userId) {
+                showMessage('User not authenticated. Please log in.', 'error');
+                return;
+            }
+            saveInfoBtn.disabled = true;
+            saveInfoBtn.textContent = 'Saving...';
+            clearMessage();
+        
+            try {
+                const userDocRef = doc(db, `users/${userId}`);
+                await setDoc(userDocRef, { phoneNumber: phoneNumber }, { merge: true });
+                showMessage('Account information saved successfully!', 'success');
+            } catch (error) {
+                console.error("Error saving account info:", error);
+                showMessage('Failed to save account information. Please try again.', 'error');
+            } finally {
+                saveInfoBtn.disabled = false;
+                saveInfoBtn.textContent = 'Save Changes';
             }
         }
 
-        /**
-         * Generates a random light background color in HSL format.
-         * @returns {string} HSL color string.
-         */
-        function getRandomLightColor() {
-            const hue = Math.floor(Math.random() * 360); // 0-359
-            const saturation = Math.floor(Math.random() * 30) + 70; // 70-100% saturation
-            const lightness = Math.floor(Math.random() * 20) + 70; // 70-90% lightness
-            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-        }
+        // --- Event Listeners ---
+        
+        logoutBtn.addEventListener('click', handleLogout);
+        logoutButton.addEventListener('click', handleLogout); // For header logout button
+        
+        saveInfoBtn.addEventListener('click', () => {
+            if (currentUserId) {
+                saveAccountInfo(currentUserId, userPhoneInput.value);
+            } else {
+                showMessage('Please log in to save your information.', 'error');
+            }
+        });
 
-        // Firebase Auth State Listener
+        // --- Main Auth State Listener ---
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                currentUserId = user.uid; // Set the current user ID
+                // User is signed in
+                currentUserId = user.uid;
+                
+                // Update header
+                loginLink.classList.add('hidden');
+                accountLink.classList.remove('hidden');
+                logoutButton.classList.remove('hidden');
+                userMonogram.classList.remove('hidden');
+                
+                // Get user initials for monogram
+                const name = user.displayName || user.email;
+                const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                userMonogram.textContent = initials;
+                userMonogram.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`;
+
+                // Update account details
                 userName.textContent = user.displayName || 'N/A';
                 userEmail.textContent = user.email || 'N/A';
 
-                // Handle header display: show monogram, hide login link
-                loginHeaderLink.classList.add('hidden');
-                userMonogram.classList.remove('hidden');
-
-                // Generate initials
-                let initials = '??';
-                if (user.displayName) {
-                    const nameParts = user.displayName.split(' ').filter(part => part.length > 0);
-                    if (nameParts.length > 1) {
-                        initials = nameParts[0][0] + nameParts[nameParts.length - 1][0];
-                    } else if (nameParts.length === 1) {
-                        initials = nameParts[0][0];
-                    }
-                } else if (user.email) {
-                    initials = user.email[0];
-                }
-                userMonogram.textContent = initials.toUpperCase();
-                userMonogram.style.backgroundColor = getRandomLightColor();
-
                 // Fetch phone number from Firestore
-                const userDocRef = doc(db, `artifacts/${appId}/users/${currentUserId}/profile`, 'userProfile');
+                const userDocRef = doc(db, `users/${currentUserId}`);
                 try {
                     const docSnap = await getDoc(userDocRef);
-                    if (docSnap.exists()) {
-                        userPhoneInput.value = docSnap.data().phoneNumber || '';
+                    if (docSnap.exists() && docSnap.data().phoneNumber) {
+                        userPhoneInput.value = docSnap.data().phoneNumber;
                     } else {
-                        userPhoneInput.value = ''; // Clear if no phone number saved
+                        userPhoneInput.value = '';
                     }
                 } catch (error) {
                     console.error("Error fetching user profile:", error);
-                    showMessage('Failed to load phone number. Please try again.', 'error');
                 }
-
+                
                 // Show account info by default
                 showTab('accountInfo');
-
+                
             } else {
                 // User is signed out, redirect to login page
-                window.location.href = '/login.html';
+                window.location.href = 'login.html';
             }
         });
-
-        // Placeholder for Change Password functionality (UI only)
-        document.getElementById('changePasswordBtn').addEventListener('click', () => {
-            showMessage('Change password functionality is coming soon!', 'info');
-            // In a real app, you'd redirect to a password reset page or open a modal
-        });
-
-        // Initial sign-in with custom token if available, otherwise anonymously
-        if (initialAuthToken) {
-            signInWithCustomToken(auth, initialAuthToken).catch((error) => {
-                console.error("Error signing in with custom token:", error);
-                signInAnonymously(auth).catch((anonError) => {
-                    console.error("Error signing in anonymously:", anonError);
-                });
-            });
-        } else {
-            signInAnonymously(auth).catch((anonError) => {
-                console.error("Error signing in anonymously:", anonError);
-            });
-        }
     </script>
 </body>
 </html>

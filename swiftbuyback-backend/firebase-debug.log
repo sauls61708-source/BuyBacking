@@ -1,0 +1,33 @@
+[debug] [2025-08-21T20:04:05.521Z] ----------------------------------------------------------------------
+[debug] [2025-08-21T20:04:05.523Z] Command:       /usr/local/share/nvm/versions/node/v20.19.4/bin/node /usr/local/share/nvm/versions/node/v20.19.4/bin/firebase init functions
+[debug] [2025-08-21T20:04:05.523Z] CLI Version:   14.13.0
+[debug] [2025-08-21T20:04:05.523Z] Platform:      linux
+[debug] [2025-08-21T20:04:05.523Z] Node Version:  v20.19.4
+[debug] [2025-08-21T20:04:05.523Z] Time:          Thu Aug 21 2025 20:04:05 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-08-21T20:04:05.524Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
+[debug] [2025-08-21T20:04:05.524Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-21T20:04:05.528Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-21T20:04:05.528Z] > authorizing via signed-in user (saulsetton16@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /workspaces/BuyBacking/swiftbuyback-backend
+
+Before we get started, keep in mind:
+
+  * You are currently outside your home directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 

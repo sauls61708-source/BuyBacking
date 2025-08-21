@@ -123,7 +123,7 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
         const uspsConsumerSecret = process.env.USPS_CONSUMER_SECRET;
         const uspsApiUrl = 'https://api.usps.com/production/shipping/v1/labels';
 
-        // Add a check for missing API credentials
+        // Check for missing API credentials
         if (!uspsConsumerKey || !uspsConsumerSecret) {
             console.error("USPS API credentials not set in environment variables.");
             // Return a clear JSON error to the frontend

@@ -23,6 +23,7 @@ app.use(express.json());
 const allowedOrigins = [
     'https://toratyosef.github.io',
     'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev'
+    'http://localhost:3000'
 ];
 app.use(cors({
     origin: (origin, callback) => {

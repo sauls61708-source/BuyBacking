@@ -301,75 +301,28 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Make 'auth' globally accessible for console debugging
-        let authInstance; 
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
+            authDomain: "buyback-a0f05.firebaseapp.com",
+            projectId: "buyback-a0f05",
+            storageBucket: "buyback-a0f05.firebasestorage.app",
+            messagingSenderId: "876430429098",
+            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
+            measurementId: "G-6WWQN44JHT"
+        };
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            // --- Firebase Initialization and Authentication ---
-            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-            const app = initializeApp(firebaseConfig);
-            authInstance = getAuth(app); // Assign to global variable
-            window.firebaseAuth = authInstance; // Explicitly attach to window for console access
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
-            let currentUserId = null;
-            let authReady = false;
-
-            // First, attempt to sign in or get current user state
-            try {
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(authInstance, __initial_auth_token);
-                } else {
-                    await signInAnonymously(authInstance);
-                }
-                currentUserId = authInstance.currentUser.uid;
-                console.log("Firebase authentication attempted on index.html. User ID:", currentUserId);
-                authReady = true;
-            } catch (error) {
-                console.error("Initial Firebase authentication failed on index.html:", error);
-                authReady = true;
-            }
-
-            // Listen for auth state changes after initial attempt
-            onAuthStateChanged(authInstance, (user) => {
-                if (authReady) {
-                    if (user) {
-                        // User is signed in
-                        currentUserId = user.uid;
-                        console.log("User signed in via onAuthStateChanged on index.html. User ID:", currentUserId);
-                        loginLink.classList.add('hidden');
-                        userMenuContainer.classList.remove('hidden');
-
-                        // Generate initials
-                        let initials = '??';
-                        if (user.displayName) {
-                            const nameParts = user.displayName.split(' ').filter(part => part.length > 0);
-                            if (nameParts.length > 1) {
-                                initials = nameParts[0][0] + nameParts[nameParts.length - 1][0];
-                            } else if (nameParts.length === 1) {
-                                initials = nameParts[0][0];
-                            }
-                        } else if (user.email) {
-                            initials = user.email[0];
-                        }
-                        userMonogram.textContent = initials.toUpperCase();
-                        userMonogram.style.backgroundColor = getRandomLightColor();
-
-                    } else {
-                        // User is signed out
-                        console.log("User not signed in on index.html.");
-                        loginLink.classList.remove('hidden');
-                        userMenuContainer.classList.add('hidden');
-                        userDropdown.classList.add('hidden'); // Ensure dropdown is hidden when logged out
-                    }
-                }
-            });
-
+        document.addEventListener('DOMContentLoaded', function() {
             // Function to load image with fallback extensions
             function loadImageWithFallback(imgElement) {
                 const baseSrc = imgElement.dataset.baseSrc;
-                const extensions = ['.webp', '.png', '.jpeg', '.jpg'];
+                const extensions = ['.webp', '.png', '.jpeg', '.jpg']; // Order of preference, .webp first
                 let foundImage = false;
 
                 for (let i = 0; i < extensions.length; i++) {
@@ -383,11 +336,13 @@
                     };
                     img.onerror = function() {
                         if (i === extensions.length - 1 && !foundImage) {
-                            if (imgElement.id.includes('_cat_img')) {
-                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category";
-                            } else if (imgElement.id.includes('_pop_img')) {
+                            // Determine appropriate placeholder based on context
+                            if (imgElement.id.includes('_cat_img')) { // Category images on homepage
+                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category"; // Adjusted size
+                            } else if (imgElement.id.includes('_pop_img')) { // Popular phone images on homepage
+                                // Reverting to original size, removing fixed width/height
                                 imgElement.src = "https://placehold.co/150x150/f0f4ff/6366f1?text=No+Image";
-                            } else {
+                            } else { // Generic fallback
                                 imgElement.src = "https://placehold.co/150x150/cccccc/333333?text=Error";
                             }
                             imgElement.alt = "Image not found";
@@ -412,15 +367,44 @@
 
             // Function to generate a random light background color for monogram
             function getRandomLightColor() {
-                const hue = Math.floor(Math.random() * 360);
-                const saturation = Math.floor(Math.random() * 30) + 70;
-                const lightness = Math.floor(Math.random() * 20) + 70;
+                const hue = Math.floor(Math.random() * 360); // 0-359
+                const saturation = Math.floor(Math.random() * 30) + 70; // 70-100% saturation
+                const lightness = Math.floor(Math.random() * 20) + 70; // 70-90% lightness
                 return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
             }
 
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is signed in
+                    loginLink.classList.add('hidden');
+                    userMenuContainer.classList.remove('hidden');
+
+                    // Generate initials
+                    let initials = '??';
+                    if (user.displayName) {
+                        const nameParts = user.displayName.split(' ').filter(part => part.length > 0);
+                        if (nameParts.length > 1) {
+                            initials = nameParts[0][0] + nameParts[nameParts.length - 1][0];
+                        } else if (nameParts.length === 1) {
+                            initials = nameParts[0][0];
+                        }
+                    } else if (user.email) {
+                        initials = user.email[0];
+                    }
+                    userMonogram.textContent = initials.toUpperCase();
+                    userMonogram.style.backgroundColor = getRandomLightColor();
+
+                } else {
+                    // User is signed out
+                    loginLink.classList.remove('hidden');
+                    userMenuContainer.classList.add('hidden');
+                    userDropdown.classList.add('hidden'); // Ensure dropdown is hidden when logged out
+                }
+            });
+
             // Toggle dropdown visibility when monogram is clicked
             userMonogram.addEventListener('click', function(event) {
-                event.stopPropagation();
+                event.stopPropagation(); // Prevent document click from immediately closing it
                 userDropdown.classList.toggle('hidden');
             });
 
@@ -434,12 +418,12 @@
             // Handle the logout button click from the dropdown
             dropdownLogoutButton.addEventListener('click', async function() {
                 try {
-                    await signOut(authInstance); // Use authInstance here
+                    await signOut(auth);
+                    // The onAuthStateChanged listener will automatically update the UI
+                    // and hide the user menu.
                 } catch (error) {
                     console.error("Logout error:", error);
-                    // Use a custom modal or message box instead of alert()
-                    // alert('Failed to log out. Please try again.');
-                    console.log('Failed to log out. Please try again.'); // Log to console for now
+                    alert('Failed to log out. Please try again.');
                 }
             });
         });

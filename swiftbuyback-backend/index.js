@@ -48,17 +48,21 @@ app.get('/', (req, res) => {
 app.post('/api/submit-order', async (req, res) => {
     try {
         const orderData = req.body;
+
         if (!orderData || Object.keys(orderData).length === 0) {
             return res.status(400).json({ error: 'Request body is empty or invalid.' });
         }
+
         const newOrderRef = db.collection('orders').doc();
         const dataToSave = {
             ...orderData,
             status: 'pending_shipment',
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         };
+
         await newOrderRef.set(dataToSave);
         console.log(`New order submitted with ID: ${newOrderRef.id}`);
+
         res.status(201).json({ 
             message: 'Order submitted successfully!', 
             orderId: newOrderRef.id 
@@ -69,7 +73,9 @@ app.post('/api/submit-order', async (req, res) => {
     }
 });
 
-// --- Existing API Endpoints ---
+// --- API Endpoints ---
+
+// Endpoint to get all pending orders
 app.get('/api/orders', async (req, res) => {
     try {
         const snapshot = await db.collection('orders').where('status', '==', 'pending_shipment').get();
@@ -84,13 +90,16 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
+// Endpoint to get a single order by ID
 app.get('/api/orders/:orderId', async (req, res) => {
     try {
         const orderId = req.params.orderId;
         const doc = await db.collection('orders').doc(orderId).get();
+
         if (!doc.exists) {
             return res.status(404).json({ error: 'Order not found.' });
         }
+
         res.status(200).json(doc.data());
     } catch (error) {
         console.error('Error fetching single order:', error);
@@ -98,6 +107,7 @@ app.get('/api/orders/:orderId', async (req, res) => {
     }
 });
 
+// Endpoint to generate USPS label and update order status
 app.post('/api/generate-label/:orderId', async (req, res) => {
     const orderId = req.params.orderId;
     try {
@@ -113,32 +123,31 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
         const uspsConsumerSecret = process.env.USPS_CONSUMER_SECRET;
         const uspsApiUrl = 'https://api.usps.com/production/shipping/v1/labels';
 
+        // Check for missing API credentials
         if (!uspsConsumerKey || !uspsConsumerSecret) {
             console.error("USPS API credentials not set in environment variables.");
-            return res.status(500).json({ error: 'USPS API credentials missing.' });
+            return res.status(500).json({ error: 'USPS API credentials missing. Please set USPS_CONSUMER_KEY and USPS_CONSUMER_SECRET.' });
         }
         
-        // This is where the error likely originates.
-        // The USPS API is complex and may not be a simple JSON POST.
-        // It often uses XML. Your current code with axios.post is a placeholder.
-        // For a true fix, you would need to implement the correct XML-based request
-        // as specified in the USPS API documentation.
-
-        // Placeholder logic for the API call
-        // We'll wrap it in a try...catch to prevent the app from crashing.
+        // This is where you would make the real API call to USPS.
+        // It's likely failing here. The rest of the code is a placeholder.
         let uspsLabelUrl = `https://example.com/usps-label-simulated-${orderId}.pdf`; 
         
         try {
-            // This is where you would make the real API call.
+            // Placeholder for the real API call
+            // You would need to replace this with the actual logic to call USPS.
             // const uspsApiResponse = await axios.post(uspsApiUrl, requestPayload);
             // uspsLabelUrl = uspsApiResponse.data.someUrlField;
+            console.log("Simulating USPS label generation for order:", orderId);
+
         } catch (uspsError) {
             console.error("USPS API call failed:", uspsError.message);
-            // Log the full response for more details
+            // Log the full response to help with debugging
             if (uspsError.response) {
                 console.error("USPS Response Data:", uspsError.response.data);
                 console.error("USPS Response Status:", uspsError.response.status);
             }
+            // Return a 502 Bad Gateway to indicate the external service failed
             return res.status(502).json({ error: 'Failed to get a response from USPS API.' });
         }
 
@@ -157,8 +166,9 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
     }
 });
 
+// Endpoint to update order status
 app.put('/api/orders/:orderId/status', async (req, res) => {
-    const orderId = req.params.orderId;
+    const orderId = req.params.id;
     const { status } = req.body;
     if (!status) {
         return res.status(400).json({ error: 'Status is required' });

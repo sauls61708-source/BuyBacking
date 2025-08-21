@@ -14,7 +14,8 @@
             -moz-osx-font-smoothing: grayscale;
         }
         /* Custom styles for hidden radio buttons and clickable images */
-        .carrier-option input[type="radio"] {
+        .carrier-option input[type="radio"],
+        .payment-option input[type="radio"] {
             display: none; /* Hide the actual radio button */
         }
         .carrier-option label {
@@ -36,7 +37,7 @@
         .carrier-option label:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg on hover */
         }
-
+        
         /* Basic styling for radio buttons that are visually hidden but still accessible */
         .sr-only {
             position: absolute;
@@ -184,12 +185,11 @@
                     </button>
                 </form>
 
-                <!-- Quote Display Area -->
+                <!-- Quote Display Area (now just shows quote, no send button) -->
                 <div id="quoteDisplay" class="mt-8 p-6 bg-indigo-50 rounded-xl shadow-inner hidden">
                     <h3 class="text-2xl font-bold text-indigo-800 mb-2">Estimated Buyback Quote:</h3>
                     <p class="text-4xl font-extrabold text-indigo-600" id="finalQuoteAmount">$0</p>
                     <p class="text-sm text-gray-600 mt-2">This is an estimate. Final offer subject to certified inspection.</p>
-                    <!-- No "Send in Phone Now" button here, as it redirects directly -->
                 </div>
                 <div id="quoteMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
 
@@ -322,7 +322,7 @@
                 const selectedStorage = document.getElementById('storage').value;
                 const q1PowerOn = document.querySelector('input[name="q1_power_on"]:checked');
                 const q2Functional = document.querySelector('input[name="q2_fully_functional"]:checked');
-                const q3NoCracks = document.querySelector('input[name="q3_no_cracks']:checked');
+                const q3NoCracks = document.querySelector('input[name="q3_no_cracks"]:checked');
                 const q4Cosmetic = document.querySelector('input[name="q4_cosmetic_condition"]:checked');
 
                 // Redundant check here since 'required' attributes are used, but kept for robustness

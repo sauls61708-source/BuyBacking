@@ -359,7 +359,6 @@
 
             let finalQuote = 0;
 
-            // Adjust this URL if your backend is deployed elsewhere
             const BACKEND_URL = 'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev';
 
             function showQuoteMessage(msg, type) {
@@ -421,7 +420,6 @@
                 nextSteps.classList.remove('hidden');
             });
 
-            // Handle dynamic payment fields
             document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     venmoFields.classList.add('hidden');
@@ -433,7 +431,6 @@
                 });
             });
 
-            // Handle overview updates on input
             const shippingInputs = document.querySelectorAll('#nextSteps input[type="text"], #nextSteps input[type="email"]');
             shippingInputs.forEach(input => {
                 input.addEventListener('input', updateOverview);
@@ -456,7 +453,6 @@
                 orderOverview.classList.remove('hidden');
             }
 
-            // Final submission button
             sendPhoneBtn.addEventListener('click', async () => {
                 const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value;
                 const termsAccepted = document.getElementById('termsAccepted').checked;
@@ -466,7 +462,6 @@
                 const state = document.getElementById('state').value;
                 const zipCode = document.getElementById('zipCode').value;
 
-                // Basic validation
                 if (!selectedPayment || !fullName || !streetAddress || !city || !state || !zipCode) {
                     showQuoteMessage('Please fill out all required fields.', 'error');
                     return;
@@ -484,7 +479,6 @@
                     }
                 }
 
-                // Collect all data
                 const orderData = {
                     device: "iPhone 16 Pro Max",
                     carrier: document.querySelector('input[name="carrier"]:checked').value,
@@ -511,7 +505,6 @@
                     orderData.paymentDetails.venmoUsername = document.getElementById('venmoUsername').value;
                 }
 
-                // Send data to your Node.js backend API
                 try {
                     showQuoteMessage('Submitting your order...', 'success');
                     const response = await fetch(`${BACKEND_URL}/api/submit-order`, {

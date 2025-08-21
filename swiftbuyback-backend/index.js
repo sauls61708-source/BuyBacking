@@ -1,77 +1,100 @@
 import express from "express";
 import cors from "cors";
+import admin from "firebase-admin";
+import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
+import fetch from "node-fetch";
+
+dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(cors()); // allow requests from any origin
+// Serve static files from /public
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use(cors());
 app.use(express.json());
 
-// Temporary in-memory "orders" database
-let orders = [
-    {
-        id: "1001",
-        device: "iPhone 13",
-        carrier: "AT&T",
-        storage: "128GB",
-        condition_power_on: "Yes",
-        condition_functional: "Yes",
-        condition_cracks: "No",
-        condition_cosmetic: "Minor scratches",
-        estimatedQuote: 420.00,
-        paymentMethod: "Venmo",
-        paymentDetails: { venmoUsername: "@user123" },
-        shippingInfo: {
-            fullName: "John Doe",
-            streetAddress: "123 Main St",
-            city: "Brooklyn",
-            state: "NY",
-            zipCode: "11201",
-            email: "john@example.com"
-        },
-        status: "pending_shipment",
-        uspsLabelUrl: null
-    }
-];
+// Firebase Admin Initialization
+const serviceAccount = JSON.parse(fs.readFileSync(process.env.FIREBASE_SERVICE_ACCOUNT));
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+const db = admin.firestore();
+const ordersCollection = db.collection('orders');
+
+// Serve admin.html on root
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
 
 // Get all orders
-app.get("/api/orders", (req, res) => {
-    res.json(orders);
+app.get("/api/orders", async (req, res) => {
+    try {
+        const snapshot = await ordersCollection.get();
+        const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.json(orders);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-// Get single order
-app.get("/api/orders/:id", (req, res) => {
-    const order = orders.find(o => o.id === req.params.id);
-    if (!order) return res.status(404).json({ error: "Order not found" });
-    res.json(order);
-});
+// Generate label using ShipEngine sandbox
+app.post("/api/generate-label/:id", async (req, res) => {
+    try {
+        const orderRef = ordersCollection.doc(req.params.id);
+        const doc = await orderRef.get();
+        if (!doc.exists) return res.status(404).json({ error: "Order not found" });
 
-// Generate USPS label
-app.post("/api/generate-label/:id", (req, res) => {
-    const order = orders.find(o => o.id === req.params.id);
-    if (!order) return res.status(404).json({ error: "Order not found" });
+        // ShipEngine Sandbox request
+        const response = await fetch("https://api.shipengine.com/v1/labels", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "API-Key": process.env.SS_API_KEY
+            },
+            body: JSON.stringify({
+                shipment: {
+                    service_code: "usps_first_class",
+                    ship_to: {
+                        name: "Customer",
+                        address_line1: "123 Main St",
+                        city: "Columbus",
+                        state: "OH",
+                        postal_code: "43215",
+                        country_code: "US"
+                    },
+                    packages: [{ weight: { value: 1, unit: "ounce" } }]
+                }
+            })
+        });
 
-    // Fake label URL
-    order.uspsLabelUrl = `https://www.example.com/label/${order.id}`;
-    order.status = "label_generated";
+        const data = await response.json();
+        await orderRef.update({ status: 'label_generated', uspsLabelUrl: data.label_download.link });
 
-    res.json({
-        message: "USPS label generated successfully",
-        uspsLabelUrl: order.uspsLabelUrl
-    });
+        res.json({ message: "Label generated", uspsLabelUrl: data.label_download.link });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
 // Update order status
-app.put("/api/orders/:id/status", (req, res) => {
-    const order = orders.find(o => o.id === req.params.id);
-    if (!order) return res.status(404).json({ error: "Order not found" });
+app.put("/api/orders/:id/status", async (req, res) => {
+    try {
+        const { status } = req.body;
+        if (!status) return res.status(400).json({ error: "Status required" });
 
-    const { status } = req.body;
-    order.status = status;
+        const orderRef = ordersCollection.doc(req.params.id);
+        const doc = await orderRef.get();
+        if (!doc.exists) return res.status(404).json({ error: "Order not found" });
 
-    res.json({ message: `Order status updated to ${status}` });
+        await orderRef.update({ status });
+        res.json({ message: `Order marked as ${status}` });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Backend running at http://localhost:${PORT}`);
-});
+// Start server
+app.listen(PORT, () => console.log(`🚀 Backend running at http://localhost:${PORT}`));

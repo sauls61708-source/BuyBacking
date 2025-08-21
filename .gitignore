@@ -1,2 +1,3 @@
 # swiftbuyback-backend/.gitignore
 serviceAccountKey.json
+node_modules

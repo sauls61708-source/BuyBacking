@@ -1,291 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwiftBuyBack Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwiftBuyBack Admin</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+/* Loader animation */
+.loader {
+  border: 4px solid #6366F1;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
 </head>
-<body class="bg-gray-100 text-gray-900 min-h-screen">
-    <header class="bg-indigo-700 text-white p-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">SwiftBuyBack Admin</h1>
-            <button id="refreshOrdersBtn" class="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-md transition duration-300">
-                Refresh Orders
-            </button>
-        </div>
-    </header>
+<body class="bg-gray-50 min-h-screen flex flex-col">
 
-    <main class="container mx-auto p-6">
-        <h2 class="text-3xl font-bold mb-6 text-gray-800">Manage Orders</h2>
+<!-- Loading Screen -->
+<div id="loadingScreen" class="hidden fixed inset-0 bg-white flex items-center justify-center z-50">
+  <div class="text-center">
+    <div class="loader mx-auto mb-4"></div>
+    <p class="text-gray-700 font-medium">Loading...</p>
+  </div>
+</div>
 
-        <div id="ordersContainer" class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-xl font-semibold mb-4">Pending Shipments</h3>
-            <div id="ordersList" class="space-y-4">
-                <p class="text-gray-500" id="loadingMessage">Loading orders...</p>
-                </div>
-            <p id="errorMessage" class="text-red-600 mt-4 hidden">Error loading orders.</p>
-        </div>
+<!-- Login Screen -->
+<div id="loginScreen" class="flex-1 flex flex-col items-center justify-center">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">SwiftBuyBack Admin</h1>
+  <button id="signInBtn" class="flex items-center bg-white border border-gray-300 rounded px-4 py-2 hover:bg-gray-50 transition">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" class="w-5 h-5 mr-2" alt="Google Logo">
+    Sign in with Google
+  </button>
+</div>
 
-        <div id="orderDetailModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
-            <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800">Order Details: <span id="modalOrderId"></span></h3>
-                    <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
-                </div>
-                <div class="space-y-4 text-gray-700">
-                    <p><strong>Estimated Quote:</strong> <span id="modalEstimatedQuote"></span></p>
+<!-- Dashboard -->
+<div id="dashboard" class="hidden flex-1 flex flex-col md:flex-row">
+  <!-- Sidebar Menu -->
+  <nav class="bg-white shadow-md w-full md:w-64 p-4 flex-shrink-0">
+    <h2 class="text-xl font-semibold mb-6">Menu</h2>
+    <ul class="space-y-3">
+      <li><button id="ordersTab" class="w-full text-left px-2 py-1 rounded hover:bg-indigo-100 transition">Orders</button></li>
+      <li><button id="shippingTab" class="w-full text-left px-2 py-1 rounded hover:bg-indigo-100 transition">Shipping</button></li>
+      <li><button id="settingsTab" class="w-full text-left px-2 py-1 rounded hover:bg-indigo-100 transition">Settings</button></li>
+      <li><button id="signOutBtn" class="w-full text-left px-2 py-1 rounded hover:bg-red-100 text-red-600 transition">Sign Out</button></li>
+    </ul>
+  </nav>
 
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Device Details:</h4>
-                    <p><strong>Model:</strong> <span id="modalDeviceModel"></span></p>
-                    <p><strong>Carrier:</strong> <span id="modalDeviceCarrier"></span></p>
-                    <p><strong>Storage:</strong> <span id="modalDeviceStorage"></span></p>
-                    <p><strong>Condition:</strong></p>
-                    <ul class="list-disc list-inside ml-4">
-                        <li>Power On: <span id="modalConditionPowerOn"></span></li>
-                        <li>Fully Functional: <span id="modalConditionFunctional"></span></li>
-                        <li>No Cracks: <span id="modalConditionCracks"></span></li>
-                        <li>Cosmetic: <span id="modalConditionCosmetic"></span></li>
-                    </ul>
+  <!-- Main Content -->
+  <main class="flex-1 p-6 overflow-auto">
+    <h2 class="text-2xl font-bold mb-4">Orders</h2>
+    <div id="ordersList" class="space-y-4"></div>
+    <p id="loadingMessage" class="text-gray-600 hidden">Loading orders...</p>
+    <p id="errorMessage" class="text-red-600 hidden"></p>
+  </main>
+</div>
 
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Payment Details:</h4>
-                    <p><strong>Method:</strong> <span id="modalPaymentMethod"></span></p>
-                    <p><strong>Account:</strong> <span id="modalPaymentValue"></span></p>
+<!-- Order Modal -->
+<div id="orderDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg w-full max-w-2xl p-6 relative overflow-auto max-h-[90vh]">
+    <button id="closeModalBtn" class="absolute top-2 right-2 text-gray-600 hover:text-gray-900">&times;</button>
+    <h3 class="text-xl font-bold mb-4">Order Details</h3>
+    <div id="modalContent" class="space-y-2 text-gray-700"></div>
+    <div id="modalMessage" class="hidden p-2 rounded mt-4"></div>
+    <div class="mt-4 flex space-x-2">
+      <button id="generateLabelBtn" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded hidden">Generate Label</button>
+      <button id="markReceivedBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded hidden">Mark Received</button>
+      <button id="markCompletedBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded hidden">Mark Completed</button>
+    </div>
+  </div>
+</div>
 
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Shipping Details:</h4>
-                    <p><strong>Name:</strong> <span id="modalShippingName"></span></p>
-                    <p><strong>Address:</strong> <span id="modalShippingAddress"></span></p>
-                    <p><strong>Email:</strong> <span id="modalShippingEmail"></span></p>
+<script>
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
+  authDomain: "buyback-a0f05.firebaseapp.com",
+  projectId: "buyback-a0f05",
+  storageBucket: "buyback-a0f05.firebasestorage.app",
+  messagingSenderId: "876430429098",
+  appId: "1:876430429098:web:f6dd64b1960d90461979d3",
+  measurementId: "G-6WWQN44JHT"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
 
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Current Status: <span id="modalOrderStatus" class="font-bold"></span></h4>
-                    <p id="modalLabelUrl" class="hidden"><strong>USPS Label:</strong> <a href="#" target="_blank" class="text-indigo-600 hover:underline">View Label</a></p>
+// DOM Elements
+const loginScreen = document.getElementById('loginScreen');
+const dashboard = document.getElementById('dashboard');
+const loadingScreen = document.getElementById('loadingScreen');
+const signInBtn = document.getElementById('signInBtn');
+const signOutBtn = document.getElementById('signOutBtn');
+const ordersList = document.getElementById('ordersList');
+const loadingMessage = document.getElementById('loadingMessage');
+const errorMessage = document.getElementById('errorMessage');
 
-                    <div class="mt-6 space-y-3">
-                        <button id="generateLabelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
-                            Generate USPS Label
-                        </button>
-                        <button id="markReceivedBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
-                            Mark as Received
-                        </button>
-                        <button id="markCompletedBtn" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
-                            Mark as Completed
-                        </button>
-                        <p id="modalMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+// Simple backend URL
+const BACKEND_URL = '';
 
-    <script>
-        const BACKEND_URL = 'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev';
+// Auth state observer
+auth.onAuthStateChanged(user => {
+  if (user) {
+    loginScreen.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+    fetchOrders();
+  } else {
+    loginScreen.classList.remove('hidden');
+    dashboard.classList.add('hidden');
+  }
+});
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const ordersList = document.getElementById('ordersList');
-            const loadingMessage = document.getElementById('loadingMessage');
-            const errorMessage = document.getElementById('errorMessage');
-            const refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
-            const orderDetailModal = document.getElementById('orderDetailModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const generateLabelBtn = document.getElementById('generateLabelBtn');
-            const markReceivedBtn = document.getElementById('markReceivedBtn');
-            const markCompletedBtn = document.getElementById('markCompletedBtn');
-            const modalMessage = document.getElementById('modalMessage');
+// Google Sign-In
+signInBtn.addEventListener('click', async () => {
+  try {
+    loadingScreen.classList.remove('hidden');
+    await auth.signInWithPopup(provider);
+    loadingScreen.classList.add('hidden');
+  } catch(err) {
+    console.error(err);
+    loadingScreen.classList.add('hidden');
+  }
+});
 
-            let currentOrderId = null;
+// Sign-Out
+signOutBtn.addEventListener('click', () => {
+  auth.signOut();
+});
 
-            function showModalMessage(msg, type) {
-                modalMessage.textContent = msg;
-                modalMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
-                if (type === 'error') {
-                    modalMessage.classList.add('bg-red-100', 'text-red-700');
-                } else if (type === 'success') {
-                    modalMessage.classList.add('bg-green-100', 'text-green-700');
-                }
-                modalMessage.classList.remove('hidden');
-            }
-
-            async function fetchOrders() {
-                ordersList.innerHTML = '';
-                loadingMessage.classList.remove('hidden');
-                errorMessage.classList.add('hidden');
-                modalMessage.classList.add('hidden');
-
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/orders`);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const orders = await response.json();
-
-                    loadingMessage.classList.add('hidden');
-
-                    if (orders.length === 0) {
-                        ordersList.innerHTML = '<p class="text-gray-600">No pending shipments found.</p>';
-                    } else {
-                        orders.forEach(order => {
-                            const orderDiv = document.createElement('div');
-                            orderDiv.className = 'bg-gray-50 p-4 rounded-md shadow-sm flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200';
-                            orderDiv.innerHTML = `
-                                <div>
-                                    <p class="font-bold text-lg">Order ID: ${order.id}</p>
-                                    <p class="text-sm text-gray-600">Device: ${order.device} (${order.storage})</p>
-                                    <p class="text-sm text-gray-600">Status: <span class="font-medium">${order.status}</span></p>
-                                </div>
-                                <button class="view-details-btn bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-md text-sm transition duration-300" data-order-id="${order.id}">View Details</button>
-                            `;
-                            ordersList.appendChild(orderDiv);
-                        });
-
-                        document.querySelectorAll('.view-details-btn').forEach(button => {
-                            button.addEventListener('click', async (event) => {
-                                const orderId = event.target.dataset.orderId;
-                                const response = await fetch(`${BACKEND_URL}/api/orders/${orderId}`);
-                                const orderData = await response.json();
-                                openOrderDetailModal(orderId, orderData);
-                            });
-                        });
-                    }
-                } catch (error) {
-                    console.error('Failed to fetch orders:', error);
-                    loadingMessage.classList.add('hidden');
-                    errorMessage.textContent = `Error: ${error.message}. Is the backend running at ${BACKEND_URL}?`;
-                    errorMessage.classList.remove('hidden');
-                }
-            }
-
-            async function openOrderDetailModal(orderId, orderData) {
-                currentOrderId = orderId;
-                document.getElementById('modalOrderId').textContent = orderId;
-                document.getElementById('modalEstimatedQuote').textContent = `$${orderData.estimatedQuote.toFixed(2)}`;
-
-                document.getElementById('modalDeviceModel').textContent = orderData.device;
-                document.getElementById('modalDeviceCarrier').textContent = orderData.carrier;
-                document.getElementById('modalDeviceStorage').textContent = orderData.storage;
-                document.getElementById('modalConditionPowerOn').textContent = orderData.condition_power_on;
-                document.getElementById('modalConditionFunctional').textContent = orderData.condition_functional;
-                document.getElementById('modalConditionCracks').textContent = orderData.condition_cracks;
-                document.getElementById('modalConditionCosmetic').textContent = orderData.condition_cosmetic;
-
-                document.getElementById('modalPaymentMethod').textContent = orderData.paymentMethod;
-                document.getElementById('modalPaymentValue').textContent = orderData.paymentDetails.venmoUsername || 'N/A';
-
-                document.getElementById('modalShippingName').textContent = orderData.shippingInfo.fullName;
-                document.getElementById('modalShippingAddress').textContent = `${orderData.shippingInfo.streetAddress}, ${orderData.shippingInfo.city}, ${orderData.shippingInfo.state} ${orderData.shippingInfo.zipCode}`;
-                document.getElementById('modalShippingEmail').textContent = orderData.shippingInfo.email;
-
-                document.getElementById('modalOrderStatus').textContent = orderData.status;
-
-                const modalLabelUrl = document.getElementById('modalLabelUrl');
-                const labelLink = modalLabelUrl.querySelector('a');
-                if (orderData.uspsLabelUrl) {
-                    labelLink.href = orderData.uspsLabelUrl;
-                    modalLabelUrl.classList.remove('hidden');
-                } else {
-                    modalLabelUrl.classList.add('hidden');
-                }
-                
-                generateLabelBtn.classList.add('hidden');
-                markReceivedBtn.classList.add('hidden');
-                markCompletedBtn.classList.add('hidden');
-                
-                if (orderData.status === 'pending_shipment') {
-                    generateLabelBtn.classList.remove('hidden');
-                } else if (orderData.status === 'label_generated') {
-                    markReceivedBtn.classList.remove('hidden');
-                } else if (orderData.status === 'received') {
-                    markCompletedBtn.classList.remove('hidden');
-                }
-
-                modalMessage.classList.add('hidden');
-                orderDetailModal.classList.remove('hidden');
-            }
-
-            closeModalBtn.addEventListener('click', () => {
-                orderDetailModal.classList.add('hidden');
-                currentOrderId = null;
-                fetchOrders();
-            });
-
-            generateLabelBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                showModalMessage('Generating label...', 'success');
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/generate-label/${currentOrderId}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.error || 'Failed to generate label');
-                    }
-                    showModalMessage(result.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'label_generated';
-                    const modalLabelUrl = document.getElementById('modalLabelUrl');
-                    modalLabelUrl.querySelector('a').href = result.uspsLabelUrl;
-                    modalLabelUrl.classList.remove('hidden');
-                    generateLabelBtn.classList.add('hidden');
-                    markReceivedBtn.classList.remove('hidden');
-                } catch (error) {
-                    showModalMessage(`Error: ${error.message}`, 'error');
-                    console.error('Label generation error:', error);
-                }
-            });
-
-            markReceivedBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                showModalMessage('Marking as received...', 'success');
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/orders/${currentOrderId}/status`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'received' })
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.error || 'Failed to mark as received');
-                    }
-                    showModalMessage(result.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'received';
-                    markReceivedBtn.classList.add('hidden');
-                    markCompletedBtn.classList.remove('hidden');
-                } catch (error) {
-                    showModalMessage(`Error: ${error.message}`, 'error');
-                    console.error('Mark received error:', error);
-                }
-            });
-            
-            markCompletedBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                showModalMessage('Marking as completed...', 'success');
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/orders/${currentOrderId}/status`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'completed' })
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.error || 'Failed to mark as completed');
-                    }
-                    showModalMessage(result.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'completed';
-                    markCompletedBtn.classList.add('hidden');
-                    markReceivedBtn.classList.add('hidden');
-                    generateLabelBtn.classList.add('hidden');
-                } catch (error) {
-                    showModalMessage(`Error: ${error.message}`, 'error');
-                    console.error('Mark completed error:', error);
-                }
-            });
-
-            fetchOrders();
-            refreshOrdersBtn.addEventListener('click', fetchOrders);
+// Fetch orders from backend
+async function fetchOrders() {
+  ordersList.innerHTML = '';
+  loadingMessage.classList.remove('hidden');
+  errorMessage.classList.add('hidden');
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/orders`);
+    if (!res.ok) throw new Error(res.statusText);
+    const orders = await res.json();
+    loadingMessage.classList.add('hidden');
+    if (orders.length === 0) ordersList.innerHTML = '<p class="text-gray-600">No orders found.</p>';
+    else {
+      orders.forEach(order => {
+        const div = document.createElement('div');
+        div.className = 'bg-white p-4 rounded shadow flex justify-between items-center hover:bg-gray-50 transition';
+        div.innerHTML = `
+          <div>
+            <p class="font-bold">${order.device} (${order.storage})</p>
+            <p class="text-sm text-gray-500">Status: ${order.status}</p>
+          </div>
+          <button class="view-btn bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded" data-id="${order.id}">View</button>
+        `;
+        ordersList.appendChild(div);
+      });
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          alert(`Order ID: ${btn.dataset.id}`); // Replace with modal code
         });
-    </script>
+      });
+    }
+  } catch(err) {
+    console.error(err);
+    loadingMessage.classList.add('hidden');
+    errorMessage.textContent = `Failed to fetch orders: ${err.message}`;
+    errorMessage.classList.remove('hidden');
+  }
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftBuyBack - Checkout</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom styles for hidden radio buttons and clickable images */
+        .payment-option input[type="radio"] {
+            display: none; /* Hide the actual radio button */
+        }
+        .payment-option label {
+            cursor: pointer;
+            border: 2px solid transparent; /* Default border */
+            border-radius: 0.75rem; /* rounded-xl equivalent */
+            transition: all 0.2s ease-in-out;
+            display: flex; /* Use flex to center image and text */
+            flex-direction: column; /* Stack image and text vertically */
+            align-items: center; /* Center horizontally */
+            justify-content: center; /* Center vertically */
+            height: 100%; /* Ensure label takes full height of grid item */
+        }
+        .payment-option input[type="radio"]:checked + label {
+            border-color: #4f46e5; /* Indigo-600 for checked state */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg equivalent */
+            transform: scale(1.02); /* Slight scale on selection */
+        }
+        .payment-option label:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg on hover */
+        }
+        
+        /* Basic styling for radio buttons that are visually hidden but still accessible */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header (reused for consistency) -->
+    <header class="bg-white shadow-sm py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
+            <nav class="space-x-4">
+                <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <a href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content - Checkout Form -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="bg-white p-8 rounded-xl shadow-lg">
+            <h1 class="text-4xl font-bold text-gray-800 mb-6 text-center">Complete Your Order</h1>
+            <p class="text-gray-700 mb-8 text-center">Just a few more steps to turn your device into cash!</p>
+
+            <!-- Order Details Overview (from URL parameters) -->
+            <div class="bg-indigo-50 p-6 rounded-xl shadow-inner mb-8">
+                <h3 class="text-2xl font-bold text-indigo-800 mb-4">Your Device Details</h3>
+                <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Model:</span> <span id="overviewModel"></span></p>
+                <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Storage:</span> <span id="overviewStorage"></span></p>
+                <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Carrier:</span> <span id="overviewCarrier"></span></p>
+                <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Estimated Quote:</span> <span id="overviewQuote" class="text-indigo-600">$0</span></p>
+            </div>
+
+            <!-- Payment and Shipping Form -->
+            <form id="checkoutForm">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">How Would You Like to Get Paid?</h2>
+                
+                <!-- Payment Options -->
+                <div class="mb-8">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <label class="payment-option flex flex-col items-center bg-white p-4 rounded-xl shadow-md cursor-pointer transition-transform hover:scale-105 hover:shadow-lg">
+                            <input type="radio" name="payment_method" value="venmo" class="sr-only" required>
+                            <img src="https://placehold.co/80x80/ffffff/000000?text=Venmo" alt="Venmo Logo" class="mb-2 w-16 h-16">
+                            <span class="text-gray-700 font-semibold">Venmo</span>
+                        </label>
+                        <label class="payment-option flex flex-col items-center bg-white p-4 rounded-xl shadow-md cursor-pointer transition-transform hover:scale-105 hover:shadow-lg">
+                            <input type="radio" name="payment_method" value="paypal" class="sr-only" required>
+                            <img src="https://placehold.co/80x80/ffffff/000000?text=PayPal" alt="PayPal Logo" class="mb-2 w-16 h-16">
+                            <span class="text-gray-700 font-semibold">PayPal</span>
+                        </label>
+                        <label class="payment-option flex flex-col items-center bg-white p-4 rounded-xl shadow-md cursor-pointer transition-transform hover:scale-105 hover:shadow-lg">
+                            <input type="radio" name="payment_method" value="zelle" class="sr-only" required>
+                            <img src="https://placehold.co/80x80/ffffff/000000?text=Zelle" alt="Zelle Logo" class="mb-2 w-16 h-16">
+                            <span class="block text-gray-700 font-semibold">Zelle</span>
+                        </label>
+                        <label class="payment-option flex flex-col items-center bg-white p-4 rounded-xl shadow-md cursor-pointer transition-transform hover:scale-105 hover:shadow-lg">
+                            <input type="radio" name="payment_method" value="check" class="sr-only" required>
+                            <img src="https://placehold.co/80x80/ffffff/000000?text=Check" alt="Check Icon" class="mb-2 w-16 h-16">
+                            <span class="block text-gray-700 font-semibold">Check in Mail</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Dynamic Payment Input Fields -->
+                <div id="paymentFields" class="hidden bg-gray-50 p-6 rounded-xl shadow-inner mt-4 mb-8">
+                    <div id="venmoInputs" class="hidden">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Venmo Details</h3>
+                        <div class="mb-4">
+                            <label for="venmoUsername" class="block text-gray-700 font-medium mb-2">Venmo Username</label>
+                            <input type="text" id="venmoUsername" name="venmoUsername" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="venmoUsernameConfirm" class="block text-gray-700 font-medium mb-2">Confirm Venmo Username</label>
+                            <input type="text" id="venmoUsernameConfirm" name="venmoUsernameConfirm" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div id="paypalInputs" class="hidden">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">PayPal Details</h3>
+                        <div class="mb-4">
+                            <label for="paypalEmail" class="block text-gray-700 font-medium mb-2">PayPal Email</label>
+                            <input type="email" id="paypalEmail" name="paypalEmail" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="paypalEmailConfirm" class="block text-gray-700 font-medium mb-2">Confirm PayPal Email</label>
+                            <input type="email" id="paypalEmailConfirm" name="paypalEmailConfirm" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div id="zelleInputs" class="hidden">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Zelle Details</h3>
+                        <div class="mb-4">
+                            <label for="zelleEmail" class="block text-gray-700 font-medium mb-2">Zelle Email</label>
+                            <input type="email" id="zelleEmail" name="zelleEmail" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="zelleEmailConfirm" class="block text-gray-700 font-medium mb-2">Confirm Zelle Email</label>
+                            <input type="email" id="zelleEmailConfirm" name="zelleEmailConfirm" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div id="checkInputs" class="hidden">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Check Details</h3>
+                        <div class="mb-4">
+                            <label for="checkEmail" class="block text-gray-700 font-medium mb-2">Email for Check Confirmation</label>
+                            <input type="email" id="checkEmail" name="checkEmail" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Shipping Info Section -->
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Shipping Information</h2>
+                <p class="text-gray-700 mb-4">We'll send a prepaid shipping label and a box right to your house. We'll also email you a prepaid USPS shipping label. Please provide your shipping address below.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="fullName" class="block text-gray-700 font-medium mb-2">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="shippingEmail" class="block text-gray-700 font-medium mb-2">Email</label>
+                        <input type="email" id="shippingEmail" name="shippingEmail" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="address" class="block text-gray-700 font-medium mb-2">Address</label>
+                        <input type="text" id="address" name="address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="city" class="block text-gray-700 font-medium mb-2">City</label>
+                        <input type="text" id="city" name="city" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="state" class="block text-gray-700 font-medium mb-2">State</label>
+                        <input type="text" id="state" name="state" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="zip" class="block text-gray-700 font-medium mb-2">Zip Code</label>
+                        <input type="text" id="zip" name="zip" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-gray-700 font-medium mb-2">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="mt-8 flex items-start">
+                    <input type="checkbox" id="termsCheck" class="form-checkbox h-5 w-5 text-indigo-600 rounded-md border-gray-300 focus:ring-indigo-500">
+                    <label for="termsCheck" class="ml-3 text-sm text-gray-700 leading-6">
+                        By checking this box, you must agree to our <a href="#" class="text-indigo-600 hover:underline">Terms and Conditions</a> and our <a href="#" class="text-indigo-600 hover:underline">Privacy Policy</a>. You also confirm that the item(s) you are selling have not been reported lost or stolen.
+                    </label>
+                </div>
+
+                <button type="submit" id="finalConfirmBtn" class="mt-6 w-full bg-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50" disabled>
+                    Confirm and Send Order
+                </button>
+                <p id="formMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></p>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer (reused for consistency) -->
+    <footer class="bg-gray-800 text-white py-12 mt-8 w-full">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4">SwiftBuyBack</h3>
+                <p class="text-gray-400">Your trusted partner for selling used smartphones. Quick quotes, fair prices, and hassle-free service.</p>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
+                    <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
+                    <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
+                </ul>
+            </div>
+            <div class="md:col-span-2 lg:col-span-1">
+                <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                <p class="text-gray-400">Email: info@swiftbuyback.com</p>
+                <p class="text-gray-400">Phone: (123) 456-7890</p>
+                <p class="text-gray-400 mt-4">&copy; 2025 SwiftBuyBack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Firebase SDK Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Firebase Initialization and Authentication ---
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+
+            let currentUserId = null; // Will be set if user is logged in
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+            // Login Redirection Logic
+            onAuthStateChanged(auth, (user) => {
+                if (!user) {
+                    // User is not signed in, redirect to login page
+                    const currentPageUrl = encodeURIComponent(window.location.href);
+                    const loginUrl = `https://toratyosef.github.io/BuyBacking/login.html?redirect_to=${currentPageUrl}`;
+                    window.location.replace(loginUrl);
+                } else {
+                    currentUserId = user.uid;
+                    console.log("User signed in. User ID:", currentUserId);
+                }
+            });
+
+            // --- Element References ---
+            const overviewModel = document.getElementById('overviewModel');
+            const overviewStorage = document.getElementById('overviewStorage');
+            const overviewCarrier = document.getElementById('overviewCarrier');
+            const overviewQuote = document.getElementById('overviewQuote');
+
+            const checkoutForm = document.getElementById('checkoutForm');
+            const paymentOptions = document.querySelectorAll('input[name="payment_method"]');
+            const paymentFields = document.getElementById('paymentFields');
+            const venmoInputs = document.getElementById('venmoInputs');
+            const zelleInputs = document.getElementById('zelleInputs');
+            const paypalInputs = document.getElementById('paypalInputs');
+            const checkInputs = document.getElementById('checkInputs'); // Corresponds to 'echeck' radio value
+
+            const fullNameInput = document.getElementById('fullName');
+            const shippingEmailInput = document.getElementById('shippingEmail');
+            const addressInput = document.getElementById('address');
+            const cityInput = document.getElementById('city');
+            const stateInput = document.getElementById('state');
+            const zipInput = document.getElementById('zip');
+            const phoneInput = document.getElementById('phone');
+
+            const termsCheck = document.getElementById('termsCheck');
+            const finalConfirmBtn = document.getElementById('finalConfirmBtn');
+            const formMessage = document.getElementById('formMessage'); // For displaying messages on this page
+
+            // --- Helper Functions ---
+            function showFormMessage(msg, type) {
+                formMessage.textContent = msg;
+                formMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+                if (type === 'error') {
+                    formMessage.classList.add('bg-red-100', 'text-red-700');
+                } else if (type === 'success') {
+                    formMessage.classList.add('bg-green-100', 'text-green-700');
+                }
+                formMessage.classList.remove('hidden');
+            }
+
+            function clearFormMessage() {
+                formMessage.classList.add('hidden');
+                formMessage.textContent = '';
+            }
+
+            // Function to clear payment-specific inputs and remove 'required' attributes
+            function clearPaymentInputs() {
+                // Clear values
+                document.getElementById('venmoUsername').value = '';
+                document.getElementById('venmoUsernameConfirm').value = '';
+                document.getElementById('paypalEmail').value = '';
+                document.getElementById('paypalEmailConfirm').value = '';
+                document.getElementById('zelleEmail').value = '';
+                document.getElementById('zelleEmailConfirm').value = '';
+                document.getElementById('checkEmail').value = '';
+
+                // Remove 'required' attributes
+                document.getElementById('venmoUsername').removeAttribute('required');
+                document.getElementById('venmoUsernameConfirm').removeAttribute('required');
+                document.getElementById('paypalEmail').removeAttribute('required');
+                document.getElementById('paypalEmailConfirm').removeAttribute('required');
+                document.getElementById('zelleEmail').removeAttribute('required');
+                document.getElementById('zelleEmailConfirm').removeAttribute('required');
+                document.getElementById('checkEmail').removeAttribute('required');
+            }
+
+            // --- Parse URL Parameters and Display Device Details ---
+            const urlParams = new URLSearchParams(window.location.search);
+            const deviceDetails = {
+                model: urlParams.get('model'),
+                carrier: urlParams.get('carrier'),
+                storage: urlParams.get('storage'),
+                powerOn: urlParams.get('powerOn'),
+                functional: urlParams.get('functional'),
+                noCracks: urlParams.get('noCracks'),
+                cosmetic: urlParams.get('cosmetic'),
+                quote: parseFloat(urlParams.get('quote'))
+            };
+
+            // Populate the overview section
+            if (deviceDetails.model) {
+                overviewModel.textContent = deviceDetails.model;
+                overviewStorage.textContent = deviceDetails.storage;
+                overviewCarrier.textContent = deviceDetails.carrier;
+                overviewQuote.textContent = `$${deviceDetails.quote.toFixed(2)}`;
+            } else {
+                // Redirect back if no device details are found (e.g., user landed directly)
+                showFormMessage('No device details found. Please select a device first.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'sell-device.html'; // Or the specific iPhone 16 Pro Max page
+                }, 3000);
+            }
+
+            // --- Event Listeners ---
+
+            // Event listener for payment method selection
+            paymentOptions.forEach(option => {
+                option.addEventListener('change', () => {
+                    // Hide all input fields and remove their 'required' attributes
+                    venmoInputs.classList.add('hidden');
+                    paypalInputs.classList.add('hidden');
+                    zelleInputs.classList.add('hidden');
+                    checkInputs.classList.add('hidden');
+                    
+                    clearPaymentInputs(); // Clear values and remove all required attributes
+                    paymentFields.classList.remove('hidden'); // Show the payment fields container
+
+                    // Show the relevant input fields and set 'required' based on the selection
+                    switch (option.value) {
+                        case 'venmo':
+                            venmoInputs.classList.remove('hidden');
+                            document.getElementById('venmoUsername').setAttribute('required', 'required');
+                            document.getElementById('venmoUsernameConfirm').setAttribute('required', 'required');
+                            break;
+                        case 'paypal':
+                            paypalInputs.classList.remove('hidden');
+                            document.getElementById('paypalEmail').setAttribute('required', 'required');
+                            document.getElementById('paypalEmailConfirm').setAttribute('required', 'required');
+                            break;
+                        case 'zelle':
+                            zelleInputs.classList.remove('hidden');
+                            document.getElementById('zelleEmail').setAttribute('required', 'required');
+                            document.getElementById('zelleEmailConfirm').setAttribute('required', 'required');
+                            break;
+                        case 'check': // Corresponds to the 'echeck' radio value in your HTML
+                            checkInputs.classList.remove('hidden');
+                            document.getElementById('checkEmail').setAttribute('required', 'required');
+                            break;
+                    }
+                });
+            });
+
+            // Enable/Disable the final button based on checkbox
+            termsCheck.addEventListener('change', () => {
+                finalConfirmBtn.disabled = !termsCheck.checked;
+                clearFormMessage(); // Hide any previous messages
+            });
+
+            // Form Submission Logic
+            checkoutForm.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevent default form submission (page reload)
+                clearFormMessage(); // Clear previous messages
+
+                // Validate terms acceptance
+                if (!termsCheck.checked) {
+                    showFormMessage('Please agree to the terms and conditions.', 'error');
+                    return;
+                }
+
+                // Ensure currentUserId is available before attempting Firestore save
+                if (!currentUserId || currentUserId === 'anonymous') {
+                    showFormMessage('Authentication error. Please refresh the page or log in again.', 'error');
+                    console.error("User not authenticated for Firestore save.");
+                    return;
+                }
+
+                // Validate payment-specific fields (already handled by 'required' attributes, but double-check)
+                const selectedPaymentRadio = document.querySelector('input[name="payment_method"]:checked');
+                if (!selectedPaymentRadio) {
+                    showFormMessage('Please select a payment method.', 'error');
+                    return;
+                }
+
+                let paymentData = {
+                    method: selectedPaymentRadio.value,
+                    value: ''
+                };
+                let isValidPaymentInput = true;
+
+                switch (selectedPaymentRadio.value) {
+                    case 'venmo':
+                        const venmoUsername = document.getElementById('venmoUsername').value.trim();
+                        const venmoUsernameConfirm = document.getElementById('venmoUsernameConfirm').value.trim();
+                        if (!venmoUsername || venmoUsername !== venmoUsernameConfirm) {
+                            showFormMessage('Please enter and confirm your Venmo username correctly.', 'error');
+                            isValidPaymentInput = false;
+                        }
+                        paymentData.value = venmoUsername;
+                        break;
+                    case 'paypal':
+                        const paypalEmail = document.getElementById('paypalEmail').value.trim();
+                        const paypalEmailConfirm = document.getElementById('paypalEmailConfirm').value.trim();
+                        if (!paypalEmail || paypalEmail !== paypalEmailConfirm) {
+                            showFormMessage('Please enter and confirm your PayPal email correctly.', 'error');
+                            isValidPaymentInput = false;
+                        }
+                        paymentData.value = paypalEmail;
+                        break;
+                    case 'zelle':
+                        const zelleEmail = document.getElementById('zelleEmail').value.trim();
+                        const zelleEmailConfirm = document.getElementById('zelleEmailConfirm').value.trim();
+                        if (!zelleEmail || zelleEmail !== zelleEmailConfirm) {
+                            showFormMessage('Please enter and confirm your Zelle email correctly.', 'error');
+                            isValidPaymentInput = false;
+                        }
+                        paymentData.value = zelleEmail;
+                        break;
+                    case 'check': // Corresponds to the 'echeck' radio value
+                        const checkEmail = document.getElementById('checkEmail').value.trim();
+                        if (!checkEmail) {
+                            showFormMessage('Please enter an email for check confirmation.', 'error');
+                            isValidPaymentInput = false;
+                        }
+                        paymentData.value = checkEmail;
+                        break;
+                }
+
+                if (!isValidPaymentInput) {
+                    return; // Stop if payment input is invalid
+                }
+
+                // Collect shipping info (HTML 'required' attributes handle most validation)
+                const shippingInfo = {
+                    fullName: fullNameInput.value.trim(),
+                    address: addressInput.value.trim(),
+                    city: cityInput.value.trim(),
+                    state: stateInput.value.trim(),
+                    zip: zipInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    contactEmail: shippingEmailInput.value.trim(),
+                    country: "United States" // Hardcoded for this example
+                };
+
+                const orderId = crypto.randomUUID(); // Generate a unique order ID
+
+                const orderData = {
+                    orderId: orderId,
+                    userId: currentUserId,
+                    timestamp: new Date(), // Server timestamp will be better in backend functions
+                    deviceDetails: {
+                        model: deviceDetails.model,
+                        carrier: deviceDetails.carrier,
+                        storage: deviceDetails.storage,
+                        conditionQuestions: {
+                            powerOn: deviceDetails.powerOn,
+                            fullyFunctional: deviceDetails.functional,
+                            noCracks: deviceDetails.noCracks,
+                            cosmeticCondition: deviceDetails.cosmetic
+                        },
+                        estimatedQuote: deviceDetails.quote
+                    },
+                    paymentDetails: paymentData,
+                    shippingDetails: shippingInfo,
+                    termsAgreed: termsCheck.checked,
+                    status: "pending_shipment", // Initial status for your backend
+                    uspsLabelUrl: "",
+                    boxSent: false
+                };
+
+                try {
+                    // Save to Firestore
+                    // Collection path: artifacts/{appId}/users/{userId}/orders/{orderId}
+                    const orderDocRef = doc(db, `artifacts/${appId}/users/${currentUserId}/orders`, orderId);
+                    await setDoc(orderDocRef, orderData);
+
+                    showFormMessage('Success! Your order has been confirmed and saved. A shipping kit will be sent to your email shortly.', 'success');
+                    finalConfirmBtn.disabled = true; // Prevent multiple submissions
+                    termsCheck.disabled = true;
+
+                } catch (error) {
+                    console.error("Error saving order to Firestore:", error);
+                    showFormMessage(`Error confirming order: ${error.message}. Please try again.`, 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

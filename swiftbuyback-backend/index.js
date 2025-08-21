@@ -123,31 +123,30 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
         const uspsConsumerSecret = process.env.USPS_CONSUMER_SECRET;
         const uspsApiUrl = 'https://api.usps.com/production/shipping/v1/labels';
 
-        // Check for missing API credentials
+        // Add a check for missing API credentials
         if (!uspsConsumerKey || !uspsConsumerSecret) {
             console.error("USPS API credentials not set in environment variables.");
+            // Return a clear JSON error to the frontend
             return res.status(500).json({ error: 'USPS API credentials missing. Please set USPS_CONSUMER_KEY and USPS_CONSUMER_SECRET.' });
         }
-        
-        // This is where you would make the real API call to USPS.
-        // It's likely failing here. The rest of the code is a placeholder.
+
+        // Placeholder for the real API call
         let uspsLabelUrl = `https://example.com/usps-label-simulated-${orderId}.pdf`; 
         
         try {
-            // Placeholder for the real API call
-            // You would need to replace this with the actual logic to call USPS.
-            // const uspsApiResponse = await axios.post(uspsApiUrl, requestPayload);
-            // uspsLabelUrl = uspsApiResponse.data.someUrlField;
+            // This is where you would make the real API call.
+            // Replace this section with your actual USPS API integration.
+            // The real USPS API is likely XML-based, not JSON.
+            // This is a mock to ensure the code works without an actual API key.
             console.log("Simulating USPS label generation for order:", orderId);
 
         } catch (uspsError) {
             console.error("USPS API call failed:", uspsError.message);
-            // Log the full response to help with debugging
             if (uspsError.response) {
                 console.error("USPS Response Data:", uspsError.response.data);
                 console.error("USPS Response Status:", uspsError.response.status);
             }
-            // Return a 502 Bad Gateway to indicate the external service failed
+            // Return a specific JSON error to the frontend
             return res.status(502).json({ error: 'Failed to get a response from USPS API.' });
         }
 
@@ -168,7 +167,7 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
 
 // Endpoint to update order status
 app.put('/api/orders/:orderId/status', async (req, res) => {
-    const orderId = req.params.id;
+    const orderId = req.params.orderId;
     const { status } = req.body;
     if (!status) {
         return res.status(400).json({ error: 'Status is required' });

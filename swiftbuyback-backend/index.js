@@ -15,7 +15,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// Configure CORS to allow requests from your GitHub Pages domain.
+// This is crucial for enabling communication between your frontend and backend.
+app.use(
+  cors({
+    origin: "https://toratyosef.github.io",
+  })
+);
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -60,10 +67,37 @@ app.get("/api/orders/:id", async (req, res) => {
   }
 });
 
+// Submit a new order
+// This is the new endpoint to handle the front-end form submission.
+app.post("/api/submit-order", async (req, res) => {
+  try {
+    const orderData = req.body;
+    // Basic validation of incoming data
+    if (!orderData || !orderData.shippingInfo || !orderData.estimatedQuote) {
+      return res.status(400).json({ error: "Invalid order data" });
+    }
+    // Add the new order to the Firestore database
+    const docRef = await ordersCollection.add({
+      ...orderData,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      status: "pending_shipment",
+    });
+    console.log(`Order ${docRef.id} successfully added to Firestore.`);
+    // Respond to the client with a success message
+    res.status(201).json({
+      message: "Order submitted successfully",
+      orderId: docRef.id,
+    });
+  } catch (error) {
+    console.error("Error submitting order:", error);
+    res.status(500).json({ error: "Failed to submit order" });
+  }
+});
+
 // ShipStation API integration function
 async function createShipStationLabel(order) {
   const apiKey = process.env.SS_API_KEY;
-  const isSandbox = process.env.SS_SANDBOX === 'true';
+  const isSandbox = process.env.SS_SANDBOX === "true";
 
   const payload = {
     shipment: {
@@ -76,7 +110,7 @@ async function createShipStationLabel(order) {
         state_province: order.shippingInfo.state,
         postal_code: order.shippingInfo.zipCode,
         country_code: "US",
-        address_residential_indicator: "yes"
+        address_residential_indicator: "yes",
       },
       ship_from: {
         name: "Your Company Name",
@@ -87,35 +121,39 @@ async function createShipStationLabel(order) {
         state_province: "TX",
         postal_code: "78701",
         country_code: "US",
-        address_residential_indicator: "no"
+        address_residential_indicator: "no",
       },
       packages: [
         {
           weight: {
             value: 1, // Assumes 1 ounce for simplicity; adjust as needed
-            unit: "ounce"
+            unit: "ounce",
           },
           dimensions: {
             height: 1,
             width: 8,
             length: 10,
-            unit: "inch"
-          }
-        }
-      ]
+            unit: "inch",
+          },
+        },
+      ],
     },
   };
-  
+
   if (isSandbox) {
     payload.testLabel = true;
   }
 
-  const response = await axios.post("https://api.shipengine.com/v1/labels", payload, {
-    headers: {
-      "API-Key": apiKey,
-      "Content-Type": "application/json",
-    },
-  });
+  const response = await axios.post(
+    "https://api.shipengine.com/v1/labels",
+    payload,
+    {
+      headers: {
+        "API-Key": apiKey,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   return response.data;
 }

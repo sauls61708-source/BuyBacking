@@ -23,7 +23,8 @@ const PORT = process.env.PORT || 3000; // Use port 3000 or an environment variab
 
 // --- Middleware ---
 app.use(cors({
-    origin: '*', // Allow all origins for development. FOR PRODUCTION, CHANGE THIS to your admin frontend URL!
+    // NEW: Explicitly allow your GitHub Pages frontend domain
+    origin: 'https://toratyosef.github.io', 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));

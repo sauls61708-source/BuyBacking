@@ -4,19 +4,29 @@
 const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors'); // For Cross-Origin Resource Sharing
-const axios = require('axios'); // NEW: For making HTTP requests to external APIs like USPS
+const axios = require('axios'); // For making HTTP requests to external APIs like USPS
 
 // --- Firebase Admin SDK Initialization ---
-// Make sure your serviceAccountKey.json is in the same directory as this file
-// Or, provide the path to it. For Codespaces, you might upload it or
-// use environment variables for sensitive parts of the config.
-const serviceAccount = require('./serviceAccountKey.json'); // Securely store this!
+// Get Firebase service account config from environment variable
+const firebaseServiceAccountConfig = process.env.FIREBASE_SERVICE_ACCOUNT_CONFIG;
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  // Replace with your Firestore project ID if not automatically detected
-  // databaseURL: "https://your-project-id.firebaseio.com"
-});
+if (!firebaseServiceAccountConfig) {
+    console.error("FIREBASE_SERVICE_ACCOUNT_CONFIG environment variable is not set.");
+    // Exit or handle error gracefully if Firebase credentials are essential for startup
+    process.exit(1);
+}
+
+try {
+    // NEW: Directly parse the environment variable content
+    const serviceAccount = JSON.parse(firebaseServiceAccountConfig);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      // databaseURL: "https://your-project-id.firebaseio.com" // Optional, can often be inferred
+    });
+} catch (e) {
+    console.error("Error parsing FIREBASE_SERVICE_ACCOUNT_CONFIG:", e);
+    process.exit(1);
+}
 
 const db = admin.firestore();
 const app = express();
@@ -41,23 +51,8 @@ app.get('/', (req, res) => {
 // Endpoint to get all pending orders
 app.get('/api/orders', async (req, res) => {
     try {
-        // You can filter orders based on 'status' if needed, e.g., 'pending_shipment'
-        // const ordersRef = db.collection(`artifacts/${__app_id}/users/${userId}/orders`); // This path would be complex to get all users' orders
-        // For an admin panel, you'd likely query a 'public' collection or iterate
-        // through users. Let's simplify for demonstration by assuming a master 'orders' collection.
-        // If your orders are structured as artifacts/{appId}/users/{userId}/orders,
-        // you will need more complex logic to fetch across all users.
-        // A common pattern for admin access is to have a top-level 'orders' collection
-        // where all orders are duplicated/aggregated for easier admin access.
-
-        // For simplicity, let's assume a 'public' orders collection for admin view
-        // IMPORTANT: Ensure your Firestore Security Rules allow read access to this collection for your Admin SDK!
         const appId = process.env.APP_ID || 'default-app-id'; // Get appId from environment variable for backend
         const ordersCollectionRef = db.collection(`artifacts/${appId}/public/data/orders`); // Example path for public orders
-
-        // Or if orders are strictly per-user, fetching all requires listing users (complex)
-        // or a different data model for admin view.
-        // For now, let's assume a simplified direct top-level collection for admin view.
 
         const snapshot = await ordersCollectionRef.where('status', '==', 'pending_shipment').get();
         const orders = [];

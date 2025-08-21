@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwiftBuyBack - Sell iPhone 14 Pro Max</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -57,7 +56,6 @@
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Header (reused for consistency) -->
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
@@ -68,7 +66,6 @@
         </div>
     </header>
 
-    <!-- Main Content - Specific Phone Detail -->
     <main class="flex-grow container mx-auto px-4 py-12">
         <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row items-start justify-center gap-8">
             <div class="w-full md:w-2/5 text-center">
@@ -83,12 +80,6 @@
                     Turn your old phone into cash quickly and easily!
                 </p>
 
-                <!-- User ID Display (for Firestore tracking) -->
-                <div class="text-sm text-gray-500 mb-4">
-                    Your User ID: <span id="displayUserId" class="font-mono text-gray-600">Loading...</span>
-                </div>
-
-                <!-- Carrier Selection -->
                 <div class="mb-8">
                     <label class="block text-2xl font-bold text-gray-800 mb-4">Select Your Carrier</label>
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 justify-center">
@@ -100,7 +91,6 @@
                     </div>
                 </div>
 
-                <!-- Storage Amount Selection -->
                 <div class="mb-8">
                     <label for="storage" class="block text-2xl font-bold text-gray-800 mb-4">Select Storage Amount</label>
                     <select id="storage" class="mt-1 block w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-base">
@@ -112,7 +102,6 @@
                     </select>
                 </div>
 
-                <!-- Condition Questions -->
                 <div class="mb-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Let’s determine the condition</h2>
                     <div class="mb-6 bg-gray-50 p-6 rounded-lg shadow-sm">
@@ -155,7 +144,6 @@
                     Get My Instant Quote!
                 </button>
 
-                <!-- Quote Display Area -->
                 <div id="quoteDisplay" class="mt-8 p-6 bg-indigo-50 rounded-xl shadow-inner hidden">
                     <h3 class="text-2xl font-bold text-indigo-800 mb-2">Estimated Buyback Quote:</h3>
                     <p class="text-4xl font-extrabold text-indigo-600" id="finalQuoteAmount">$0</p>
@@ -166,11 +154,9 @@
                 </div>
                 <div id="quoteMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
 
-                <!-- NEXT STEPS (PAYMENT & SHIPPING) -->
                 <div id="nextSteps" class="hidden mt-8 p-8 bg-gray-100 rounded-xl shadow-lg">
                     <h2 class="text-3xl font-bold text-gray-800 mb-6">How Would You Like to Get Paid?</h2>
                     
-                    <!-- Payment Options -->
                     <div class="mb-8">
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             <label class="payment-option flex flex-col items-center bg-white p-4 rounded-xl shadow-md cursor-pointer transition-transform hover:scale-105 hover:shadow-lg">
@@ -196,7 +182,6 @@
                         </div>
                     </div>
 
-                    <!-- Dynamic Payment Input Fields -->
                     <div id="paymentFields" class="hidden bg-white p-6 rounded-xl shadow-inner mt-4">
                         <div id="venmoInputs" class="hidden">
                             <h3 class="text-xl font-semibold text-gray-800 mb-4">Venmo Details</h3>
@@ -243,7 +228,6 @@
                         </div>
                     </div>
                     
-                    <!-- Shipping Info Section -->
                     <div class="bg-white p-6 rounded-xl shadow-inner mt-8">
                         <h3 class="text-2xl font-bold text-gray-800 mb-4">Shipping Information</h3>
                         <p class="text-gray-700 mb-4">We'll send a prepaid shipping label and a box right to your house. We'll also email you a prepaid USPS shipping label. Please provide your shipping address below.</p>
@@ -271,10 +255,6 @@
                                     <input type="text" id="zip" name="zip" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
                                 </div>
                             </div>
-                            <div class="mb-4">
-                                <label for="phone" class="block text-gray-700 font-medium mb-2">Phone Number</label>
-                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
-                            </div>
                             <div class="mb-6">
                                 <label for="shippingEmail" class="block text-gray-700 font-medium mb-2">Email</label>
                                 <input type="email" id="shippingEmail" name="shippingEmail" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
@@ -286,7 +266,6 @@
                     </div>
                 </div>
 
-                <!-- NEW SECTION: ORDER SUMMARY / CONFIRMATION -->
                 <div id="orderSummary" class="hidden mt-8 p-8 bg-gray-100 rounded-xl shadow-lg">
                     <h2 class="text-3xl font-bold text-indigo-800 mb-6">Confirm Your Order</h2>
                     <p class="text-gray-700 mb-6">Please review the details below before confirming. Your prepaid shipping label and box will be sent to the address provided.</p>
@@ -335,7 +314,6 @@
         </div>
     </main>
 
-    <!-- Footer (reused for consistency) -->
     <footer class="bg-gray-800 text-white py-12 mt-8 w-full">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div>
@@ -361,46 +339,33 @@
         </div>
     </footer>
 
-    <script type="module">
-        // Firebase SDK Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- Firebase Initialization and Authentication ---
-            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
+            // Function to load image with fallback extensions (for main phone image only)
+            function loadImageWithFallback(imgElement) {
+                const baseSrc = imgElement.dataset.baseSrc;
+                const extensions = ['.webp', '.png', '.jpeg', '.jpg']; // Order of preference, .webp first
+                let foundImage = false;
 
-            let currentUserId = 'anonymous'; // Default to anonymous until authenticated
-            const displayUserIdElement = document.getElementById('displayUserId');
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUserId = user.uid;
-                } else {
-                    // Sign in anonymously if no user is found
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined') {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                            currentUserId = auth.currentUser.uid;
-                        } else {
-                            const anonymousUser = await signInAnonymously(auth);
-                            currentUserId = anonymousUser.user.uid;
+                for (let i = 0; i < extensions.length; i++) {
+                    const testSrc = baseSrc + extensions[i];
+                    const img = new Image();
+                    img.onload = function() {
+                        if (!foundImage) {
+                            imgElement.src = testSrc;
+                            foundImage = true;
                         }
-                    } catch (error) {
-                        console.error("Error during authentication:", error);
-                        displayUserIdElement.textContent = `Auth Error: ${error.message}`;
-                    }
+                    };
+                    img.onerror = function() {
+                        if (i === extensions.length - 1 && !foundImage) {
+                            imgElement.src = "https://placehold.co/680x528/f0f4ff/6366f1?text=No+Image"; // Fallback placeholder
+                            imgElement.alt = "Image not found";
+                        }
+                    };
+                    img.src = testSrc;
                 }
-                displayUserIdElement.textContent = currentUserId;
-                console.log("Firebase initialized. User ID:", currentUserId);
-            });
+            }
 
-            // --- Element References ---
             const getQuoteBtn = document.getElementById('getQuoteBtn');
             const quoteDisplay = document.getElementById('quoteDisplay');
             const finalQuoteAmount = document.getElementById('finalQuoteAmount');
@@ -413,7 +378,7 @@
             const termsCheck = document.getElementById('termsCheck');
             const finalMessage = document.getElementById('finalMessage');
 
-            // Payment-related elements
+            // NEW: Get references to payment-related elements
             const paymentOptions = document.querySelectorAll('input[name="payment_method"]');
             const paymentFieldsContainer = document.getElementById('paymentFields');
             const venmoInputs = document.getElementById('venmoInputs');
@@ -421,17 +386,11 @@
             const zelleInputs = document.getElementById('zelleInputs');
             const checkInputs = document.getElementById('checkInputs');
 
-            // Order Summary Display elements
-            const contactEmailDisplay = document.getElementById('contactEmailDisplay');
-            const paymentDetailsDisplay = document.getElementById('paymentDetailsDisplay');
-            const shippingNameDisplay = document.getElementById('shippingNameDisplay');
-            const shippingAddressDisplay = document.getElementById('shippingAddressDisplay');
-            const shippingContactDisplay = document.getElementById('shippingContactDisplay');
-            const changeContactEmailBtn = document.getElementById('changeContactEmail');
-            const changePaymentDetailsBtn = document.getElementById('changePaymentDetails');
-            const changeShippingDetailsBtn = document.getElementById('changeShippingDetails');
-
-            // --- Helper Functions ---
+            /**
+             * Displays a message to the user regarding the quote calculation.
+             * @param {string} msg - The message to display.
+             * @param {'error'|'success'} type - The type of message, which determines styling.
+             */
             function showQuoteMessage(msg, type) {
                 quoteMessage.textContent = msg;
                 quoteMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
@@ -443,24 +402,13 @@
                 quoteMessage.classList.remove('hidden');
             }
 
+            /**
+             * Hides and clears any displayed quote messages.
+             */
             function clearQuoteMessage() {
                 quoteMessage.classList.add('hidden');
                 quoteMessage.textContent = '';
             }
-
-            // Function to clear payment-specific inputs
-            function clearPaymentInputs() {
-                document.getElementById('venmoUsername').value = '';
-                document.getElementById('venmoUsernameConfirm').value = '';
-                document.getElementById('paypalEmail').value = '';
-                document.getElementById('paypalEmailConfirm').value = '';
-                document.getElementById('zelleEmail').value = '';
-                document.getElementById('zelleEmailConfirm').value = '';
-                document.getElementById('checkEmail').value = '';
-            }
-
-
-            // --- Event Listeners ---
 
             getQuoteBtn.addEventListener('click', () => {
                 clearQuoteMessage();
@@ -512,7 +460,7 @@
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             });
 
-            // Event listener for payment method selection
+            // NEW: Event listener for payment method selection
             paymentOptions.forEach(option => {
                 option.addEventListener('change', () => {
                     // Hide all input fields first
@@ -521,8 +469,8 @@
                     zelleInputs.classList.add('hidden');
                     checkInputs.classList.add('hidden');
                     
-                    clearPaymentInputs(); // Clear previous input values
-                    paymentFieldsContainer.classList.remove('hidden'); // Show the payment fields container
+                    // Show the payment fields container
+                    paymentFieldsContainer.classList.remove('hidden');
 
                     // Show the relevant input fields based on the selection
                     switch (option.value) {
@@ -542,88 +490,77 @@
                 });
             });
 
-            // Event Listener for Shipping Form Submission
+            // New Event Listener for Shipping Form Submission
             shippingForm.addEventListener('submit', (e) => {
                 e.preventDefault();
 
-                const selectedPaymentRadio = document.querySelector('input[name="payment_method"]:checked');
+                const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
                 
                 // Validate payment-specific fields
-                if (!selectedPaymentRadio) {
+                if (!selectedPayment) {
                      showQuoteMessage('Please select a payment method.', 'error');
                      return;
                 }
 
                 let paymentValue = '';
                 let paymentType = '';
-                let isValidPaymentInput = true;
 
-                switch (selectedPaymentRadio.value) {
+                switch (selectedPayment.value) {
                     case 'venmo':
-                        const venmoUsername = document.getElementById('venmoUsername').value.trim();
-                        const venmoUsernameConfirm = document.getElementById('venmoUsernameConfirm').value.trim();
+                        const venmoUsername = document.getElementById('venmoUsername').value;
+                        const venmoUsernameConfirm = document.getElementById('venmoUsernameConfirm').value;
                         if (!venmoUsername || venmoUsername !== venmoUsernameConfirm) {
                             showQuoteMessage('Please enter and confirm your Venmo username.', 'error');
-                            isValidPaymentInput = false;
+                            return;
                         }
                         paymentValue = venmoUsername;
                         paymentType = 'Venmo';
                         break;
                     case 'paypal':
-                        const paypalEmail = document.getElementById('paypalEmail').value.trim();
-                        const paypalEmailConfirm = document.getElementById('paypalEmailConfirm').value.trim();
+                        const paypalEmail = document.getElementById('paypalEmail').value;
+                        const paypalEmailConfirm = document.getElementById('paypalEmailConfirm').value;
                         if (!paypalEmail || paypalEmail !== paypalEmailConfirm) {
                             showQuoteMessage('Please enter and confirm your PayPal email.', 'error');
-                            isValidPaymentInput = false;
+                            return;
                         }
                         paymentValue = paypalEmail;
                         paymentType = 'PayPal';
                         break;
                     case 'zelle':
-                        const zelleEmail = document.getElementById('zelleEmail').value.trim();
-                        const zelleEmailConfirm = document.getElementById('zelleEmailConfirm').value.trim();
+                        const zelleEmail = document.getElementById('zelleEmail').value;
+                        const zelleEmailConfirm = document.getElementById('zelleEmailConfirm').value;
                         if (!zelleEmail || zelleEmail !== zelleEmailConfirm) {
                             showQuoteMessage('Please enter and confirm your Zelle email.', 'error');
-                            isValidPaymentInput = false;
+                            return;
                         }
                         paymentValue = zelleEmail;
                         paymentType = 'Zelle';
                         break;
                     case 'check':
-                        const checkEmail = document.getElementById('checkEmail').value.trim();
+                        const checkEmail = document.getElementById('checkEmail').value;
                         if (!checkEmail) {
                             showQuoteMessage('Please enter an email for check confirmation.', 'error');
-                            isValidPaymentInput = false;
+                            return;
                         }
                         paymentValue = checkEmail;
                         paymentType = 'Check in Mail';
                         break;
                 }
 
-                if (!isValidPaymentInput) {
-                    return; // Stop if payment input is invalid
-                }
-
-                const shippingEmail = document.getElementById('shippingEmail').value.trim();
-                const fullName = document.getElementById('fullName').value.trim();
-                const address = document.getElementById('address').value.trim();
-                const city = document.getElementById('city').value.trim();
-                const state = document.getElementById('state').value.trim();
-                const zip = document.getElementById('zip').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-
-                // Basic shipping form validation (HTML 'required' attributes handle most)
-                if (!shippingEmail || !fullName || !address || !city || !state || !zip || !phone) {
-                    showQuoteMessage('Please fill out all shipping information fields.', 'error');
-                    return;
-                }
+                const shippingEmail = document.getElementById('shippingEmail').value;
+                const fullName = document.getElementById('fullName').value;
+                const address = document.getElementById('address').value;
+                const city = document.getElementById('city').value;
+                const state = document.getElementById('state').value;
+                const zip = document.getElementById('zip').value;
+                const phone = '9295845753'; // Example static phone number
 
                 // Update the order summary details
-                contactEmailDisplay.textContent = shippingEmail;
-                paymentDetailsDisplay.textContent = `${paymentType} to: ${paymentValue}`;
-                shippingNameDisplay.textContent = fullName;
-                shippingAddressDisplay.textContent = `${address}, ${city}, ${state} ${zip}, United States`;
-                shippingContactDisplay.textContent = phone;
+                document.getElementById('contactEmailDisplay').textContent = shippingEmail;
+                document.getElementById('paymentDetailsDisplay').textContent = `${paymentType} to: ${paymentValue}`;
+                document.getElementById('shippingNameDisplay').textContent = fullName;
+                document.getElementById('shippingAddressDisplay').textContent = `${address}, ${city}, ${state} ${zip}, United States`;
+                document.getElementById('shippingContactDisplay').textContent = phone;
 
                 // Hide current section and show summary
                 nextSteps.classList.add('hidden');
@@ -634,133 +571,13 @@
             // Enable/Disable the final button based on checkbox
             termsCheck.addEventListener('change', () => {
                 finalConfirmBtn.disabled = !termsCheck.checked;
-                finalMessage.classList.add('hidden'); // Hide any previous final messages
             });
 
-            // Final confirmation button logic (Firestore Save)
-            finalConfirmBtn.addEventListener('click', async () => {
-                if (!termsCheck.checked) {
-                    finalMessage.textContent = 'Please agree to the terms and conditions.';
-                    finalMessage.classList.remove('hidden', 'bg-green-100', 'text-green-700');
-                    finalMessage.classList.add('bg-red-100', 'text-red-700');
-                    return;
-                }
-
-                if (!currentUserId || currentUserId === 'anonymous') {
-                    finalMessage.textContent = 'Authentication error. Please refresh the page.';
-                    finalMessage.classList.remove('hidden', 'bg-green-100', 'text-green-700');
-                    finalMessage.classList.add('bg-red-100', 'text-red-700');
-                    console.error("User not authenticated for Firestore save.");
-                    return;
-                }
-
-                // Collect all data for Firestore
-                const selectedCarrier = document.querySelector('input[name="carrier"]:checked').value;
-                const selectedStorage = document.getElementById('storage').value;
-                const q1PowerOn = document.querySelector('input[name="q1_power_on"]:checked').value;
-                const q2Functional = document.querySelector('input[name="q2_fully_functional"]:checked').value;
-                const q3NoCracks = document.querySelector('input[name="q3_no_cracks"]:checked').value;
-                const q4Cosmetic = document.querySelector('input[name="q4_cosmetic_condition"]:checked').value;
-                const estimatedQuote = parseFloat(finalQuoteAmount.textContent.replace('$', ''));
-
-                const selectedPaymentRadio = document.querySelector('input[name="payment_method"]:checked');
-                let paymentData = {
-                    method: selectedPaymentRadio.value,
-                    value: ''
-                };
-                switch (selectedPaymentRadio.value) {
-                    case 'venmo':
-                        paymentData.value = document.getElementById('venmoUsername').value.trim();
-                        break;
-                    case 'paypal':
-                        paymentData.value = document.getElementById('paypalEmail').value.trim();
-                        break;
-                    case 'zelle':
-                        paymentData.value = document.getElementById('zelleEmail').value.trim();
-                        break;
-                    case 'check':
-                        paymentData.value = document.getElementById('checkEmail').value.trim();
-                        break;
-                }
-
-                const shippingInfo = {
-                    fullName: document.getElementById('fullName').value.trim(),
-                    address: document.getElementById('address').value.trim(),
-                    city: document.getElementById('city').value.trim(),
-                    state: document.getElementById('state').value.trim(),
-                    zip: document.getElementById('zip').value.trim(),
-                    phone: document.getElementById('phone').value.trim(),
-                    contactEmail: document.getElementById('shippingEmail').value.trim(),
-                    country: "United States" // Hardcoded for this example
-                };
-
-                const orderId = crypto.randomUUID(); // Generate a unique order ID
-
-                const orderData = {
-                    orderId: orderId,
-                    userId: currentUserId,
-                    timestamp: new Date(), // Server timestamp will be better in backend functions
-                    deviceDetails: {
-                        model: "iPhone 14 Pro Max", // Hardcoded for this page
-                        carrier: selectedCarrier,
-                        storage: selectedStorage,
-                        conditionQuestions: {
-                            powerOn: q1PowerOn,
-                            fullyFunctional: q2Functional,
-                            noCracks: q3NoCracks,
-                            cosmeticCondition: q4Cosmetic
-                        },
-                        estimatedQuote: estimatedQuote
-                    },
-                    paymentDetails: paymentData,
-                    shippingDetails: shippingInfo,
-                    termsAgreed: true,
-                    status: "pending_shipment", // Initial status for your backend
-                    uspsLabelUrl: "",
-                    boxSent: false
-                };
-
-                try {
-                    // Save to Firestore
-                    // Collection path: artifacts/{appId}/users/{userId}/orders/{orderId}
-                    const orderDocRef = doc(db, `artifacts/${appId}/users/${currentUserId}/orders`, orderId);
-                    await setDoc(orderDocRef, orderData);
-
-                    finalMessage.textContent = 'Success! Your order has been confirmed and saved. A shipping kit will be sent to you shortly.';
-                    finalMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700');
-                    finalMessage.classList.add('bg-green-100', 'text-green-700');
-                    finalConfirmBtn.disabled = true; // Prevent multiple submissions
-                    termsCheck.disabled = true;
-
-                } catch (error) {
-                    console.error("Error saving order to Firestore:", error);
-                    finalMessage.textContent = `Error confirming order: ${error.message}. Please try again.`;
-                    finalMessage.classList.remove('hidden', 'bg-green-100', 'text-green-700');
-                    finalMessage.classList.add('bg-red-100', 'text-red-700');
-                }
-            });
-
-            // "Change" button functionality for order summary
-            changeContactEmailBtn.addEventListener('click', () => {
-                orderSummary.classList.add('hidden');
-                nextSteps.classList.remove('hidden');
-                // Scroll to the email input field
-                document.getElementById('shippingEmail').focus();
-            });
-
-            changePaymentDetailsBtn.addEventListener('click', () => {
-                orderSummary.classList.add('hidden');
-                nextSteps.classList.remove('hidden');
-                // Scroll to the payment method selection
-                const firstPaymentOption = document.querySelector('input[name="payment_method"]');
-                if (firstPaymentOption) firstPaymentOption.focus();
-            });
-
-            changeShippingDetailsBtn.addEventListener('click', () => {
-                orderSummary.classList.add('hidden');
-                nextSteps.classList.remove('hidden');
-                // Scroll to the full name input field
-                document.getElementById('fullName').focus();
+            // Final confirmation button logic
+            finalConfirmBtn.addEventListener('click', () => {
+                finalMessage.textContent = 'Thank you! Your order has been confirmed. A shipping kit will be sent to you shortly.';
+                finalMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700');
+                finalMessage.classList.add('bg-green-100', 'text-green-700');
             });
         });
     </script>

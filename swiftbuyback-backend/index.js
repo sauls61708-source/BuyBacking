@@ -5,6 +5,7 @@ const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors'); // For Cross-Origin Resource Sharing
 const axios = require('axios'); // For making HTTP requests to external APIs like USPS
+const path = require('path'); // NEW: For handling file paths
 
 // --- Firebase Admin SDK Initialization ---
 // IMPORTANT: This method requires 'serviceAccountKey.json' to be present
@@ -22,17 +23,22 @@ const app = express();
 const PORT = process.env.PORT || 3000; // Use port 3000 or an environment variable
 
 // --- Middleware ---
+// CORS is still needed if other frontends (like your main selling page) access this API,
+// but for the admin frontend served by this backend, it's no longer a cross-origin issue.
 app.use(cors({
-    // NEW: Explicitly allow your GitHub Pages frontend domain
-    origin: 'https://toratyosef.github.io', 
+    origin: '*', // Keep for development flexibility or specify other allowed origins
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json()); // To parse JSON request bodies
 
+// NEW: Serve static files (your admin frontend) from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 // --- Root Path Handler ---
+// This will now serve index.html from the 'public' directory by default
 app.get('/', (req, res) => {
-    res.status(200).send('SwiftBuyBack Admin Backend is running!');
+    res.sendFile(path.join(__dirname, 'public', 'admin.html')); // Serve admin.html when root is accessed
 });
 
 

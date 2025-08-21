@@ -85,3 +85,35 @@
 [debug] [2025-08-21T22:22:59.992Z] Found firebase-functions binary at '/workspaces/BuyBacking/functions/node_modules/.bin/firebase-functions'
 [info] Serving at port 8271
 
+[debug] [2025-08-21T22:23:00.661Z] Got response from /__/functions.yaml {"endpoints":{"api":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"httpsTrigger":{},"entryPoint":"api"}},"specVersion":"v1alpha1","requiredAPIs":[]}
+[debug] [2025-08-21T22:23:04.679Z] Validating nodejs source
+[debug] [2025-08-21T22:23:05.129Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2025-08-21T22:23:05.129Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase buybacks to determine what to deploy 
+[debug] [2025-08-21T22:23:05.129Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-08-21T22:23:05.130Z] Found firebase-functions binary at '/workspaces/BuyBacking/buybacks/node_modules/.bin/firebase-functions'
+[info] Serving at port 8980
+
+[debug] [2025-08-21T22:23:05.454Z] Got response from /__/functions.yaml {"endpoints":{},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}

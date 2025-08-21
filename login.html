@@ -20,8 +20,8 @@
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
             <nav class="space-x-4">
-                <a href="/sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
-                <a id="account-link" href="my-account.html" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">My Account</a>
+                                <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                                <a id="account-link" href="my-account.html" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">My Account</a>
                 <a id="login-link" href="login.html" class="text-indigo-700 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
                 <button id="logout-button" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Logout</button>
             </nav>
@@ -105,11 +105,11 @@
             <div>
                 <h3 class="text-xl font-bold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="/index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
-                    <li><a href="/sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
-                    <li><a href="/my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
-                    <li><a href="/about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
-                    <li><a href="/contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
+                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
+                    <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
+                    <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
                 </ul>
             </div>
             <div class="md:col-span-2 lg:col-span-1">
@@ -122,49 +122,38 @@
     </footer>
 
         <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
-            authDomain: "buyback-a0f05.firebaseapp.com",
-            projectId: "buyback-a0f05",
-            storageBucket: "buyback-a0f05.firebasestorage.app",
-            messagingSenderId: "876430429098",
-            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
-            measurementId: "G-6WWQN44JHT"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        
-        // Get elements
-        const loginSection = document.getElementById('loginSection');
-        const signupSection = document.getElementById('signupSection');
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
-        const showSignupLink = document.getElementById('showSignupLink');
-        const showLoginLink = document.getElementById('showLoginLink');
-        const messageDiv = document.getElementById('message');
-        const loginLink = document.getElementById('login-link');
-        const logoutButton = document.getElementById('logout-button');
-        const accountLink = document.getElementById('account-link');
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Check login status on page load and redirect if already logged in
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
+            authDomain: "buyback-a0f05.firebaseapp.com",
+            projectId: "buyback-a0f05",
+            storageBucket: "buyback-a0f05.firebasestorage.app",
+            messagingSenderId: "876430429098",
+            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
+            measurementId: "G-6WWQN44JHT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Get elements
+        const loginSection = document.getElementById('loginSection');
+        const signupSection = document.getElementById('signupSection');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const showSignupLink = document.getElementById('showSignupLink');
+        const showLoginLink = document.getElementById('showLoginLink');
+        const messageDiv = document.getElementById('message');
+        const loginLink = document.getElementById('login-link');
+        const logoutButton = document.getElementById('logout-button');
+        const accountLink = document.getElementById('account-link');
+
+        // Check login status and update header on page load
         document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                showMessage("You're already logged in. Redirecting...", 'info');
-                setTimeout(() => {
-                    window.location.href = 'my-account.html';
-                }, 1500); // Redirect after 1.5 seconds
-            }
-            checkNavbarStatus();
-        });
-
-        function checkNavbarStatus() {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             if (isLoggedIn === 'true') {
                 loginLink.classList.add('hidden');
@@ -175,130 +164,130 @@
                 logoutButton.classList.add('hidden');
                 accountLink.classList.add('hidden');
             }
-        }
-        
-        /**
-         * Displays a message to the user (success or error).
-         * @param {string} msg - The message to display.
-         * @param {string} type - 'success' or 'error'.
-         */
-        function showMessage(msg, type) {
-            messageDiv.textContent = msg;
-            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700');
-            if (type === 'error') {
-                messageDiv.classList.add('bg-red-100', 'text-red-700');
-            } else if (type === 'success') {
-                messageDiv.classList.add('bg-green-100', 'text-green-700');
-            } else if (type === 'info') {
-                 messageDiv.classList.add('bg-yellow-100', 'text-yellow-700');
-            }
-            messageDiv.classList.remove('hidden');
-        }
-        
-        /**
-         * Clears any displayed messages.
-         */
-        function clearMessage() {
-            messageDiv.classList.add('hidden');
-            messageDiv.textContent = '';
-        }
-        
-        // Toggle between login and signup forms
-        showSignupLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginSection.classList.add('hidden');
-            signupSection.classList.remove('hidden');
-            clearMessage();
         });
-        
-        showLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            signupSection.classList.add('hidden');
-            loginSection.classList.remove('hidden');
-            clearMessage();
-        });
-        
-        // Handle Login
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearMessage();
-            const email = loginForm['loginEmail'].value;
-            const password = loginForm['loginPassword'].value;
-        
+
+        /**
+         * Displays a message to the user (success or error).
+         * @param {string} msg - The message to display.
+         * @param {string} type - 'success' or 'error'.
+         */
+        function showMessage(msg, type) {
+            messageDiv.textContent = msg;
+            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700');
+            if (type === 'error') {
+                messageDiv.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'success') {
+                messageDiv.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'info') {
+                messageDiv.classList.add('bg-yellow-100', 'text-yellow-700');
+            }
+            messageDiv.classList.remove('hidden');
+        }
+
+        /**
+         * Clears any displayed messages.
+         */
+        function clearMessage() {
+            messageDiv.classList.add('hidden');
+            messageDiv.textContent = '';
+        }
+
+        // Toggle between login and signup forms
+        showSignupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginSection.classList.add('hidden');
+            signupSection.classList.remove('hidden');
+            clearMessage();
+        });
+
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+            clearMessage();
+        });
+
+        // Handle Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage();
+            const email = loginForm['loginEmail'].value;
+            const password = loginForm['loginPassword'].value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                localStorage.setItem('isLoggedIn', 'true');
+                showMessage('Successfully logged in!', 'success');
+                window.location.href = 'my-account.html'; // Redirect to account page
+            } catch (error) {
+                console.error("Login error:", error.code, error.message);
+                let errorMessage = "An unknown error occurred. Please try again.";
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Invalid email or password.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'Your account has been disabled.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                showMessage(`Login Failed: ${errorMessage}`, 'error');
+            }
+        });
+
+        // Handle Sign Up
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage();
+            const name = signupForm['signupName'].value;
+            const email = signupForm['signupEmail'].value;
+            const password = signupForm['signupPassword'].value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                await updateProfile(user, { displayName: name });
+                localStorage.setItem('isLoggedIn', 'true');
+                showMessage('Account created successfully! Redirecting to your account.', 'success');
+                window.location.href = 'my-account.html'; // Redirect directly after signup
+            } catch (error) {
+                console.error("Registration error:", error.code, error.message);
+                let errorMessage = "An unknown error occurred during registration.";
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'The email address is already in use by another account.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'The email address is not valid.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'The password is too weak. Please choose a stronger password.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                showMessage(`Registration Failed: ${errorMessage}`, 'error');
+            }
+        });
+
+        // Handle logout
+        logoutButton.addEventListener('click', async () => {
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                // User is signed in, set the localStorage flag
-                localStorage.setItem('isLoggedIn', 'true');
-                showMessage('Successfully logged in! Redirecting to your account.', 'success');
-                setTimeout(() => {
-                    window.location.href = 'my-account.html';
-                }, 1500); // Redirect after 1.5 seconds
+                await signOut(auth);
+                localStorage.removeItem('isLoggedIn');
+                window.location.href = 'index.html';
             } catch (error) {
-                console.error("Login error:", error.code, error.message);
-                let errorMessage = "An unknown error occurred. Please try again.";
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                    case 'auth/invalid-credential':
-                        errorMessage = 'Invalid email or password.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'Your account has been disabled.';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                showMessage(`Login Failed: ${errorMessage}`, 'error');
+                console.error("Logout error:", error);
+                showMessage("Logout failed. Please try again.", 'error');
             }
         });
-        
-        // Handle Sign Up
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearMessage();
-            const name = signupForm['signupName'].value;
-            const email = signupForm['signupEmail'].value;
-            const password = signupForm['signupPassword'].value;
-        
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-        
-                await updateProfile(user, { displayName: name });
-        
-                // Set the localStorage flag after successful signup
-                localStorage.setItem('isLoggedIn', 'true');
-                showMessage('Account created successfully! Redirecting to your account.', 'success');
-                setTimeout(() => {
-                    window.location.href = 'my-account.html';
-                }, 1500); // Redirect after 1.5 seconds
-            } catch (error) {
-                console.error("Registration error:", error.code, error.message);
-                let errorMessage = "An unknown error occurred during registration.";
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = 'The email address is already in use by another account.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'The email address is not valid.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'The password is too weak. Please choose a stronger password.';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                showMessage(`Registration Failed: ${errorMessage}`, 'error');
-            }
-        });
-        
-        // Handle the logout button click for the header
-        logoutButton.addEventListener('click', function() {
-            localStorage.removeItem('isLoggedIn');
-            window.location.href = 'index.html';
-        });
-    </script>
+
+    </script>
 
 </body>
 </html>

@@ -28,11 +28,13 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
+    <!-- Header -->
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
             <nav class="space-x-4">
                 <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <!-- These links are dynamically controlled by JavaScript based on Firebase auth state -->
                 <a id="account-link" href="my-account.html" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">My Account</a>
                 <a id="login-link" href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
                 <button id="logout-button" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Logout</button>
@@ -40,6 +42,7 @@
         </div>
     </header>
 
+    <!-- Hero Section -->
     <section class="bg-indigo-700 text-white py-20 text-center rounded-b-3xl mx-auto mt-4 max-w-7xl shadow-lg">
         <div class="container mx-auto px-4">
             <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Turn Your Old Phone into Cash!</h1>
@@ -50,6 +53,7 @@
         </div>
     </section>
 
+    <!-- Feature Highlights -->
     <section class="container mx-auto px-4 py-16">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition duration-300">
@@ -75,10 +79,12 @@
         </div>
     </section>
 
+    <!-- Shop by Category -->
     <section class="bg-indigo-50 py-16">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">Shop by Category</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- iPhone Category -->
                 <a href="iphone/models/" class="homepage-card-link">
                     <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                         <img id="iphone_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/assets/apple" alt="iPhones Category" class="mx-auto mb-4 rounded-lg w-20 h-20 object-contain">
@@ -86,6 +92,7 @@
                         <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
                     </div>
                 </a>
+                <!-- Samsung Galaxy Category -->
                 <a href="samsung/models/" class="homepage-card-link">
                     <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                         <img id="samsung_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/assets/samsung" alt="Samsung Galaxy Category" class="mx-auto mb-4 rounded-lg w-20 h-20 object-contain">
@@ -93,6 +100,7 @@
                         <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
                     </div>
                 </a>
+                <!-- Tablets Category -->
                 <a href="tablet/models/" class="homepage-card-link">
                     <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                         <img id="tablet_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/tablet/assets/tablet_category" alt="Tablets Category" class="mx-auto mb-4 rounded-lg w-20 h-20 object-contain">
@@ -100,6 +108,7 @@
                         <button class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300 mt-auto w-full">Shop Now</button>
                     </div>
                 </a>
+                <!-- Google Phones Category -->
                 <a href="google/models/" class="homepage-card-link">
                     <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                         <img id="google_cat_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/assets/googlepixel" alt="Google Phones Category" class="mx-auto mb-4 rounded-lg w-20 h-20 object-contain">
@@ -111,9 +120,11 @@
         </div>
     </section>
 
+    <!-- Popular Phones We Buy -->
     <section class="container mx-auto px-4 py-16">
         <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">Popular Phones We Buy</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <!-- iPhone 15 Pro Max -->
             <a href="phones/iphone-15-pro-max.html" class="homepage-card-link">
                 <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="i15pm_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i15pm" alt="iPhone 15 Pro Max" class="mx-auto mb-4 rounded-lg">
@@ -122,6 +133,7 @@
                     <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
                 </div>
             </a>
+            <!-- iPhone 14 Pro -->
             <a href="phones/iphone-14-pro.html" class="homepage-card-link">
                 <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="i14p_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i14p" alt="iPhone 14 Pro" class="mx-auto mb-4 rounded-lg">
@@ -130,6 +142,7 @@
                     <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
                 </div>
             </a>
+            <!-- iPhone 13 -->
             <a href="phones/iphone-13.html" class="homepage-card-link">
                 <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="i13_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i13" alt="iPhone 13" class="mx-auto mb-4 rounded-lg">
@@ -138,6 +151,7 @@
                     <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
                 </div>
             </a>
+            <!-- Samsung Galaxy S24 Ultra -->
             <a href="phones/samsung-galaxy-s24-ultra.html" class="homepage-card-link">
                 <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s24u_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/samsung/assets/s24u" alt="Samsung Galaxy S24 Ultra" class="mx-auto mb-4 rounded-lg">
@@ -146,6 +160,7 @@
                     <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
                 </div>
             </a>
+            <!-- Samsung Galaxy S22 -->
             <a href="phones/samsung-galaxy-s22.html" class="homepage-card-link">
                 <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s22_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/samsung/assets/s22" alt="Samsung Galaxy S22" class="mx-auto mb-4 rounded-lg">
@@ -154,6 +169,7 @@
                     <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
                 </div>
             </a>
+            <!-- Google Pixel 8 -->
             <a href="phones/google-pixel-8.html" class="homepage-card-link">
                 <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="gp8_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/google/assets/gp8" alt="Google Pixel 8" class="mx-auto mb-4 rounded-lg">
@@ -162,6 +178,7 @@
                     <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
                 </div>
             </a>
+            <!-- Tablet iPad Pro (M2) -->
             <a href="phones/ipad-pro-m2.html" class="homepage-card-link">
                 <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="ipm2_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/tablet/assets/ipm2" alt="Tablet iPad Pro (M2)" class="mx-auto mb-4 rounded-lg">
@@ -170,6 +187,7 @@
                     <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
                 </div>
             </a>
+            <!-- Samsung Galaxy Tab S9 Ultra -->
             <a href="phones/samsung-galaxy-tab-s9-ultra.html" class="homepage-card-link">
                 <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="tbs9u_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/tablet/assets/tbs9u" alt="Samsung Galaxy Tab S9 Ultra" class="mx-auto mb-4 rounded-lg">
@@ -181,6 +199,7 @@
         </div>
     </section>
 
+    <!-- What Customers Are Saying -->
     <section class="bg-indigo-50 py-16">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">What Customers Are Saying</h2>
@@ -231,6 +250,7 @@
         </div>
     </section>
 
+    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-12 mt-8 w-full">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div>
@@ -256,7 +276,26 @@
         </div>
     </footer>
 
-    <script>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
+            authDomain: "buyback-a0f05.firebaseapp.com",
+            projectId: "buyback-a0f05",
+            storageBucket: "buyback-a0f05.firebasestorage.app",
+            messagingSenderId: "876430429098",
+            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
+            measurementId: "G-6WWQN44JHT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
         document.addEventListener('DOMContentLoaded', function() {
             // Function to load image with fallback extensions
             function loadImageWithFallback(imgElement) {
@@ -297,36 +336,37 @@
                 loadImageWithFallback(img);
             });
 
-            // CORRECTED LOGIC FOR SIGNED-IN STATE
+            // --- Header Link Management based on Firebase Auth State ---
             const loginLink = document.getElementById('login-link');
             const logoutButton = document.getElementById('logout-button');
             const accountLink = document.getElementById('account-link');
 
-            function checkLoginStatus() {
-                const isLoggedIn = localStorage.getItem('isLoggedIn');
-
-                if (isLoggedIn === 'true') {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
                     // User is signed in
                     loginLink.classList.add('hidden');
                     logoutButton.classList.remove('hidden');
                     accountLink.classList.remove('hidden');
                 } else {
-                    // User is not signed in
+                    // User is signed out
                     loginLink.classList.remove('hidden');
                     logoutButton.classList.add('hidden');
                     accountLink.classList.add('hidden');
                 }
-            }
-
-            // Handle the logout button click
-            logoutButton.addEventListener('click', function() {
-                localStorage.removeItem('isLoggedIn');
-                // Redirect to home page or update UI
-                window.location.href = 'index.html'; 
             });
 
-            // Call the function on page load to set the correct state
-            checkLoginStatus();
+            // Handle the logout button click
+            logoutButton.addEventListener('click', async function() {
+                try {
+                    await signOut(auth);
+                    // The onAuthStateChanged listener will automatically update the UI
+                    // or redirect as configured for signed-out users.
+                } catch (error) {
+                    console.error("Logout error:", error);
+                    // You might want to display a message to the user here.
+                    alert('Failed to log out. Please try again.'); // Using alert for simplicity, but a custom message box is preferred.
+                }
+            });
         });
     </script>
 </body>

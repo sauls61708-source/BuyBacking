@@ -407,35 +407,38 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        document.addEventListener('DOMContentLoaded', async function() { // Added 'async' keyword here
+        // Make 'auth' globally accessible for console debugging
+        let authInstance; 
+
+        document.addEventListener('DOMContentLoaded', async function() { 
             // --- Firebase Initialization and Authentication ---
             const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
             const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
+            authInstance = getAuth(app); // Assign to global variable
+            window.firebaseAuth = authInstance; // Explicitly attach to window for console access
 
-            let currentUserId = null; // Will be set if user is logged in
-            let authReady = false; // Flag to indicate when authentication state is determined
+            let currentUserId = null; 
+            let authReady = false; 
 
             // First, attempt to sign in or get current user state
             try {
                 if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                    await signInWithCustomToken(authInstance, __initial_auth_token);
                 } else {
-                    await signInAnonymously(auth);
+                    await signInAnonymously(authInstance);
                 }
-                currentUserId = auth.currentUser.uid;
+                currentUserId = authInstance.currentUser.uid;
                 console.log("Firebase authentication attempted on models.html. User ID:", currentUserId);
-                authReady = true; // Set flag to true after initial authentication attempt
+                authReady = true; 
             } catch (error) {
                 console.error("Initial Firebase authentication failed on models.html:", error);
-                authReady = true; // Still set to true so onAuthStateChanged can run
+                authReady = true; 
             }
 
             // Listen for auth state changes after initial attempt
-            onAuthStateChanged(auth, (user) => {
-                if (authReady) { // Only run this logic if initial auth attempt has finished
+            onAuthStateChanged(authInstance, (user) => { // Use authInstance here
+                if (authReady) { 
                     if (!user) {
-                        // User is not signed in, redirect to login page
                         console.log("User not signed in after initial auth attempt on models.html. Redirecting to login.");
                         const currentPageUrl = encodeURIComponent(window.location.href);
                         const loginUrl = `https://toratyosef.github.io/BuyBacking/login.html?redirect_to=${currentPageUrl}`;
@@ -443,7 +446,6 @@
                     } else {
                         currentUserId = user.uid;
                         console.log("User signed in via onAuthStateChanged on models.html. User ID:", currentUserId);
-                        // Page content can now load or interact with authenticated user
                     }
                 }
             });
@@ -451,7 +453,7 @@
             // Function to load image with fallback extensions
             function loadImageWithFallback(imgElement) {
                 const baseSrc = imgElement.dataset.baseSrc;
-                const extensions = ['.webp', '.png', '.jpeg', '.jpg']; // Order of preference, .webp first
+                const extensions = ['.webp', '.png', '.jpeg', '.jpg']; 
                 let foundImage = false;
 
                 for (let i = 0; i < extensions.length; i++) {
@@ -465,13 +467,11 @@
                     };
                     img.onerror = function() {
                         if (i === extensions.length - 1 && !foundImage) {
-                            // Determine appropriate placeholder based on context
-                            if (imgElement.id.includes('_cat_img')) { // Category images on homepage
-                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category"; // Adjusted size
-                            } else if (imgElement.id.includes('_pop_img') || imgElement.id.includes('_img')) { // Popular phone images or iPhone model images
-                                // Use the specified 680x528 dimensions for the placeholder
+                            if (imgElement.id.includes('_cat_img')) { 
+                                imgElement.src = "https://placehold.co/80x80/e0e7ff/4338ca?text=Category"; 
+                            } else if (imgElement.id.includes('_pop_img') || imgElement.id.includes('_img')) { 
                                 imgElement.src = "https://placehold.co/680x528/f0f4ff/6366f1?text=No+Image";
-                            } else { // Generic fallback
+                            } else { 
                                 imgElement.src = "https://placehold.co/150x150/cccccc/333333?text=Error";
                             }
                             imgElement.alt = "Image not found";

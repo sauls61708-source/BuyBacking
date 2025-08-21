@@ -7,50 +7,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .carrier-option input[type="radio"], .payment-option input[type="radio"] { display: none; }
+        .carrier-option label, .payment-option label {
+            cursor: pointer; border: 2px solid transparent; border-radius: 0.75rem;
+            transition: all 0.2s ease-in-out; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; height: 100%;
         }
-        /* Custom styles for hidden radio buttons and clickable images */
-        .carrier-option input[type="radio"],
-        .payment-option input[type="radio"] {
-            display: none; /* Hide the actual radio button */
+        .carrier-option input[type="radio"]:checked + label, .payment-option input[type="radio"]:checked + label {
+            border-color: #4f46e5; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transform: scale(1.02);
         }
-        .carrier-option label,
-        .payment-option label {
-            cursor: pointer;
-            border: 2px solid transparent; /* Default border */
-            border-radius: 0.75rem; /* rounded-xl equivalent */
-            transition: all 0.2s ease-in-out;
-            display: flex; /* Use flex to center image and text */
-            flex-direction: column; /* Stack image and text vertically */
-            align-items: center; /* Center horizontally */
-            justify-content: center; /* Center vertically */
-            height: 100%; /* Ensure label takes full height of grid item */
-        }
-        .carrier-option input[type="radio"]:checked + label,
-        .payment-option input[type="radio"]:checked + label {
-            border-color: #4f46e5; /* Indigo-600 for checked state */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg equivalent */
-            transform: scale(1.02); /* Slight scale on selection */
-        }
-        .carrier-option label:hover,
-        .payment-option label:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg on hover */
-        }
-        
-        /* Basic styling for radio buttons that are visually hidden but still accessible */
+        .carrier-option label:hover, .payment-option label:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
         .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
         }
     </style>
 </head>
@@ -60,8 +30,9 @@
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
             <nav class="space-x-4">
-                <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
-                <a href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+                <a href="sell.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <a href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300" id="loginLink">Login</a>
+                <a href="#" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300 hidden" id="logoutLink">Logout</a>
             </nav>
         </div>
     </header>
@@ -328,7 +299,7 @@
                 <h3 class="text-xl font-bold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
                     <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
-                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="sell.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
                     <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
                     <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
                     <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
@@ -357,9 +328,34 @@
             const overviewAddress = document.getElementById('overviewAddress');
             const sendPhoneBtn = document.getElementById('sendPhoneBtn');
 
-            let finalQuote = 0;
+            // Get references to login/logout links
+            const loginLink = document.getElementById('loginLink');
+            const logoutLink = document.getElementById('logoutLink');
 
+            let finalQuote = 0;
             const BACKEND_URL = 'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev';
+
+            // Check for an existing token on page load
+            function checkAuthStatus() {
+                const token = localStorage.getItem('userToken');
+                if (token) {
+                    loginLink.classList.add('hidden');
+                    logoutLink.classList.remove('hidden');
+                } else {
+                    loginLink.classList.remove('hidden');
+                    logoutLink.classList.add('hidden');
+                }
+            }
+
+            // Handle logout
+            logoutLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('userToken');
+                window.location.href = 'login.html';
+            });
+            
+            // Initial auth check
+            checkAuthStatus();
 
             function showQuoteMessage(msg, type) {
                 quoteMessage.textContent = msg;
@@ -454,15 +450,25 @@
             }
 
             sendPhoneBtn.addEventListener('click', async () => {
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    showQuoteMessage('You must be logged in to submit an order. Redirecting to login...', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                    return;
+                }
+
                 const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value;
                 const termsAccepted = document.getElementById('termsAccepted').checked;
                 const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
                 const streetAddress = document.getElementById('streetAddress').value;
                 const city = document.getElementById('city').value;
                 const state = document.getElementById('state').value;
                 const zipCode = document.getElementById('zipCode').value;
 
-                if (!selectedPayment || !fullName || !streetAddress || !city || !state || !zipCode) {
+                if (!selectedPayment || !fullName || !email || !streetAddress || !city || !state || !zipCode) {
                     showQuoteMessage('Please fill out all required fields.', 'error');
                     return;
                 }
@@ -492,7 +498,7 @@
                     paymentDetails: {},
                     shippingInfo: {
                         fullName,
-                        email: document.getElementById('email').value,
+                        email,
                         streetAddress,
                         city,
                         state,
@@ -511,6 +517,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}` // Include the JWT token
                         },
                         body: JSON.stringify(orderData),
                     });

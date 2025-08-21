@@ -1,0 +1,12 @@
+{
+  "name": "My Node.js Codespace",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:18",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "My Web Server",
+      "onAutoForward": "openBrowser",
+      "privacy": "public" 
+    }
+  }
+}

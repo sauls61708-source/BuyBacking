@@ -110,11 +110,11 @@
             <div>
                 <h3 class="text-xl font-bold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
-                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
-                    <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
-                    <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
-                    <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
+                    <li><a href="/index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="/sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="/my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
+                    <li><a href="/about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
+                    <li><a href="/contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
                 </ul>
             </div>
             <div class="md:col-span-2 lg:col-span-1">
@@ -207,7 +207,7 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 // User is signed in, no email verification check needed
                 showMessage('Successfully logged in!', 'success');
-                window.location.href = '/my-account.html'; // Redirect directly
+                window.location.href = 'my-account.html'; // Redirect directly (relative path)
             } catch (error) {
                 console.error("Login error:", error.code, error.message);
                 let errorMessage = "An unknown error occurred. Please try again.";
@@ -245,7 +245,7 @@
                 // Note: Phone number would be stored in Firestore/Realtime DB in a real app
 
                 showMessage('Account created successfully! Redirecting to your account.', 'success');
-                window.location.href = '/my-account.html'; // Redirect directly after signup
+                window.location.href = 'my-account.html'; // Redirect directly after signup (relative path)
 
             } catch (error) {
                 console.error("Registration error:", error.code, error.message);

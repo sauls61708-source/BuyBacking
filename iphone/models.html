@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-M-0">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwiftBuyBack - Sell Your iPhone</title>
     <!-- Tailwind CSS CDN -->
@@ -402,8 +402,41 @@
         </div>
     </footer>
 
-    <script>
+    <script type="module">
+        // Firebase SDK Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
         document.addEventListener('DOMContentLoaded', function() {
+            // --- Firebase Initialization and Authentication ---
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+
+            // Authenticate and set up user ID
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    try {
+                        // Attempt to sign in with custom token if available
+                        if (typeof __initial_auth_token !== 'undefined') {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            // Otherwise, sign in anonymously
+                            await signInAnonymously(auth);
+                        }
+                        console.log("Firebase initialized on sell-device.html. User ID:", auth.currentUser.uid);
+                    } catch (error) {
+                        console.error("Firebase authentication failed on sell-device.html:", error);
+                        // If authentication fails, redirect to login page
+                        const currentPageUrl = encodeURIComponent(window.location.href);
+                        const loginUrl = `https://toratyosef.github.io/BuyBacking/login.html?redirect_to=${currentPageUrl}`;
+                        window.location.replace(loginUrl);
+                    }
+                } else {
+                    console.log("User already signed in on sell-device.html. User ID:", user.uid);
+                }
+            });
+
             // Function to load image with fallback extensions
             function loadImageWithFallback(imgElement) {
                 const baseSrc = imgElement.dataset.baseSrc;

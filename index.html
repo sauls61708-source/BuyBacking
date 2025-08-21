@@ -24,6 +24,20 @@
             transform: scale(1.05);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
         }
+        /* Styles for the circular monogram */
+        .initials-monogram {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #ffffff; /* White text for contrast */
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -32,12 +46,20 @@
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
-            <nav class="space-x-4">
+            <nav class="space-x-4 flex items-center">
                 <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
-                <!-- These links are dynamically controlled by JavaScript based on Firebase auth state -->
-                <a id="account-link" href="my-account.html" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">My Account</a>
+                
+                <!-- Login link (visible when not logged in) -->
                 <a id="login-link" href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
-                <button id="logout-button" class="hidden text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Logout</button>
+
+                <!-- User menu (hidden by default, visible when logged in) -->
+                <div id="user-menu-container" class="relative hidden">
+                    <div id="user-monogram" class="initials-monogram cursor-pointer bg-indigo-500 text-white"></div>
+                    <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden">
+                        <a href="my-account.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Account</a>
+                        <button id="dropdown-logout-button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                    </div>
+                </div>
             </nav>
         </div>
     </header>
@@ -338,33 +360,70 @@
 
             // --- Header Link Management based on Firebase Auth State ---
             const loginLink = document.getElementById('login-link');
-            const logoutButton = document.getElementById('logout-button');
-            const accountLink = document.getElementById('account-link');
+            const userMenuContainer = document.getElementById('user-menu-container');
+            const userMonogram = document.getElementById('user-monogram');
+            const userDropdown = document.getElementById('user-dropdown');
+            const dropdownLogoutButton = document.getElementById('dropdown-logout-button');
+
+            // Function to generate a random light background color for monogram
+            function getRandomLightColor() {
+                const hue = Math.floor(Math.random() * 360); // 0-359
+                const saturation = Math.floor(Math.random() * 30) + 70; // 70-100% saturation
+                const lightness = Math.floor(Math.random() * 20) + 70; // 70-90% lightness
+                return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            }
 
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     // User is signed in
                     loginLink.classList.add('hidden');
-                    logoutButton.classList.remove('hidden');
-                    accountLink.classList.remove('hidden');
+                    userMenuContainer.classList.remove('hidden');
+
+                    // Generate initials
+                    let initials = '??';
+                    if (user.displayName) {
+                        const nameParts = user.displayName.split(' ').filter(part => part.length > 0);
+                        if (nameParts.length > 1) {
+                            initials = nameParts[0][0] + nameParts[nameParts.length - 1][0];
+                        } else if (nameParts.length === 1) {
+                            initials = nameParts[0][0];
+                        }
+                    } else if (user.email) {
+                        initials = user.email[0];
+                    }
+                    userMonogram.textContent = initials.toUpperCase();
+                    userMonogram.style.backgroundColor = getRandomLightColor();
+
                 } else {
                     // User is signed out
                     loginLink.classList.remove('hidden');
-                    logoutButton.classList.add('hidden');
-                    accountLink.classList.add('hidden');
+                    userMenuContainer.classList.add('hidden');
+                    userDropdown.classList.add('hidden'); // Ensure dropdown is hidden when logged out
                 }
             });
 
-            // Handle the logout button click
-            logoutButton.addEventListener('click', async function() {
+            // Toggle dropdown visibility when monogram is clicked
+            userMonogram.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent document click from immediately closing it
+                userDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!userMenuContainer.contains(event.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+
+            // Handle the logout button click from the dropdown
+            dropdownLogoutButton.addEventListener('click', async function() {
                 try {
                     await signOut(auth);
                     // The onAuthStateChanged listener will automatically update the UI
-                    // or redirect as configured for signed-out users.
+                    // and hide the user menu.
                 } catch (error) {
                     console.error("Logout error:", error);
-                    // You might want to display a message to the user here.
-                    alert('Failed to log out. Please try again.'); // Using alert for simplicity, but a custom message box is preferred.
+                    alert('Failed to log out. Please try again.');
                 }
             });
         });

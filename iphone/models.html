@@ -407,33 +407,44 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() { // Added 'async' keyword here
             // --- Firebase Initialization and Authentication ---
             const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
 
-            // Authenticate and set up user ID
-            onAuthStateChanged(auth, async (user) => {
-                if (!user) {
-                    try {
-                        // Attempt to sign in with custom token if available
-                        if (typeof __initial_auth_token !== 'undefined') {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            // Otherwise, sign in anonymously
-                            await signInAnonymously(auth);
-                        }
-                        console.log("Firebase initialized on sell-device.html. User ID:", auth.currentUser.uid);
-                    } catch (error) {
-                        console.error("Firebase authentication failed on sell-device.html:", error);
-                        // If authentication fails, redirect to login page
+            let currentUserId = null; // Will be set if user is logged in
+            let authReady = false; // Flag to indicate when authentication state is determined
+
+            // First, attempt to sign in or get current user state
+            try {
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                currentUserId = auth.currentUser.uid;
+                console.log("Firebase authentication attempted on models.html. User ID:", currentUserId);
+                authReady = true; // Set flag to true after initial authentication attempt
+            } catch (error) {
+                console.error("Initial Firebase authentication failed on models.html:", error);
+                authReady = true; // Still set to true so onAuthStateChanged can run
+            }
+
+            // Listen for auth state changes after initial attempt
+            onAuthStateChanged(auth, (user) => {
+                if (authReady) { // Only run this logic if initial auth attempt has finished
+                    if (!user) {
+                        // User is not signed in, redirect to login page
+                        console.log("User not signed in after initial auth attempt on models.html. Redirecting to login.");
                         const currentPageUrl = encodeURIComponent(window.location.href);
                         const loginUrl = `https://toratyosef.github.io/BuyBacking/login.html?redirect_to=${currentPageUrl}`;
                         window.location.replace(loginUrl);
+                    } else {
+                        currentUserId = user.uid;
+                        console.log("User signed in via onAuthStateChanged on models.html. User ID:", currentUserId);
+                        // Page content can now load or interact with authenticated user
                     }
-                } else {
-                    console.log("User already signed in on sell-device.html. User ID:", user.uid);
                 }
             });
 

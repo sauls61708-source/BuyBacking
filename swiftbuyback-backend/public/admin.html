@@ -3,81 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SwiftBuyBack Admin</title>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
+<title>Swift Buyback Admin</title>
+
+<!-- Tailwind output -->
+<link rel="stylesheet" href="output.css">
+
+<!-- Google Fonts (optional for nicer text) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
-/* Loader animation */
-.loader {
-  border: 4px solid #6366F1;
-  border-top: 4px solid transparent;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+body { font-family: 'Inter', sans-serif; }
+.modal-enter { opacity: 0; transform: translateY(-10px); }
+.modal-enter-active { opacity: 1; transform: translateY(0); transition: all 0.3s ease; }
+.modal-exit { opacity: 1; transform: translateY(0); }
+.modal-exit-active { opacity: 0; transform: translateY(-10px); transition: all 0.3s ease; }
 </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+<body class="bg-gray-50">
 
-<!-- Loading Screen -->
-<div id="loadingScreen" class="hidden fixed inset-0 bg-white flex items-center justify-center z-50">
-  <div class="text-center">
-    <div class="loader mx-auto mb-4"></div>
-    <p class="text-gray-700 font-medium">Loading...</p>
-  </div>
-</div>
+<main class="max-w-6xl mx-auto p-4">
+    <header class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Swift Buyback Admin</h1>
+        <button id="refreshOrdersBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">Refresh Orders</button>
+    </header>
 
-<!-- Login Screen -->
-<div id="loginScreen" class="flex-1 flex flex-col items-center justify-center">
-  <h1 class="text-3xl font-bold text-gray-800 mb-6">SwiftBuyBack Admin</h1>
-  <button id="signInBtn" class="flex items-center bg-white border border-gray-300 rounded px-4 py-2 hover:bg-gray-50 transition">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" class="w-5 h-5 mr-2" alt="Google Logo">
-    Sign in with Google
-  </button>
-</div>
+    <div id="loadingMessage" class="text-gray-500">Loading orders...</div>
+    <div id="errorMessage" class="text-red-600 hidden"></div>
 
-<!-- Dashboard -->
-<div id="dashboard" class="hidden flex-1 flex flex-col md:flex-row">
-  <!-- Sidebar Menu -->
-  <nav class="bg-white shadow-md w-full md:w-64 p-4 flex-shrink-0">
-    <h2 class="text-xl font-semibold mb-6">Menu</h2>
-    <ul class="space-y-3">
-      <li><button id="ordersTab" class="w-full text-left px-2 py-1 rounded hover:bg-indigo-100 transition">Orders</button></li>
-      <li><button id="shippingTab" class="w-full text-left px-2 py-1 rounded hover:bg-indigo-100 transition">Shipping</button></li>
-      <li><button id="settingsTab" class="w-full text-left px-2 py-1 rounded hover:bg-indigo-100 transition">Settings</button></li>
-      <li><button id="signOutBtn" class="w-full text-left px-2 py-1 rounded hover:bg-red-100 text-red-600 transition">Sign Out</button></li>
-    </ul>
-  </nav>
+    <div id="ordersList" class="grid gap-4"></div>
+</main>
 
-  <!-- Main Content -->
-  <main class="flex-1 p-6 overflow-auto">
-    <h2 class="text-2xl font-bold mb-4">Orders</h2>
-    <div id="ordersList" class="space-y-4"></div>
-    <p id="loadingMessage" class="text-gray-600 hidden">Loading orders...</p>
-    <p id="errorMessage" class="text-red-600 hidden"></p>
-  </main>
-</div>
+<!-- Modal -->
+<div id="orderDetailModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+  <div class="bg-white rounded-lg p-6 w-11/12 max-w-2xl relative animate-modal-enter">
+    <button id="closeModalBtn" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">&times;</button>
+    <h2 class="text-xl font-bold mb-4">Order Details: <span id="modalOrderId"></span></h2>
 
-<!-- Order Modal -->
-<div id="orderDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-  <div class="bg-white rounded-lg w-full max-w-2xl p-6 relative overflow-auto max-h-[90vh]">
-    <button id="closeModalBtn" class="absolute top-2 right-2 text-gray-600 hover:text-gray-900">&times;</button>
-    <h3 class="text-xl font-bold mb-4">Order Details</h3>
-    <div id="modalContent" class="space-y-2 text-gray-700"></div>
-    <div id="modalMessage" class="hidden p-2 rounded mt-4"></div>
-    <div class="mt-4 flex space-x-2">
-      <button id="generateLabelBtn" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded hidden">Generate Label</button>
-      <button id="markReceivedBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded hidden">Mark Received</button>
-      <button id="markCompletedBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded hidden">Mark Completed</button>
+    <div class="space-y-2">
+        <p>Device: <span id="modalDeviceModel"></span> | Storage: <span id="modalDeviceStorage"></span></p>
+        <p>Carrier: <span id="modalDeviceCarrier"></span></p>
+        <p>Status: <span id="modalOrderStatus" class="font-semibold"></span></p>
+        <p>Estimated Quote: $<span id="modalEstimatedQuote"></span></p>
+        <p>Payment Method: <span id="modalPaymentMethod"></span></p>
+        <p>Payment Details: <span id="modalPaymentValue"></span></p>
+
+        <h3 class="font-semibold mt-4">Shipping Info</h3>
+        <p>Name: <span id="modalShippingName"></span></p>
+        <p>Address: <span id="modalShippingAddress"></span></p>
+        <p>Email: <span id="modalShippingEmail"></span></p>
+
+        <h3 class="font-semibold mt-4">Device Condition</h3>
+        <p>Power On: <span id="modalConditionPowerOn"></span></p>
+        <p>Functional: <span id="modalConditionFunctional"></span></p>
+        <p>Cracks: <span id="modalConditionCracks"></span></p>
+        <p>Cosmetic: <span id="modalConditionCosmetic"></span></p>
+
+        <div id="modalLabelUrl" class="mt-2 hidden">
+            <a href="#" target="_blank" class="text-blue-600 hover:underline">View USPS Label</a>
+        </div>
+
+        <div id="modalMessage" class="hidden p-2 rounded mt-2"></div>
+
+        <div class="mt-4 flex space-x-2">
+            <button id="generateLabelBtn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded hidden">Generate Label</button>
+            <button id="markReceivedBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded hidden">Mark Received</button>
+            <button id="markCompletedBtn" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded hidden">Complete</button>
+        </div>
     </div>
   </div>
 </div>
 
-<script>
-// Firebase config
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
   authDomain: "buyback-a0f05.firebaseapp.com",
@@ -87,89 +86,99 @@ const firebaseConfig = {
   appId: "1:876430429098:web:f6dd64b1960d90461979d3",
   measurementId: "G-6WWQN44JHT"
 };
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const provider = new firebase.auth.GoogleAuthProvider();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const ordersCollection = collection(db, "orders");
 
-// DOM Elements
-const loginScreen = document.getElementById('loginScreen');
-const dashboard = document.getElementById('dashboard');
-const loadingScreen = document.getElementById('loadingScreen');
-const signInBtn = document.getElementById('signInBtn');
-const signOutBtn = document.getElementById('signOutBtn');
+// DOM elements
 const ordersList = document.getElementById('ordersList');
 const loadingMessage = document.getElementById('loadingMessage');
 const errorMessage = document.getElementById('errorMessage');
+const refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
+const orderDetailModal = document.getElementById('orderDetailModal');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const generateLabelBtn = document.getElementById('generateLabelBtn');
+const markReceivedBtn = document.getElementById('markReceivedBtn');
+const markCompletedBtn = document.getElementById('markCompletedBtn');
+const modalMessage = document.getElementById('modalMessage');
+const modalLabelUrl = document.getElementById('modalLabelUrl');
 
-// Simple backend URL
-const BACKEND_URL = '';
+let currentOrderId = null;
 
-// Auth state observer
-auth.onAuthStateChanged(user => {
-  if (user) {
-    loginScreen.classList.add('hidden');
-    dashboard.classList.remove('hidden');
-    fetchOrders();
-  } else {
-    loginScreen.classList.remove('hidden');
-    dashboard.classList.add('hidden');
-  }
-});
-
-// Google Sign-In
-signInBtn.addEventListener('click', async () => {
-  try {
-    loadingScreen.classList.remove('hidden');
-    await auth.signInWithPopup(provider);
-    loadingScreen.classList.add('hidden');
-  } catch(err) {
-    console.error(err);
-    loadingScreen.classList.add('hidden');
-  }
-});
-
-// Sign-Out
-signOutBtn.addEventListener('click', () => {
-  auth.signOut();
-});
-
-// Fetch orders from backend
-async function fetchOrders() {
-  ordersList.innerHTML = '';
-  loadingMessage.classList.remove('hidden');
-  errorMessage.classList.add('hidden');
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/orders`);
-    if (!res.ok) throw new Error(res.statusText);
-    const orders = await res.json();
-    loadingMessage.classList.add('hidden');
-    if (orders.length === 0) ordersList.innerHTML = '<p class="text-gray-600">No orders found.</p>';
-    else {
-      orders.forEach(order => {
-        const div = document.createElement('div');
-        div.className = 'bg-white p-4 rounded shadow flex justify-between items-center hover:bg-gray-50 transition';
-        div.innerHTML = `
-          <div>
-            <p class="font-bold">${order.device} (${order.storage})</p>
-            <p class="text-sm text-gray-500">Status: ${order.status}</p>
-          </div>
-          <button class="view-btn bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded" data-id="${order.id}">View</button>
-        `;
-        ordersList.appendChild(div);
-      });
-      document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          alert(`Order ID: ${btn.dataset.id}`); // Replace with modal code
-        });
-      });
-    }
-  } catch(err) {
-    console.error(err);
-    loadingMessage.classList.add('hidden');
-    errorMessage.textContent = `Failed to fetch orders: ${err.message}`;
-    errorMessage.classList.remove('hidden');
-  }
+// Modal message helper
+function showModalMessage(msg, type){
+  modalMessage.textContent = msg;
+  modalMessage.className = `p-2 rounded mt-2 ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+  modalMessage.classList.remove('hidden');
 }
+
+// Open modal
+function openOrderModal(orderId, order){
+  currentOrderId = orderId;
+  document.getElementById('modalOrderId').textContent = orderId;
+  document.getElementById('modalDeviceModel').textContent = order.device || '';
+  document.getElementById('modalDeviceCarrier').textContent = order.carrier || '';
+  document.getElementById('modalDeviceStorage').textContent = order.storage || '';
+  document.getElementById('modalOrderStatus').textContent = order.status || '';
+  document.getElementById('modalEstimatedQuote').textContent = order.estimatedQuote?.toFixed(2) || '0.00';
+  document.getElementById('modalPaymentMethod').textContent = order.paymentMethod || '';
+  document.getElementById('modalPaymentValue').textContent = order.paymentDetails?.venmoUsername || 'N/A';
+  document.getElementById('modalShippingName').textContent = order.shippingInfo?.fullName || '';
+  document.getElementById('modalShippingAddress').textContent = order.shippingInfo ? `${order.shippingInfo.streetAddress}, ${order.shippingInfo.city}, ${order.shippingInfo.state} ${order.shippingInfo.zipCode}` : '';
+  document.getElementById('modalShippingEmail').textContent = order.shippingInfo?.email || '';
+  document.getElementById('modalConditionPowerOn').textContent = order.condition_power_on || '';
+  document.getElementById('modalConditionFunctional').textContent = order.condition_functional || '';
+  document.getElementById('modalConditionCracks').textContent = order.condition_cracks || '';
+  document.getElementById('modalConditionCosmetic').textContent = order.condition_cosmetic || '';
+
+  if(order.uspsLabelUrl){
+    modalLabelUrl.querySelector('a').href = order.uspsLabelUrl;
+    modalLabelUrl.classList.remove('hidden');
+  } else {
+    modalLabelUrl.classList.add('hidden');
+  }
+
+  // Show/hide buttons
+  generateLabelBtn.classList.add('hidden');
+  markReceivedBtn.classList.add('hidden');
+  markCompletedBtn.classList.add('hidden');
+  if(order.status === 'pending_shipment') generateLabelBtn.classList.remove('hidden');
+  else if(order.status === 'label_generated') markReceivedBtn.classList.remove('hidden');
+  else if(order.status === 'received') markCompletedBtn.classList.remove('hidden');
+
+  modalMessage.classList.add('hidden');
+  orderDetailModal.classList.remove('hidden');
+}
+
+// Close modal
+closeModalBtn.addEventListener('click', ()=>{
+  orderDetailModal.classList.add('hidden');
+  currentOrderId = null;
+});
+
+// Fetch & render orders in real-time
+onSnapshot(ordersCollection, snapshot=>{
+  ordersList.innerHTML = '';
+  if(snapshot.empty){
+    ordersList.innerHTML = '<p class="text-gray-600">No pending shipments found.</p>';
+  } else {
+    snapshot.docs.forEach(docSnap=>{
+      const order = docSnap.data();
+      const orderDiv = document.createElement('div');
+      orderDiv.className = 'bg-gray-50 p-4 rounded-md shadow-sm flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200';
+      orderDiv.innerHTML = `
+        <div>
+          <p class="font-bold text-lg">Order ID: ${docSnap.id}</p>
+          <p class="text-sm text-gray-600">Device: ${order.device} (${order.storage || ''})</p>
+          <p class="text-sm text-gray-600">Status: <span class="font-medium">${order.status}</span></p>
+        </div>
+        <button class="view-details-btn bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded text-sm transition duration-300">View Details</button>
+      `;
+      orderDiv.querySelector('.view-details-btn').addEventListener('click', ()=>openOrderModal(docSnap.id, order));
+      ordersList.appendChild(orderDiv);
+    });
+  }
+});
 </script>
 </body>
 </html>

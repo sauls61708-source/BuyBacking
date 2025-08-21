@@ -1,291 +1,193 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwiftBuyBack Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
-</head>
-<body class="bg-gray-100 text-gray-900 min-h-screen">
-    <header class="bg-indigo-700 text-white p-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">SwiftBuyBack Admin</h1>
-            <button id="refreshOrdersBtn" class="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-md transition duration-300">
-                Refresh Orders
-            </button>
-        </div>
-    </header>
+// index.js (or app.js)
 
-    <main class="container mx-auto p-6">
-        <h2 class="text-3xl font-bold mb-6 text-gray-800">Manage Orders</h2>
+// --- Required Modules ---
+const express = require('express');
+const admin = require('firebase-admin');
+const cors = require('cors');
+const axios = require('axios');
+const path = require('path');
 
-        <div id="ordersContainer" class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-xl font-semibold mb-4">Pending Shipments</h3>
-            <div id="ordersList" class="space-y-4">
-                <p class="text-gray-500" id="loadingMessage">Loading orders...</p>
-                </div>
-            <p id="errorMessage" class="text-red-600 mt-4 hidden">Error loading orders.</p>
-        </div>
+// --- Firebase Admin SDK Initialization ---
+// IMPORTANT: This method requires 'serviceAccountKey.json' to be present
+// in the same directory as this index.js file.
+// DO NOT COMMIT 'serviceAccountKey.json' TO GITHUB FOR SECURITY REASONS.
+const serviceAccount = require('./serviceAccountKey.json');
 
-        <div id="orderDetailModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
-            <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800">Order Details: <span id="modalOrderId"></span></h3>
-                    <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
-                </div>
-                <div class="space-y-4 text-gray-700">
-                    <p><strong>Estimated Quote:</strong> <span id="modalEstimatedQuote"></span></p>
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Device Details:</h4>
-                    <p><strong>Model:</strong> <span id="modalDeviceModel"></span></p>
-                    <p><strong>Carrier:</strong> <span id="modalDeviceCarrier"></span></p>
-                    <p><strong>Storage:</strong> <span id="modalDeviceStorage"></span></p>
-                    <p><strong>Condition:</strong></p>
-                    <ul class="list-disc list-inside ml-4">
-                        <li>Power On: <span id="modalConditionPowerOn"></span></li>
-                        <li>Fully Functional: <span id="modalConditionFunctional"></span></li>
-                        <li>No Cracks: <span id="modalConditionCracks"></span></li>
-                        <li>Cosmetic: <span id="modalConditionCosmetic"></span></li>
-                    </ul>
+const db = admin.firestore();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Payment Details:</h4>
-                    <p><strong>Method:</strong> <span id="modalPaymentMethod"></span></p>
-                    <p><strong>Account:</strong> <span id="modalPaymentValue"></span></p>
+// --- Middleware ---
+app.use(express.json());
 
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Shipping Details:</h4>
-                    <p><strong>Name:</strong> <span id="modalShippingName"></span></p>
-                    <p><strong>Address:</strong> <span id="modalShippingAddress"></span></p>
-                    <p><strong>Email:</strong> <span id="modalShippingEmail"></span></p>
+// Corrected CORS configuration to allow your frontend origin
+const allowedOrigins = [
+    'https://toratyosef.github.io',
+    'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev'
+];
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-                    <h4 class="text-lg font-semibold mt-4 mb-2">Current Status: <span id="modalOrderStatus" class="font-bold"></span></h4>
-                    <p id="modalLabelUrl" class="hidden"><strong>USPS Label:</strong> <a href="#" target="_blank" class="text-indigo-600 hover:underline">View Label</a></p>
+// Serve static files (your admin frontend) from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-                    <div class="mt-6 space-y-3">
-                        <button id="generateLabelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
-                            Generate USPS Label
-                        </button>
-                        <button id="markReceivedBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
-                            Mark as Received
-                        </button>
-                        <button id="markCompletedBtn" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
-                            Mark as Completed
-                        </button>
-                        <p id="modalMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+// --- Root Path Handler ---
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
-    <script>
-        const BACKEND_URL = 'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev';
+// --- NEW API Endpoint for Order Submission from the Frontend ---
+app.post('/api/submit-order', async (req, res) => {
+    try {
+        const orderData = req.body;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const ordersList = document.getElementById('ordersList');
-            const loadingMessage = document.getElementById('loadingMessage');
-            const errorMessage = document.getElementById('errorMessage');
-            const refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
-            const orderDetailModal = document.getElementById('orderDetailModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const generateLabelBtn = document.getElementById('generateLabelBtn');
-            const markReceivedBtn = document.getElementById('markReceivedBtn');
-            const markCompletedBtn = document.getElementById('markCompletedBtn');
-            const modalMessage = document.getElementById('modalMessage');
+        // Basic check to ensure some data was sent
+        if (!orderData || Object.keys(orderData).length === 0) {
+            return res.status(400).json({ error: 'Request body is empty or invalid.' });
+        }
 
-            let currentOrderId = null;
+        const newOrderRef = db.collection('orders').doc();
 
-            function showModalMessage(msg, type) {
-                modalMessage.textContent = msg;
-                modalMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
-                if (type === 'error') {
-                    modalMessage.classList.add('bg-red-100', 'text-red-700');
-                } else if (type === 'success') {
-                    modalMessage.classList.add('bg-green-100', 'text-green-700');
-                }
-                modalMessage.classList.remove('hidden');
-            }
+        const dataToSave = {
+            ...orderData,
+            status: 'pending_shipment',
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        };
 
-            async function fetchOrders() {
-                ordersList.innerHTML = '';
-                loadingMessage.classList.remove('hidden');
-                errorMessage.classList.add('hidden');
-                modalMessage.classList.add('hidden');
+        await newOrderRef.set(dataToSave);
+        console.log(`New order submitted with ID: ${newOrderRef.id}`);
 
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/orders`);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const orders = await response.json();
-
-                    loadingMessage.classList.add('hidden');
-
-                    if (orders.length === 0) {
-                        ordersList.innerHTML = '<p class="text-gray-600">No pending shipments found.</p>';
-                    } else {
-                        orders.forEach(order => {
-                            const orderDiv = document.createElement('div');
-                            orderDiv.className = 'bg-gray-50 p-4 rounded-md shadow-sm flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200';
-                            orderDiv.innerHTML = `
-                                <div>
-                                    <p class="font-bold text-lg">Order ID: ${order.id}</p>
-                                    <p class="text-sm text-gray-600">Device: ${order.device} (${order.storage})</p>
-                                    <p class="text-sm text-gray-600">Status: <span class="font-medium">${order.status}</span></p>
-                                </div>
-                                <button class="view-details-btn bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-md text-sm transition duration-300" data-order-id="${order.id}">View Details</button>
-                            `;
-                            ordersList.appendChild(orderDiv);
-                        });
-
-                        document.querySelectorAll('.view-details-btn').forEach(button => {
-                            button.addEventListener('click', async (event) => {
-                                const orderId = event.target.dataset.orderId;
-                                const response = await fetch(`${BACKEND_URL}/api/orders/${orderId}`);
-                                const orderData = await response.json();
-                                openOrderDetailModal(orderId, orderData);
-                            });
-                        });
-                    }
-                } catch (error) {
-                    console.error('Failed to fetch orders:', error);
-                    loadingMessage.classList.add('hidden');
-                    errorMessage.textContent = `Error: ${error.message}. Is the backend running at ${BACKEND_URL}?`;
-                    errorMessage.classList.remove('hidden');
-                }
-            }
-
-            async function openOrderDetailModal(orderId, orderData) {
-                currentOrderId = orderId;
-                document.getElementById('modalOrderId').textContent = orderId;
-                document.getElementById('modalEstimatedQuote').textContent = `$${orderData.estimatedQuote.toFixed(2)}`;
-
-                document.getElementById('modalDeviceModel').textContent = orderData.device;
-                document.getElementById('modalDeviceCarrier').textContent = orderData.carrier;
-                document.getElementById('modalDeviceStorage').textContent = orderData.storage;
-                document.getElementById('modalConditionPowerOn').textContent = orderData.condition_power_on;
-                document.getElementById('modalConditionFunctional').textContent = orderData.condition_functional;
-                document.getElementById('modalConditionCracks').textContent = orderData.condition_cracks;
-                document.getElementById('modalConditionCosmetic').textContent = orderData.condition_cosmetic;
-
-                document.getElementById('modalPaymentMethod').textContent = orderData.paymentMethod;
-                document.getElementById('modalPaymentValue').textContent = orderData.paymentDetails.venmoUsername || 'N/A';
-
-                document.getElementById('modalShippingName').textContent = orderData.shippingInfo.fullName;
-                document.getElementById('modalShippingAddress').textContent = `${orderData.shippingInfo.streetAddress}, ${orderData.shippingInfo.city}, ${orderData.shippingInfo.state} ${orderData.shippingInfo.zipCode}`;
-                document.getElementById('modalShippingEmail').textContent = orderData.shippingInfo.email;
-
-                document.getElementById('modalOrderStatus').textContent = orderData.status;
-
-                const modalLabelUrl = document.getElementById('modalLabelUrl');
-                const labelLink = modalLabelUrl.querySelector('a');
-                if (orderData.uspsLabelUrl) {
-                    labelLink.href = orderData.uspsLabelUrl;
-                    modalLabelUrl.classList.remove('hidden');
-                } else {
-                    modalLabelUrl.classList.add('hidden');
-                }
-                
-                generateLabelBtn.classList.add('hidden');
-                markReceivedBtn.classList.add('hidden');
-                markCompletedBtn.classList.add('hidden');
-                
-                if (orderData.status === 'pending_shipment') {
-                    generateLabelBtn.classList.remove('hidden');
-                } else if (orderData.status === 'label_generated') {
-                    markReceivedBtn.classList.remove('hidden');
-                } else if (orderData.status === 'received') {
-                    markCompletedBtn.classList.remove('hidden');
-                }
-
-                modalMessage.classList.add('hidden');
-                orderDetailModal.classList.remove('hidden');
-            }
-
-            closeModalBtn.addEventListener('click', () => {
-                orderDetailModal.classList.add('hidden');
-                currentOrderId = null;
-                fetchOrders();
-            });
-
-            generateLabelBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                showModalMessage('Generating label...', 'success');
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/generate-label/${currentOrderId}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.error || 'Failed to generate label');
-                    }
-                    showModalMessage(result.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'label_generated';
-                    const modalLabelUrl = document.getElementById('modalLabelUrl');
-                    modalLabelUrl.querySelector('a').href = result.uspsLabelUrl;
-                    modalLabelUrl.classList.remove('hidden');
-                    generateLabelBtn.classList.add('hidden');
-                    markReceivedBtn.classList.remove('hidden');
-                } catch (error) {
-                    showModalMessage(`Error: ${error.message}`, 'error');
-                    console.error('Label generation error:', error);
-                }
-            });
-
-            markReceivedBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                showModalMessage('Marking as received...', 'success');
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/orders/${currentOrderId}/status`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'received' })
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.error || 'Failed to mark as received');
-                    }
-                    showModalMessage(result.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'received';
-                    markReceivedBtn.classList.add('hidden');
-                    markCompletedBtn.classList.remove('hidden');
-                } catch (error) {
-                    showModalMessage(`Error: ${error.message}`, 'error');
-                    console.error('Mark received error:', error);
-                }
-            });
-            
-            markCompletedBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                showModalMessage('Marking as completed...', 'success');
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/orders/${currentOrderId}/status`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'completed' })
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.error || 'Failed to mark as completed');
-                    }
-                    showModalMessage(result.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'completed';
-                    markCompletedBtn.classList.add('hidden');
-                    markReceivedBtn.classList.add('hidden');
-                    generateLabelBtn.classList.add('hidden');
-                } catch (error) {
-                    showModalMessage(`Error: ${error.message}`, 'error');
-                    console.error('Mark completed error:', error);
-                }
-            });
-
-            fetchOrders();
-            refreshOrdersBtn.addEventListener('click', fetchOrders);
+        res.status(201).json({ 
+            message: 'Order submitted successfully!', 
+            orderId: newOrderRef.id 
         });
-    </script>
-</body>
-</html>
+    } catch (error) {
+        console.error('Error submitting order:', error);
+        res.status(500).json({ error: 'Failed to submit order', details: error.message });
+    }
+});
+
+// --- Existing API Endpoints ---
+
+// Endpoint to get all pending orders
+app.get('/api/orders', async (req, res) => {
+    try {
+        const snapshot = await db.collection('orders').where('status', '==', 'pending_shipment').get();
+        const orders = [];
+        snapshot.forEach(doc => {
+            orders.push({ id: doc.id, ...doc.data() });
+        });
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
+    }
+});
+
+// Endpoint to get a single order by ID
+app.get('/api/orders/:orderId', async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const doc = await db.collection('orders').doc(orderId).get();
+
+        if (!doc.exists) {
+            return res.status(404).json({ error: 'Order not found.' });
+        }
+
+        res.status(200).json(doc.data());
+    } catch (error) {
+        console.error('Error fetching single order:', error);
+        res.status(500).json({ error: 'Failed to fetch order details', details: error.message });
+    }
+});
+
+// Endpoint to generate USPS label and update order status
+app.post('/api/generate-label/:orderId', async (req, res) => {
+    const orderId = req.params.orderId;
+    try {
+        const orderDocRef = db.collection('orders').doc(orderId);
+        const orderDoc = await orderDocRef.get();
+        if (!orderDoc.exists) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        const orderData = orderDoc.data();
+        const shippingDetails = orderData.shippingInfo;
+
+        const uspsConsumerKey = process.env.USPS_CONSUMER_KEY;
+        const uspsConsumerSecret = process.env.USPS_CONSUMER_SECRET;
+        const uspsApiUrl = 'https://api.usps.com/production/shipping/v1/labels';
+
+        if (!uspsConsumerKey || !uspsConsumerSecret) {
+            console.error("USPS API credentials not set in environment variables.");
+            return res.status(500).json({ error: 'USPS API credentials missing.' });
+        }
+
+        const requestPayload = {
+            fromAddress: { /* ... your company info ... */ },
+            toAddress: {
+                fullName: shippingDetails.fullName,
+                address1: shippingDetails.streetAddress,
+                city: shippingDetails.city,
+                state: shippingDetails.state,
+                zipCode: shippingDetails.zipCode,
+                country: "US"
+            },
+        };
+
+        // This is a placeholder for the actual USPS API call.
+        // The real implementation would use axios to post to the USPS API.
+        let uspsLabelUrl = `https://example.com/usps-label-simulated-${orderId}.pdf`; 
+
+        await orderDocRef.update({
+            status: 'label_generated',
+            uspsLabelUrl: uspsLabelUrl,
+            labelGeneratedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        res.status(200).json({
+            message: `Label generated and order status updated for order ${orderId}`,
+            uspsLabelUrl: uspsLabelUrl
+        });
+    } catch (error) {
+        console.error(`Error generating label for order ${orderId}:`, error);
+        res.status(500).json({ error: 'Failed to generate label', details: error.message });
+    }
+});
+
+// Endpoint to update order status
+app.put('/api/orders/:orderId/status', async (req, res) => {
+    const orderId = req.params.orderId;
+    const { status } = req.body;
+    if (!status) {
+        return res.status(400).json({ error: 'Status is required' });
+    }
+    try {
+        const orderDocRef = db.collection('orders').doc(orderId);
+        await orderDocRef.update({
+            status: status,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        res.status(200).json({ message: `Order ${orderId} status updated to ${status}` });
+    } catch (error) {
+        console.error(`Error updating status for order ${orderId}:`, error);
+        res.status(500).json({ error: 'Failed to update order status', details: error.message });
+    }
+});
+
+// --- Start the Server ---
+app.listen(PORT, () => {
+    console.log(`Admin backend server running on port ${PORT}`);
+    console.log(`Access at: http://localhost:${PORT}`);
+});

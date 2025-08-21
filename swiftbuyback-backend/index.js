@@ -4,6 +4,7 @@
 const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors'); // For Cross-Origin Resource Sharing
+const axios = require('axios'); // NEW: For making HTTP requests to external APIs like USPS
 
 // --- Firebase Admin SDK Initialization ---
 // Make sure your serviceAccountKey.json is in the same directory as this file
@@ -28,6 +29,12 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json()); // To parse JSON request bodies
+
+// --- NEW: Root Path Handler ---
+app.get('/', (req, res) => {
+    res.status(200).send('SwiftBuyBack Admin Backend is running!');
+});
+
 
 // --- API Endpoints ---
 
@@ -67,16 +74,9 @@ app.get('/api/orders', async (req, res) => {
 // Endpoint to generate USPS label and update order status
 app.post('/api/generate-label/:orderId', async (req, res) => {
     const orderId = req.params.orderId;
-    // In a real application, you would pass package dimensions, weight, etc., in req.body
-    // For simplicity, this example just updates status.
 
     try {
         const appId = process.env.APP_ID || 'default-app-id';
-        // You'll need to fetch the specific order document.
-        // If orders are stored under users/{userId}/orders, you need the userId.
-        // For admin purposes, you might have a master 'orders' collection, or
-        // fetch the userId from the order itself if it was stored there.
-        // Example: Assume a simplified master collection for admin.
         const orderDocRef = db.collection(`artifacts/${appId}/public/data/orders`).doc(orderId);
         const orderDoc = await orderDocRef.get();
 
@@ -88,51 +88,94 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
         const shippingDetails = orderData.shippingDetails;
 
         // --- USPS API Integration Logic ---
-        // THIS IS PSEUDO-CODE AND REQUIRES A REAL USPS API IMPLEMENTATION
-        // You would use an HTTP client (like 'axios' or built-in 'https') to call USPS.
-        // Example:
-        // const uspsUserId = process.env.USPS_API_USER_ID; // From environment variables
-        // const uspsApiUrl = 'https://secure.shippingapis.com/ShippingAPI.dll'; // Example URL
+        // Get your API credentials from environment variables
+        const uspsConsumerKey = process.env.USPS_CONSUMER_KEY;
+        const uspsConsumerSecret = process.env.USPS_CONSUMER_SECRET;
+        const uspsApiUrl = 'https://api.usps.com/production/shipping/v1/labels'; // Example: NEW USPS Label API endpoint
 
-        // // Construct XML/JSON request payload for USPS Shipping Label API
-        // const requestPayload = `
-        //     <ImageLabelRequest>
-        //         <USERID>${uspsUserId}</USERID>
-        //         <TrackId></TrackId> <!-- If you have one, or USPS will provide -->
-        //         <FromName>${YOUR_COMPANY_NAME}</FromName>
-        //         <FromFirm>${YOUR_COMPANY_NAME}</FromFirm>
-        //         <FromAddress1>${YOUR_COMPANY_ADDRESS_LINE1}</FromAddress1>
-        //         <FromAddress2>${YOUR_COMPANY_ADDRESS_LINE2}</FromAddress2>
-        //         <FromCity>${YOUR_COMPANY_CITY}</FromCity>
-        //         <FromState>${YOUR_COMPANY_STATE}</FromState>
-        //         <FromZip5>${YOUR_COMPANY_ZIP}</FromZip5>
-        //         <ToName>${shippingDetails.fullName}</ToName>
-        //         <ToAddress1>${shippingDetails.address}</ToAddress1>
-        //         <ToCity>${shippingDetails.city}</ToCity>
-        //         <ToState>${shippingDetails.state}</ToState>
-        //         <ToZip5>${shippingDetails.zip}</ToZip5>
-        //         <Pounds>1</Pounds> <!-- Example weight, you'd make this dynamic -->
-        //         <Ounces>0</Ounces>
-        //         <ServiceType>Priority</ServiceType>
-        //         <ImageType>PDF</ImageType>
-        //         <!-- ... other required fields for your chosen USPS service -->
-        //     </ImageLabelRequest>
-        // `;
+        if (!uspsConsumerKey || !uspsConsumerSecret) {
+            console.error("USPS API credentials not set in environment variables.");
+            return res.status(500).json({ error: 'USPS API credentials missing.' });
+        }
 
-        // // Make the actual USPS API call (using a library like axios)
-        // const uspsApiResponse = await axios.post(uspsApiUrl, requestPayload, {
-        //     headers: { 'Content-Type': 'application/xml' } // Or 'application/json'
-        // });
+        // --- Construct Request Payload for NEW USPS API (EXAMPLE JSON FORMAT) ---
+        // This is a hypothetical structure based on common RESTful APIs.
+        // You MUST consult the actual USPS APIs Developer Portal documentation
+        // for the precise JSON payload structure, required fields, and authentication.
+        const requestPayload = {
+            fromAddress: {
+                fullName: "SwiftBuyBack Corp.", // Your company name
+                address1: "123 Main St", // Your company address
+                city: "New York",
+                state: "NY",
+                zipCode: "10001",
+                country: "US"
+            },
+            toAddress: {
+                fullName: shippingDetails.fullName,
+                address1: shippingDetails.address,
+                city: shippingDetails.city,
+                state: shippingDetails.state,
+                zipCode: shippingDetails.zip,
+                country: shippingDetails.country || "US" // Use provided country or default to US
+            },
+            packageDetails: {
+                weightInPounds: 1, // You might need to add this to your frontend form
+                length: 10,
+                width: 8,
+                height: 4,
+                packagingType: "BOX", // Or other USPS packaging types
+            },
+            serviceType: "PRIORITY_MAIL", // Or "FIRST_CLASS_MAIL", etc.
+            imageType: "PDF",
+            // You might need an Authorization header like 'Bearer' token or custom header based on their new API
+        };
 
-        // // Parse USPS response and extract label URL/data
-        // const labelData = uspsApiResponse.data; // This would be the Base64 label data or a URL
-        // const uspsLabelUrl = "URL_TO_GENERATED_LABEL_OR_BASE64_DATA"; // Replace with actual value
+        let uspsLabelUrl = ''; // Initialize to empty string
+        let boxSent = false; // Initialize to false
 
+        try {
+            // Make the actual USPS API call using axios
+            const uspsApiResponse = await axios.post(uspsApiUrl, requestPayload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${uspsConsumerKey}:${uspsConsumerSecret}` // Example: For basic auth or a derived token
+                    // You might need a different header based on the new USPS API authentication method (e.g., 'API-Key', 'X-USPS-Key')
+                    // Often, the Consumer Key and Secret are used to obtain an access token first.
+                },
+                // Add a timeout to the request to prevent hanging
+                timeout: 10000 // 10 seconds
+            });
+
+            // --- Parse USPS response and extract label URL/data ---
+            // This part is highly dependent on the *actual* USPS API response structure.
+            // Assuming the API returns a direct URL or Base64 data for the label
+            const labelData = uspsApiResponse.data;
+
+            if (labelData && labelData.labelPdfUrl) { // Example: If USPS returns a direct URL
+                uspsLabelUrl = labelData.labelPdfUrl;
+                boxSent = true; // Assume a label implies a shipping kit
+            } else if (labelData && labelData.labelBase64) { // Example: If USPS returns Base64 data
+                // You might save this Base64 data to Google Cloud Storage
+                // and then get a public URL for it. For now, we'll simulate.
+                uspsLabelUrl = `data:application/pdf;base64,${labelData.labelBase64}`; // For direct display in browser (small labels)
+                boxSent = true;
+            } else {
+                console.warn("USPS API response did not contain expected label URL or Base64 data.");
+                uspsLabelUrl = `https://example.com/usps-label-simulated-${orderId}.pdf`; // Fallback placeholder
+                boxSent = true; // Still simulate for testing
+            }
+
+        } catch (uspsError) {
+            console.error(`Error during USPS API call for order ${orderId}:`, uspsError.response ? uspsError.response.data : uspsError.message);
+            // If USPS API fails, you might still want to proceed with a simulated label or mark an error state
+            uspsLabelUrl = `https://example.com/usps-api-failed-simulated-${orderId}.pdf`; // Fallback placeholder
+            boxSent = false; // Indicate box not sent due to API failure
+            // Re-throw or handle more gracefully based on your business logic
+            throw new Error(`USPS API failed: ${uspsError.response ? JSON.stringify(uspsError.response.data) : uspsError.message}`);
+        }
         // --- End USPS API Integration Logic ---
 
-        // Simulate label generation
-        const uspsLabelUrl = `https://example.com/usps-label-${orderId}.pdf`; // Placeholder URL
-        const boxSent = true; // Simulate box request
 
         // Update Firestore order document
         await orderDocRef.update({

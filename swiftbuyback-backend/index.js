@@ -29,6 +29,7 @@ app.use(cors({
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            console.error('CORS Error: Not allowed by CORS. Origin:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
@@ -118,16 +119,20 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
         }
         const orderData = orderDoc.data();
         
-        // ADDED LOGS HERE
-        console.log("Order Data:", orderData);
-        if (!orderData || !orderData.shippingInfo) {
-            console.error('Missing shipping info in order data for order:', orderId);
+        // ADDED: Check if shippingInfo exists and has required fields
+        if (!orderData || !orderData.shippingInfo || !orderData.shippingInfo.fullName) {
+            console.error('Missing or incomplete shipping info for order:', orderId);
             return res.status(400).json({ error: 'Order data is missing shipping information.' });
         }
         const shippingDetails = orderData.shippingInfo;
         
-        // MORE SPECIFIC LOGS
-        console.log("Shipping Details:", shippingDetails);
+        const requiredShippingFields = ['fullName', 'streetAddress', 'city', 'state', 'zipCode', 'email'];
+        const missingFields = requiredShippingFields.filter(field => !shippingDetails[field]);
+        
+        if (missingFields.length > 0) {
+            console.error(`Missing required shipping fields for order ${orderId}: ${missingFields.join(', ')}`);
+            return res.status(400).json({ error: `Missing required shipping fields: ${missingFields.join(', ')}` });
+        }
 
         const uspsConsumerKey = process.env.USPS_CONSUMER_KEY;
         const uspsConsumerSecret = process.env.USPS_CONSUMER_SECRET;
@@ -137,12 +142,11 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
             console.error("USPS API credentials not set in environment variables.");
             return res.status(500).json({ error: 'USPS API credentials missing. Please set USPS_CONSUMER_KEY and USPS_CONSUMER_SECRET.' });
         }
-
+        
         let uspsLabelUrl = `https://example.com/usps-label-simulated-${orderId}.pdf`; 
         
         try {
             console.log("Simulating USPS label generation for order:", orderId);
-
         } catch (uspsError) {
             console.error("USPS API call failed:", uspsError.message);
             if (uspsError.response) {
@@ -166,6 +170,7 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
         res.status(500).json({ error: 'Failed to generate label', details: error.message });
     }
 });
+
 // Endpoint to update order status
 app.put('/api/orders/:orderId/status', async (req, res) => {
     const orderId = req.params.orderId;

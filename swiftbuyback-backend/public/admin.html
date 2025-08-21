@@ -5,23 +5,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Swift Buyback Admin</title>
 
-<!-- Tailwind output -->
 <link rel="stylesheet" href="output.css">
-
-<!-- Google Fonts (optional for nicer text) -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 body { font-family: 'Inter', sans-serif; }
+.hidden { display: none; }
 .modal-enter { opacity: 0; transform: translateY(-10px); }
 .modal-enter-active { opacity: 1; transform: translateY(0); transition: all 0.3s ease; }
 .modal-exit { opacity: 1; transform: translateY(0); }
 .modal-exit-active { opacity: 0; transform: translateY(-10px); transition: all 0.3s ease; }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+.google-btn { display:flex; align-items:center; justify-content:center; background:white; border:1px solid #dadce0; border-radius:4px; padding:0.5rem 1rem; cursor:pointer; transition:all 0.2s;}
+.google-btn:hover { box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+.google-btn img { width:20px; margin-right:8px;}
 </style>
 </head>
 <body class="bg-gray-50">
 
-<main class="max-w-6xl mx-auto p-4">
+<!-- Loading screen -->
+<div id="loadingScreen" class="fixed inset-0 bg-white flex flex-col items-center justify-center">
+  <p class="text-xl text-gray-600">Loading...</p>
+</div>
+
+<!-- Login screen -->
+<div id="loginScreen" class="min-h-screen flex flex-col items-center justify-center hidden">
+  <h1 class="text-3xl font-bold mb-6">Swift Buyback Admin</h1>
+  <div id="googleSignInBtn" class="google-btn">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo">
+    <span>Sign in with Google</span>
+  </div>
+  <div id="loginError" class="text-red-600 mt-4 hidden"></div>
+</div>
+
+<!-- Admin screen -->
+<main id="adminScreen" class="max-w-6xl mx-auto p-4 hidden">
     <header class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold">Swift Buyback Admin</h1>
         <button id="refreshOrdersBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">Refresh Orders</button>
@@ -75,7 +93,8 @@ body { font-family: 'Inter', sans-serif; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
@@ -87,10 +106,17 @@ const firebaseConfig = {
   measurementId: "G-6WWQN44JHT"
 };
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
-const ordersCollection = collection(db, "orders");
 
 // DOM elements
+const loadingScreen = document.getElementById("loadingScreen");
+const loginScreen = document.getElementById("loginScreen");
+const googleSignInBtn = document.getElementById("googleSignInBtn");
+const loginError = document.getElementById("loginError");
+const adminScreen = document.getElementById("adminScreen");
+
+// Modal & Orders elements
 const ordersList = document.getElementById('ordersList');
 const loadingMessage = document.getElementById('loadingMessage');
 const errorMessage = document.getElementById('errorMessage');
@@ -104,15 +130,15 @@ const modalMessage = document.getElementById('modalMessage');
 const modalLabelUrl = document.getElementById('modalLabelUrl');
 
 let currentOrderId = null;
+let ordersCollection = null;
 
-// Modal message helper
+// Modal helpers
 function showModalMessage(msg, type){
   modalMessage.textContent = msg;
-  modalMessage.className = `p-2 rounded mt-2 ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+  modalMessage.className = `p-2 rounded mt-2 ${type==='error'?'bg-red-100 text-red-700':'bg-green-100 text-green-700'}`;
   modalMessage.classList.remove('hidden');
 }
 
-// Open modal
 function openOrderModal(orderId, order){
   currentOrderId = orderId;
   document.getElementById('modalOrderId').textContent = orderId;
@@ -126,6 +152,7 @@ function openOrderModal(orderId, order){
   document.getElementById('modalShippingName').textContent = order.shippingInfo?.fullName || '';
   document.getElementById('modalShippingAddress').textContent = order.shippingInfo ? `${order.shippingInfo.streetAddress}, ${order.shippingInfo.city}, ${order.shippingInfo.state} ${order.shippingInfo.zipCode}` : '';
   document.getElementById('modalShippingEmail').textContent = order.shippingInfo?.email || '';
+
   document.getElementById('modalConditionPowerOn').textContent = order.condition_power_on || '';
   document.getElementById('modalConditionFunctional').textContent = order.condition_functional || '';
   document.getElementById('modalConditionCracks').textContent = order.condition_cracks || '';
@@ -134,51 +161,69 @@ function openOrderModal(orderId, order){
   if(order.uspsLabelUrl){
     modalLabelUrl.querySelector('a').href = order.uspsLabelUrl;
     modalLabelUrl.classList.remove('hidden');
-  } else {
-    modalLabelUrl.classList.add('hidden');
-  }
+  } else modalLabelUrl.classList.add('hidden');
 
-  // Show/hide buttons
   generateLabelBtn.classList.add('hidden');
   markReceivedBtn.classList.add('hidden');
   markCompletedBtn.classList.add('hidden');
-  if(order.status === 'pending_shipment') generateLabelBtn.classList.remove('hidden');
-  else if(order.status === 'label_generated') markReceivedBtn.classList.remove('hidden');
-  else if(order.status === 'received') markCompletedBtn.classList.remove('hidden');
+  if(order.status==='pending_shipment') generateLabelBtn.classList.remove('hidden');
+  else if(order.status==='label_generated') markReceivedBtn.classList.remove('hidden');
+  else if(order.status==='received') markCompletedBtn.classList.remove('hidden');
 
   modalMessage.classList.add('hidden');
   orderDetailModal.classList.remove('hidden');
 }
 
 // Close modal
-closeModalBtn.addEventListener('click', ()=>{
-  orderDetailModal.classList.add('hidden');
-  currentOrderId = null;
+closeModalBtn.addEventListener('click', ()=>{ orderDetailModal.classList.add('hidden'); currentOrderId=null; });
+
+// Firebase Auth
+const provider = new GoogleAuthProvider();
+googleSignInBtn.addEventListener('click', async ()=>{
+  try{
+    await signInWithPopup(auth, provider);
+  }catch(e){ loginError.textContent = e.message; loginError.classList.remove('hidden'); }
 });
 
-// Fetch & render orders in real-time
-onSnapshot(ordersCollection, snapshot=>{
-  ordersList.innerHTML = '';
-  if(snapshot.empty){
-    ordersList.innerHTML = '<p class="text-gray-600">No pending shipments found.</p>';
-  } else {
-    snapshot.docs.forEach(docSnap=>{
-      const order = docSnap.data();
-      const orderDiv = document.createElement('div');
-      orderDiv.className = 'bg-gray-50 p-4 rounded-md shadow-sm flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200';
-      orderDiv.innerHTML = `
-        <div>
-          <p class="font-bold text-lg">Order ID: ${docSnap.id}</p>
-          <p class="text-sm text-gray-600">Device: ${order.device} (${order.storage || ''})</p>
-          <p class="text-sm text-gray-600">Status: <span class="font-medium">${order.status}</span></p>
-        </div>
-        <button class="view-details-btn bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded text-sm transition duration-300">View Details</button>
-      `;
-      orderDiv.querySelector('.view-details-btn').addEventListener('click', ()=>openOrderModal(docSnap.id, order));
-      ordersList.appendChild(orderDiv);
+onAuthStateChanged(auth, user=>{
+  loadingScreen.classList.add('hidden');
+  if(user){
+    loginScreen.classList.add('hidden');
+    adminScreen.classList.remove('hidden');
+
+    // Firestore orders collection
+    ordersCollection = collection(db,"orders");
+
+    // Real-time orders
+    onSnapshot(ordersCollection, snapshot=>{
+      ordersList.innerHTML = '';
+      if(snapshot.empty){
+        ordersList.innerHTML = '<p class="text-gray-600">No pending shipments found.</p>';
+      } else {
+        snapshot.docs.forEach(docSnap=>{
+          const order = docSnap.data();
+          const orderDiv = document.createElement('div');
+          orderDiv.className = 'bg-gray-50 p-4 rounded-md shadow-sm flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200';
+          orderDiv.innerHTML = `
+            <div>
+              <p class="font-bold text-lg">Order ID: ${docSnap.id}</p>
+              <p class="text-sm text-gray-600">Device: ${order.device} (${order.storage || ''})</p>
+              <p class="text-sm text-gray-600">Status: <span class="font-medium">${order.status}</span></p>
+            </div>
+            <button class="view-details-btn bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded text-sm transition duration-300">View Details</button>
+          `;
+          orderDiv.querySelector('.view-details-btn').addEventListener('click', ()=>openOrderModal(docSnap.id, order));
+          ordersList.appendChild(orderDiv);
+        });
+      }
     });
+
+  } else {
+    loginScreen.classList.remove('hidden');
+    adminScreen.classList.add('hidden');
   }
 });
 </script>
+
 </body>
 </html>

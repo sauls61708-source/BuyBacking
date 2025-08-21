@@ -343,38 +343,7 @@
         </div>
     </footer>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
-            authDomain: "buyback-a0f05.firebaseapp.com",
-            projectId: "buyback-a0f05",
-            storageBucket: "buyback-a0f05.firebasestorage.app",
-            messagingSenderId: "876430429098",
-            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
-            measurementId: "G-6WWQN44JHT"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUserUid = null;
-        let finalQuote = 0;
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUserUid = user.uid;
-            } else {
-                currentUserUid = null;
-            }
-        });
-
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const getQuoteBtn = document.getElementById('getQuoteBtn');
             const quoteDisplay = document.getElementById('quoteDisplay');
@@ -387,6 +356,11 @@
             const overviewPayment = document.getElementById('overviewPayment');
             const overviewAddress = document.getElementById('overviewAddress');
             const sendPhoneBtn = document.getElementById('sendPhoneBtn');
+
+            let finalQuote = 0;
+
+            // Adjust this URL if your backend is deployed elsewhere
+            const BACKEND_URL = 'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev';
 
             function showQuoteMessage(msg, type) {
                 quoteMessage.textContent = msg;
@@ -484,11 +458,6 @@
 
             // Final submission button
             sendPhoneBtn.addEventListener('click', async () => {
-                if (!currentUserUid) {
-                    showQuoteMessage('Please log in to submit your order.', 'error');
-                    return;
-                }
-
                 const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value;
                 const termsAccepted = document.getElementById('termsAccepted').checked;
                 const fullName = document.getElementById('fullName').value;
@@ -536,22 +505,34 @@
                         zipCode
                     },
                     termsAccepted: termsAccepted,
-                    createdAt: new Date()
                 };
 
                 if (selectedPayment === 'venmo') {
                     orderData.paymentDetails.venmoUsername = document.getElementById('venmoUsername').value;
                 }
 
-                // Send to Firebase
+                // Send data to your Node.js backend API
                 try {
-                    const orderRef = doc(db, 'users', currentUserUid, 'orders', `order_${new Date().getTime()}`);
-                    await setDoc(orderRef, orderData);
-                    showQuoteMessage('Your order has been submitted! We will send a shipping label to your email shortly.', 'success');
+                    showQuoteMessage('Submitting your order...', 'success');
+                    const response = await fetch(`${BACKEND_URL}/api/submit-order`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(orderData),
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Failed to submit order.');
+                    }
+
+                    showQuoteMessage('Your order has been submitted successfully! We will send a shipping label to your email shortly.', 'success');
                     sendPhoneBtn.disabled = true;
                     sendPhoneBtn.textContent = 'Order Submitted!';
                 } catch (e) {
-                    console.error("Error adding document: ", e);
+                    console.error("Error submitting order: ", e);
                     showQuoteMessage('There was an error submitting your order. Please try again.', 'error');
                 }
             });

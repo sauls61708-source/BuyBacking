@@ -27,12 +27,10 @@
             <h3 class="text-xl font-semibold mb-4">Pending Shipments</h3>
             <div id="ordersList" class="space-y-4">
                 <p class="text-gray-500" id="loadingMessage">Loading orders...</p>
-                <!-- Orders will be loaded here by JavaScript -->
-            </div>
+                </div>
             <p id="errorMessage" class="text-red-600 mt-4 hidden">Error loading orders.</p>
         </div>
 
-        <!-- Order Detail Modal (initially hidden) -->
         <div id="orderDetailModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
@@ -40,8 +38,6 @@
                     <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
                 </div>
                 <div class="space-y-4 text-gray-700">
-                    <p><strong>User ID:</strong> <span id="modalUserId"></span></p>
-                    <p><strong>Timestamp:</strong> <span id="modalTimestamp"></span></p>
                     <p><strong>Estimated Quote:</strong> <span id="modalEstimatedQuote"></span></p>
 
                     <h4 class="text-lg font-semibold mt-4 mb-2">Device Details:</h4>
@@ -63,7 +59,6 @@
                     <h4 class="text-lg font-semibold mt-4 mb-2">Shipping Details:</h4>
                     <p><strong>Name:</strong> <span id="modalShippingName"></span></p>
                     <p><strong>Address:</strong> <span id="modalShippingAddress"></span></p>
-                    <p><strong>Contact:</strong> <span id="modalShippingContact"></span></p>
                     <p><strong>Email:</strong> <span id="modalShippingEmail"></span></p>
 
                     <h4 class="text-lg font-semibold mt-4 mb-2">Current Status: <span id="modalOrderStatus" class="font-bold"></span></h4>
@@ -73,8 +68,8 @@
                         <button id="generateLabelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
                             Generate USPS Label
                         </button>
-                        <button id="markShippedBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
-                            Mark as Shipped
+                        <button id="markReceivedBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
+                            Mark as Received
                         </button>
                         <button id="markCompletedBtn" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
                             Mark as Completed
@@ -88,7 +83,7 @@
 
     <script>
         // Adjust this URL if your backend is deployed elsewhere (e.g., Codespaces URL)
-        const BACKEND_URL = 'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev'; // Make sure this matches your Node.js server port
+        const BACKEND_URL = 'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev';
 
         document.addEventListener('DOMContentLoaded', () => {
             const ordersList = document.getElementById('ordersList');
@@ -98,13 +93,12 @@
             const orderDetailModal = document.getElementById('orderDetailModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
             const generateLabelBtn = document.getElementById('generateLabelBtn');
-            const markShippedBtn = document.getElementById('markShippedBtn');
+            const markReceivedBtn = document.getElementById('markReceivedBtn');
             const markCompletedBtn = document.getElementById('markCompletedBtn');
             const modalMessage = document.getElementById('modalMessage');
 
-            let currentOrderId = null; // Store the ID of the order currently in the modal
+            let currentOrderId = null;
 
-            // Helper function to show messages in the modal
             function showModalMessage(msg, type) {
                 modalMessage.textContent = msg;
                 modalMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
@@ -116,12 +110,11 @@
                 modalMessage.classList.remove('hidden');
             }
 
-            // Function to fetch and display orders
             async function fetchOrders() {
-                ordersList.innerHTML = ''; // Clear previous orders
+                ordersList.innerHTML = '';
                 loadingMessage.classList.remove('hidden');
                 errorMessage.classList.add('hidden');
-                modalMessage.classList.add('hidden'); // Clear modal messages when fetching
+                modalMessage.classList.add('hidden');
 
                 try {
                     const response = await fetch(`${BACKEND_URL}/api/orders`);
@@ -141,7 +134,7 @@
                             orderDiv.innerHTML = `
                                 <div>
                                     <p class="font-bold text-lg">Order ID: ${order.id}</p>
-                                    <p class="text-sm text-gray-600">Device: ${order.deviceDetails.model} (${order.deviceDetails.storage})</p>
+                                    <p class="text-sm text-gray-600">Device: ${order.device} (${order.storage})</p>
                                     <p class="text-sm text-gray-600">Status: <span class="font-medium">${order.status}</span></p>
                                 </div>
                                 <button class="view-details-btn bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-md text-sm transition duration-300" data-order-id="${order.id}">View Details</button>
@@ -149,11 +142,12 @@
                             ordersList.appendChild(orderDiv);
                         });
 
-                        // Add event listeners to "View Details" buttons
                         document.querySelectorAll('.view-details-btn').forEach(button => {
-                            button.addEventListener('click', (event) => {
+                            button.addEventListener('click', async (event) => {
                                 const orderId = event.target.dataset.orderId;
-                                openOrderDetailModal(orderId, orders.find(o => o.id === orderId));
+                                const response = await fetch(`${BACKEND_URL}/api/orders/${orderId}`);
+                                const orderData = await response.json();
+                                openOrderDetailModal(orderId, orderData);
                             });
                         });
                     }
@@ -165,33 +159,28 @@
                 }
             }
 
-            // Function to open the order detail modal
-            function openOrderDetailModal(orderId, orderData) {
+            async function openOrderDetailModal(orderId, orderData) {
                 currentOrderId = orderId;
                 document.getElementById('modalOrderId').textContent = orderId;
-                document.getElementById('modalUserId').textContent = orderData.userId;
-                document.getElementById('modalTimestamp').textContent = new Date(orderData.timestamp._seconds * 1000).toLocaleString();
-                document.getElementById('modalEstimatedQuote').textContent = `$${orderData.deviceDetails.estimatedQuote.toFixed(2)}`;
+                document.getElementById('modalEstimatedQuote').textContent = `$${orderData.estimatedQuote.toFixed(2)}`;
 
-                document.getElementById('modalDeviceModel').textContent = orderData.deviceDetails.model;
-                document.getElementById('modalDeviceCarrier').textContent = orderData.deviceDetails.carrier;
-                document.getElementById('modalDeviceStorage').textContent = orderData.deviceDetails.storage;
-                document.getElementById('modalConditionPowerOn').textContent = orderData.deviceDetails.conditionQuestions.powerOn;
-                document.getElementById('modalConditionFunctional').textContent = orderData.deviceDetails.conditionQuestions.fullyFunctional;
-                document.getElementById('modalConditionCracks').textContent = orderData.deviceDetails.conditionQuestions.noCracks;
-                document.getElementById('modalConditionCosmetic').textContent = orderData.deviceDetails.conditionQuestions.cosmeticCondition;
+                document.getElementById('modalDeviceModel').textContent = orderData.device;
+                document.getElementById('modalDeviceCarrier').textContent = orderData.carrier;
+                document.getElementById('modalDeviceStorage').textContent = orderData.storage;
+                document.getElementById('modalConditionPowerOn').textContent = orderData.condition_power_on;
+                document.getElementById('modalConditionFunctional').textContent = orderData.condition_functional;
+                document.getElementById('modalConditionCracks').textContent = orderData.condition_cracks;
+                document.getElementById('modalConditionCosmetic').textContent = orderData.condition_cosmetic;
 
-                document.getElementById('modalPaymentMethod').textContent = orderData.paymentDetails.method;
-                document.getElementById('modalPaymentValue').textContent = orderData.paymentDetails.value;
+                document.getElementById('modalPaymentMethod').textContent = orderData.paymentMethod;
+                document.getElementById('modalPaymentValue').textContent = orderData.paymentDetails.venmoUsername || 'N/A';
 
-                document.getElementById('modalShippingName').textContent = orderData.shippingDetails.fullName;
-                document.getElementById('modalShippingAddress').textContent = `${orderData.shippingDetails.address}, ${orderData.shippingDetails.city}, ${orderData.shippingDetails.state} ${orderData.shippingDetails.zip}, ${orderData.shippingDetails.country}`;
-                document.getElementById('modalShippingContact').textContent = orderData.shippingDetails.phone;
-                document.getElementById('modalShippingEmail').textContent = orderData.shippingDetails.contactEmail;
+                document.getElementById('modalShippingName').textContent = orderData.shippingInfo.fullName;
+                document.getElementById('modalShippingAddress').textContent = `${orderData.shippingInfo.streetAddress}, ${orderData.shippingInfo.city}, ${orderData.shippingInfo.state} ${orderData.shippingInfo.zipCode}`;
+                document.getElementById('modalShippingEmail').textContent = orderData.shippingInfo.email;
 
                 document.getElementById('modalOrderStatus').textContent = orderData.status;
 
-                // Show/hide label URL based on status
                 const modalLabelUrl = document.getElementById('modalLabelUrl');
                 const labelLink = modalLabelUrl.querySelector('a');
                 if (orderData.uspsLabelUrl) {
@@ -200,89 +189,78 @@
                 } else {
                     modalLabelUrl.classList.add('hidden');
                 }
-
-                // Adjust button visibility based on order status
-                generateLabelBtn.classList.remove('hidden');
-                markShippedBtn.classList.remove('hidden');
-                markCompletedBtn.classList.remove('hidden');
-
-                if (orderData.status === 'label_generated' || orderData.status === 'shipping_kit_sent') {
-                    generateLabelBtn.classList.add('hidden');
-                }
-                if (orderData.status === 'completed') {
-                    generateLabelBtn.classList.add('hidden');
-                    markShippedBtn.classList.add('hidden');
-                }
-                if (orderData.status === 'pending_shipment' && orderData.boxSent === true) {
-                    // If box sent but label not generated yet, still hide generate label.
-                    // This implies the box request handled the label too or you need another status.
-                    // For this example, if boxSent is true, assume label is part of it.
-                    generateLabelBtn.classList.add('hidden');
+                
+                // Update buttons based on the order's status
+                generateLabelBtn.classList.add('hidden');
+                markReceivedBtn.classList.add('hidden');
+                markCompletedBtn.classList.add('hidden');
+                
+                if (orderData.status === 'pending_shipment') {
+                    generateLabelBtn.classList.remove('hidden');
+                } else if (orderData.status === 'label_generated') {
+                    markReceivedBtn.classList.remove('hidden');
+                } else if (orderData.status === 'received') {
+                    markCompletedBtn.classList.remove('hidden');
                 }
 
-
-                modalMessage.classList.add('hidden'); // Clear any previous modal messages
+                modalMessage.classList.add('hidden');
                 orderDetailModal.classList.remove('hidden');
             }
 
-            // Close modal event
             closeModalBtn.addEventListener('click', () => {
                 orderDetailModal.classList.add('hidden');
-                currentOrderId = null; // Clear current order ID
-                fetchOrders(); // Refresh orders list when modal closes
+                currentOrderId = null;
+                fetchOrders();
             });
 
-            // Generate Label Button
             generateLabelBtn.addEventListener('click', async () => {
                 if (!currentOrderId) return;
-                showModalMessage('Generating label...', 'success'); // Optimistic update
+                showModalMessage('Generating label...', 'success');
                 try {
                     const response = await fetch(`${BACKEND_URL}/api/generate-label/${currentOrderId}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        // body: JSON.stringify({ /* You might send dimensions/weight here */ })
                     });
                     const result = await response.json();
                     if (!response.ok) {
                         throw new Error(result.error || 'Failed to generate label');
                     }
                     showModalMessage(result.message, 'success');
-                    // Update modal view immediately with new status and label URL
                     document.getElementById('modalOrderStatus').textContent = 'label_generated';
                     const modalLabelUrl = document.getElementById('modalLabelUrl');
                     modalLabelUrl.querySelector('a').href = result.uspsLabelUrl;
                     modalLabelUrl.classList.remove('hidden');
-                    generateLabelBtn.classList.add('hidden'); // Hide after generation
+                    generateLabelBtn.classList.add('hidden');
+                    markReceivedBtn.classList.remove('hidden');
                 } catch (error) {
                     showModalMessage(`Error: ${error.message}`, 'error');
                     console.error('Label generation error:', error);
                 }
             });
 
-            // Mark as Shipped Button
-            markShippedBtn.addEventListener('click', async () => {
+            markReceivedBtn.addEventListener('click', async () => {
                 if (!currentOrderId) return;
-                showModalMessage('Marking as shipped...', 'success');
+                showModalMessage('Marking as received...', 'success');
                 try {
                     const response = await fetch(`${BACKEND_URL}/api/orders/${currentOrderId}/status`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'shipped' })
+                        body: JSON.stringify({ status: 'received' })
                     });
                     const result = await response.json();
                     if (!response.ok) {
-                        throw new Error(result.error || 'Failed to mark as shipped');
+                        throw new Error(result.error || 'Failed to mark as received');
                     }
                     showModalMessage(result.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'shipped';
-                    markShippedBtn.classList.add('hidden'); // Hide after action
+                    document.getElementById('modalOrderStatus').textContent = 'received';
+                    markReceivedBtn.classList.add('hidden');
+                    markCompletedBtn.classList.remove('hidden');
                 } catch (error) {
                     showModalMessage(`Error: ${error.message}`, 'error');
-                    console.error('Mark shipped error:', error);
+                    console.error('Mark received error:', error);
                 }
             });
-
-            // Mark as Completed Button
+            
             markCompletedBtn.addEventListener('click', async () => {
                 if (!currentOrderId) return;
                 showModalMessage('Marking as completed...', 'success');
@@ -298,17 +276,15 @@
                     }
                     showModalMessage(result.message, 'success');
                     document.getElementById('modalOrderStatus').textContent = 'completed';
-                    markCompletedBtn.classList.add('hidden'); // Hide after action
+                    markCompletedBtn.classList.add('hidden');
+                    markReceivedBtn.classList.add('hidden');
                     generateLabelBtn.classList.add('hidden');
-                    markShippedBtn.classList.add('hidden');
                 } catch (error) {
                     showModalMessage(`Error: ${error.message}`, 'error');
                     console.error('Mark completed error:', error);
                 }
             });
 
-
-            // Initial fetch when the page loads
             fetchOrders();
             refreshOrdersBtn.addEventListener('click', fetchOrders);
         });

@@ -1,4 +1,4 @@
-// index.js (or app.js)
+// index.js (or app.js) - Updated
 
 // --- Required Modules ---
 const express = require('express');
@@ -8,11 +8,7 @@ const axios = require('axios');
 const path = require('path');
 
 // --- Firebase Admin SDK Initialization ---
-// IMPORTANT: This method requires 'serviceAccountKey.json' to be present
-// in the same directory as this index.js file.
-// DO NOT COMMIT 'serviceAccountKey.json' TO GITHUB FOR SECURITY REASONS.
 const serviceAccount = require('./serviceAccountKey.json');
-
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -24,7 +20,6 @@ const PORT = process.env.PORT || 3000;
 // --- Middleware ---
 app.use(express.json());
 
-// Corrected CORS configuration to allow your frontend origin
 const allowedOrigins = [
     'https://toratyosef.github.io',
     'https://cautious-pancake-69p475gq54q4f5qp4-3000.app.github.dev'
@@ -49,27 +44,21 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// --- NEW API Endpoint for Order Submission from the Frontend ---
+// --- API Endpoint for Order Submission from the Frontend ---
 app.post('/api/submit-order', async (req, res) => {
     try {
         const orderData = req.body;
-
-        // Basic check to ensure some data was sent
         if (!orderData || Object.keys(orderData).length === 0) {
             return res.status(400).json({ error: 'Request body is empty or invalid.' });
         }
-
         const newOrderRef = db.collection('orders').doc();
-
         const dataToSave = {
             ...orderData,
             status: 'pending_shipment',
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         };
-
         await newOrderRef.set(dataToSave);
         console.log(`New order submitted with ID: ${newOrderRef.id}`);
-
         res.status(201).json({ 
             message: 'Order submitted successfully!', 
             orderId: newOrderRef.id 
@@ -81,8 +70,6 @@ app.post('/api/submit-order', async (req, res) => {
 });
 
 // --- Existing API Endpoints ---
-
-// Endpoint to get all pending orders
 app.get('/api/orders', async (req, res) => {
     try {
         const snapshot = await db.collection('orders').where('status', '==', 'pending_shipment').get();
@@ -97,16 +84,13 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
-// Endpoint to get a single order by ID
 app.get('/api/orders/:orderId', async (req, res) => {
     try {
         const orderId = req.params.orderId;
         const doc = await db.collection('orders').doc(orderId).get();
-
         if (!doc.exists) {
             return res.status(404).json({ error: 'Order not found.' });
         }
-
         res.status(200).json(doc.data());
     } catch (error) {
         console.error('Error fetching single order:', error);
@@ -114,7 +98,6 @@ app.get('/api/orders/:orderId', async (req, res) => {
     }
 });
 
-// Endpoint to generate USPS label and update order status
 app.post('/api/generate-label/:orderId', async (req, res) => {
     const orderId = req.params.orderId;
     try {
@@ -134,22 +117,30 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
             console.error("USPS API credentials not set in environment variables.");
             return res.status(500).json({ error: 'USPS API credentials missing.' });
         }
+        
+        // This is where the error likely originates.
+        // The USPS API is complex and may not be a simple JSON POST.
+        // It often uses XML. Your current code with axios.post is a placeholder.
+        // For a true fix, you would need to implement the correct XML-based request
+        // as specified in the USPS API documentation.
 
-        const requestPayload = {
-            fromAddress: { /* ... your company info ... */ },
-            toAddress: {
-                fullName: shippingDetails.fullName,
-                address1: shippingDetails.streetAddress,
-                city: shippingDetails.city,
-                state: shippingDetails.state,
-                zipCode: shippingDetails.zipCode,
-                country: "US"
-            },
-        };
-
-        // This is a placeholder for the actual USPS API call.
-        // The real implementation would use axios to post to the USPS API.
+        // Placeholder logic for the API call
+        // We'll wrap it in a try...catch to prevent the app from crashing.
         let uspsLabelUrl = `https://example.com/usps-label-simulated-${orderId}.pdf`; 
+        
+        try {
+            // This is where you would make the real API call.
+            // const uspsApiResponse = await axios.post(uspsApiUrl, requestPayload);
+            // uspsLabelUrl = uspsApiResponse.data.someUrlField;
+        } catch (uspsError) {
+            console.error("USPS API call failed:", uspsError.message);
+            // Log the full response for more details
+            if (uspsError.response) {
+                console.error("USPS Response Data:", uspsError.response.data);
+                console.error("USPS Response Status:", uspsError.response.status);
+            }
+            return res.status(502).json({ error: 'Failed to get a response from USPS API.' });
+        }
 
         await orderDocRef.update({
             status: 'label_generated',
@@ -166,7 +157,6 @@ app.post('/api/generate-label/:orderId', async (req, res) => {
     }
 });
 
-// Endpoint to update order status
 app.put('/api/orders/:orderId/status', async (req, res) => {
     const orderId = req.params.orderId;
     const { status } = req.body;

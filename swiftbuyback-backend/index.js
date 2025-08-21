@@ -7,26 +7,15 @@ const cors = require('cors'); // For Cross-Origin Resource Sharing
 const axios = require('axios'); // For making HTTP requests to external APIs like USPS
 
 // --- Firebase Admin SDK Initialization ---
-// Get Firebase service account config from environment variable
-const firebaseServiceAccountConfig = process.env.FIREBASE_SERVICE_ACCOUNT_CONFIG;
+// IMPORTANT: This method requires 'serviceAccountKey.json' to be present
+// in the same directory as this index.js file.
+// DO NOT COMMIT 'serviceAccountKey.json' TO GITHUB FOR SECURITY REASONS.
+const serviceAccount = require('./serviceAccountKey.json');
 
-if (!firebaseServiceAccountConfig) {
-    console.error("FIREBASE_SERVICE_ACCOUNT_CONFIG environment variable is not set.");
-    // Exit or handle error gracefully if Firebase credentials are essential for startup
-    process.exit(1);
-}
-
-try {
-    // NEW: Directly parse the environment variable content
-    const serviceAccount = JSON.parse(firebaseServiceAccountConfig);
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      // databaseURL: "https://your-project-id.firebaseio.com" // Optional, can often be inferred
-    });
-} catch (e) {
-    console.error("Error parsing FIREBASE_SERVICE_ACCOUNT_CONFIG:", e);
-    process.exit(1);
-}
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  // databaseURL: "https://your-project-id.firebaseio.com" // Optional, can often be inferred
+});
 
 const db = admin.firestore();
 const app = express();
@@ -40,7 +29,7 @@ app.use(cors({
 }));
 app.use(express.json()); // To parse JSON request bodies
 
-// --- NEW: Root Path Handler ---
+// --- Root Path Handler ---
 app.get('/', (req, res) => {
     res.status(200).send('SwiftBuyBack Admin Backend is running!');
 });
@@ -51,8 +40,9 @@ app.get('/', (req, res) => {
 // Endpoint to get all pending orders
 app.get('/api/orders', async (req, res) => {
     try {
-        const appId = process.env.APP_ID || 'default-app-id'; // Get appId from environment variable for backend
-        const ordersCollectionRef = db.collection(`artifacts/${appId}/public/data/orders`); // Example path for public orders
+        // Use the APP_ID from environment variables
+        const appId = process.env.APP_ID || 'default-app-id'; 
+        const ordersCollectionRef = db.collection(`artifacts/${appId}/public/data/orders`); 
 
         const snapshot = await ordersCollectionRef.where('status', '==', 'pending_shipment').get();
         const orders = [];

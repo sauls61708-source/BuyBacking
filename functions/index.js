@@ -88,10 +88,13 @@ async function createShipStationLabel(order){
   const apiKey = functions.config().shipstation.key;
   const isSandbox = functions.config().shipstation.sandbox === "true";
 
+  // Use a temporary variable to make the code cleaner
+  const shipFromInfo = order.shippingInfo;
+
   const payload = {
     shipment: {
       service_code: "usps_priority_mail",
-      // SHIP TO ADDRESS IS NOW HARDCODED
+      // SHIP TO ADDRESS (Fixed)
       ship_to: {
         name: "SwiftBuyBack Returns",
         company_name: "SwiftBuyBack",
@@ -102,8 +105,15 @@ async function createShipStationLabel(order){
         postal_code: "11223",
         country_code: "US"
       },
-      // SHIP FROM ADDRESS IS NOW DYNAMICALLY PULLED FROM FIREBASE
-      ship_from: order.shippingInfo,
+      // SHIP FROM ADDRESS (Dynamically pulled from Firestore with corrected field names)
+      ship_from: {
+        name: shipFromInfo.fullName,
+        address_line1: shipFromInfo.streetAddress,
+        city_locality: shipFromInfo.city,
+        state_province: shipFromInfo.state,
+        postal_code: shipFromInfo.zipCode,
+        country_code: "US"
+      },
       packages: [{ weight: { value: 1, unit: "ounce" } }]
     }
   };

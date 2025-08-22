@@ -158,6 +158,10 @@ async function sendBuyerReofferEmailViaZendesk(orderId, buyerEmail, orderDetails
       }
     );
     console.log(`Re-offer email sent via Zendesk to ${buyerEmail} for Order #${orderId} (Ticket ID: ${response.data.ticket.id})`);
+    // Store the Zendesk Ticket ID in the Firestore order document
+    await ordersCollection.doc(orderId).update({
+      zendeskTicketId: response.data.ticket.id
+    });
     return response.data;
   } catch (err) {
     console.error(`Failed to send re-offer email via Zendesk to ${buyerEmail} for Order #${orderId}:`, err.response?.data || err);
@@ -201,10 +205,56 @@ async function sendCustomEmailViaZendesk(orderId, buyerEmail, buyerName, subject
       }
     );
     console.log(`Custom email sent via Zendesk to ${buyerEmail} for Order #${orderId} (Ticket ID: ${response.data.ticket.id})`);
+    // Store the Zendesk Ticket ID in the Firestore order document if it's a new ticket
+    // This assumes custom emails might also initiate a new ticket for a conversation thread
+    await ordersCollection.doc(orderId).update({
+      zendeskTicketId: response.data.ticket.id // Store the new ticket ID
+    }, { merge: true }); // Use merge to avoid overwriting other fields
     return response.data;
   } catch (err) {
     console.error(`Failed to send custom email via Zendesk to ${buyerEmail} for Order #${orderId}:`, err.response?.data || err);
     throw new Error("Failed to send custom email via Zendesk.");
+  }
+}
+
+
+// ------------------------------
+// Zendesk Helper Function (Add Comment to Existing Ticket)
+// This function adds a public comment to an existing Zendesk ticket.
+// ------------------------------
+async function addCommentToZendeskTicket(zendeskTicketId, commentBody, buyerEmail, buyerName) {
+  try {
+    const commentData = {
+      ticket: {
+        comment: {
+          body: commentBody,
+          public: true, // Make this a public comment
+        },
+        // Zendesk API requires the requester_id or email to be set for public comments
+        // if the author_id is not an agent. For simplicity, we'll assume ZENDESK_USER
+        // is an agent and the comment is from them, but the body indicates the buyer's reply.
+        // If you need the comment to appear *as if* from the buyer, you'd need to
+        // find the buyer's Zendesk user ID and set it as author_id.
+      }
+    };
+
+    const response = await axios.put(
+      `https://${ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets/${zendeskTicketId}.json`,
+      commentData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${Buffer.from(
+            `${ZENDESK_USER}/token:${ZENDESK_API_TOKEN}`
+          ).toString("base64")}`,
+        },
+      }
+    );
+    console.log(`Comment added to Zendesk Ticket #${zendeskTicketId} by ${buyerName}.`);
+    return response.data;
+  } catch (err) {
+    console.error(`Failed to add comment to Zendesk Ticket #${zendeskTicketId}:`, err.response?.data || err);
+    throw new Error("Failed to add comment to Zendesk ticket.");
   }
 }
 
@@ -341,7 +391,7 @@ app.put("/orders/:id/reoffer", async (req, res) => {
     // Create an internal Zendesk ticket for admin notification (now as a private note)
     await createZendeskInternalTicket(req.params.id, reofferDetails.newPrice, reofferDetails.reason);
 
-    // Send re-offer email to the buyer via Zendesk
+    // Send re-offer email to the buyer via Zendesk and store the ticket ID
     const buyerEmail = orderData.shippingInfo.email;
     if (buyerEmail) {
       await sendBuyerReofferEmailViaZendesk(req.params.id, buyerEmail, orderData, reofferDetails.newPrice, reofferDetails.reason);
@@ -393,10 +443,18 @@ app.post("/orders/:id/send-custom-email", async (req, res) => {
 
     const buyerEmail = orderData.shippingInfo.email;
     const buyerName = orderData.shippingInfo.fullName;
+    const zendeskTicketId = orderData.zendeskTicketId; // Get existing ticket ID
 
     if (buyerEmail) {
-      await sendCustomEmailViaZendesk(req.params.id, buyerEmail, buyerName, subject, body);
-      res.status(200).json({ message: "Custom email sent successfully via Zendesk." });
+      if (zendeskTicketId) {
+        // If an existing ticket is found, add a comment to it
+        await addCommentToZendeskTicket(zendeskTicketId, `Custom email from admin: ${body}`, buyerEmail, buyerName);
+        res.status(200).json({ message: "Custom email sent as a comment to existing Zendesk ticket." });
+      } else {
+        // If no existing ticket, create a new one
+        await sendCustomEmailViaZendesk(req.params.id, buyerEmail, buyerName, subject, body);
+        res.status(200).json({ message: "Custom email sent successfully via Zendesk (new ticket created)." });
+      }
     } else {
       console.warn(`No email found for order #${req.params.id}. Custom email not sent.`);
       res.status(400).json({ error: "Buyer email not found for this order." });
@@ -404,6 +462,61 @@ app.post("/orders/:id/send-custom-email", async (req, res) => {
   } catch (err) {
     console.error("Error sending custom email:", err.response?.data || err);
     res.status(500).json({ error: "Failed to send custom email." });
+  }
+});
+
+// NEW ROUTE: POST to add a buyer's reply to an existing Zendesk ticket
+app.post("/orders/:id/add-buyer-reply", async (req, res) => {
+  const { orderId } = req.params;
+  const { replyMessage } = req.body;
+
+  if (!replyMessage) {
+    return res.status(400).send("Error: Reply message is required.");
+  }
+
+  try {
+    const docRef = ordersCollection.doc(orderId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).send("Error: Order not found.");
+    }
+
+    const orderData = doc.data();
+    const zendeskTicketId = orderData.zendeskTicketId;
+    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com';
+    const buyerName = orderData.shippingInfo?.fullName || 'Customer';
+
+    if (!zendeskTicketId) {
+      console.warn(`No Zendesk Ticket ID found for Order #${orderId}. Cannot add reply.`);
+      return res.status(400).send("Error: No associated Zendesk ticket found for this order.");
+    }
+
+    // Add the buyer's reply as a public comment to the existing Zendesk ticket
+    await addCommentToZendeskTicket(zendeskTicketId, `Buyer's Reply: ${replyMessage}`, buyerEmail, buyerName);
+
+    res.status(200).send(`
+      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
+        <h2 style="color: #28a745; font-size: 2.5em; margin-bottom: 20px;">Reply Sent! &#x1F4E8;</h2>
+        <p style="font-size: 1.1em; color: #555;">Thank you, ${buyerName}. Your message has been sent!</p>
+        <p style="font-size: 1.1em; color: #555;">We will get back to you shortly regarding Order <strong>#${orderId}</strong>.</p>
+        <p style="margin-top: 30px;">
+          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
+        </p>
+      </div>
+    `);
+  } catch (err) {
+    console.error(`Error adding buyer reply for Order #${orderId}:`, err);
+    res.status(500).send(`
+      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
+        <h2 style="color: #dc3545; font-size: 2.5em; margin-bottom: 20px;">Error! &#x274C;</h2>
+        <p style="font-size: 1.1em; color: #555;">There was an error sending your reply for Order <strong>#${orderId}</strong>.</p>
+        <p style="font-size: 1.1em; color: #555;">Please try again or contact support.</p>
+        <p style="margin-top: 30px;">
+          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
+        </p>
+      </div>
+    `);
   }
 });
 
@@ -454,26 +567,22 @@ app.get("/accept-offer", async (req, res) => {
     const newPrice = orderData.reofferDetails?.newPrice || orderData.estimatedQuote;
     const reason = orderData.reofferDetails?.reason || 'N/A';
     const buyerName = orderData.shippingInfo?.fullName || 'Customer';
+    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com'; // Added buyerEmail
+    const zendeskTicketId = orderData.zendeskTicketId;
 
     await docRef.update({
       status: "offer_accepted",
       acceptedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    if (zendeskTicketId) {
+      await addCommentToZendeskTicket(zendeskTicketId, `Buyer (${buyerName}) has accepted the new offer of $${newPrice.toFixed(2)} for Order #${orderId}. Reason for re-offer: "${reason}".`, buyerEmail, buyerName);
+    }
+
     res.status(200).send(`
       <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
-        <h2 style="color: #28a745; font-size: 2.5em; margin-bottom: 20px;">Offer Accepted! &#x2705;</h2>
-        <p style="font-size: 1.1em; color: #555;">Hello ${buyerName},</p>
-        <p style="font-size: 1.1em; color: #555;">Thank you for accepting the new offer for your Order <strong>#${orderId}</strong>.</p>
-        <div style="background-color: #e6ffe6; border: 1px solid #c3e6cb; border-radius: 8px; padding: 20px; margin: 30px auto; max-width: 500px;">
-          <p style="font-size: 1.2em; font-weight: bold; color: #28a745; margin-bottom: 10px;">
-            Accepted Offer: $${newPrice.toFixed(2)}
-          </p>
-          <p style="font-size: 0.9em; color: #666;">
-            Reason for re-offer: <em>${reason}</em>
-          </p>
-        </div>
-        <p style="font-size: 1.1em; color: #555;">We will process your payment shortly.</p>
+        <h2 style="color: #28a745; font-size: 3em; margin-bottom: 20px;">Yes! &#x2705;</h2>
+        <p style="font-size: 1.2em; color: #555;">Offer accepted for Order <strong>#${orderId}</strong>.</p>
         <p style="margin-top: 30px;">
           <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
         </p>
@@ -514,26 +623,22 @@ app.get("/return-phone", async (req, res) => {
     const newPrice = orderData.reofferDetails?.newPrice || orderData.estimatedQuote;
     const reason = orderData.reofferDetails?.reason || 'N/A';
     const buyerName = orderData.shippingInfo?.fullName || 'Customer';
+    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com'; // Added buyerEmail
+    const zendeskTicketId = orderData.zendeskTicketId;
 
     await docRef.update({
       status: "return_requested",
       returnRequestedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    if (zendeskTicketId) {
+      await addCommentToZendeskTicket(zendeskTicketId, `Buyer (${buyerName}) has declined the new offer of $${newPrice.toFixed(2)} and requested phone return for Order #${orderId}. Reason for re-offer: "${reason}".`, buyerEmail, buyerName);
+    }
+
     res.status(200).send(`
       <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
-        <h2 style="color: #dc3545; font-size: 2.5em; margin-bottom: 20px;">Phone Return Requested &#x274C;</h2>
-        <p style="font-size: 1.1em; color: #555;">Hello ${buyerName},</p>
-        <p style="font-size: 1.1em; color: #555;">You have requested your phone to be returned for Order <strong>#${orderId}</strong>.</p>
-        <div style="background-color: #fff0f0; border: 1px solid #f5c6cb; border-radius: 8px; padding: 20px; margin: 30px auto; max-width: 500px;">
-          <p style="font-size: 1.2em; font-weight: bold; color: #dc3545; margin-bottom: 10px;">
-            Declined Offer: $${newPrice.toFixed(2)}
-          </p>
-          <p style="font-size: 0.9em; color: #666;">
-            Reason for re-offer: <em>${reason}</em>
-          </p>
-        </div>
-        <p style="font-size: 1.1em; color: #555;">We will process the return shipment shortly.</p>
+        <h2 style="color: #dc3545; font-size: 3em; margin-bottom: 20px;">No. &#x274C;</h2>
+        <p style="font-size: 1.2em; color: #555;">Phone return requested for Order <strong>#${orderId}</strong>.</p>
         <p style="margin-top: 30px;">
           <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
         </p>

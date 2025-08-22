@@ -450,22 +450,47 @@ app.get("/accept-offer", async (req, res) => {
       return res.status(404).send("Error: Order not found.");
     }
 
+    const orderData = doc.data();
+    const newPrice = orderData.reofferDetails?.newPrice || orderData.estimatedQuote;
+    const reason = orderData.reofferDetails?.reason || 'N/A';
+    const buyerName = orderData.shippingInfo?.fullName || 'Customer';
+
     await docRef.update({
       status: "offer_accepted",
       acceptedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     res.status(200).send(`
-      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-        <h2 style="color: #5cb85c;">Offer Accepted!</h2>
-        <p>Thank you for accepting the new offer for Order #${orderId}.</p>
-        <p>We will process your payment shortly.</p>
-        <p><a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none;">Return to SwiftBuyBack</a></p>
+      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
+        <h2 style="color: #28a745; font-size: 2.5em; margin-bottom: 20px;">Offer Accepted! &#x2705;</h2>
+        <p style="font-size: 1.1em; color: #555;">Hello ${buyerName},</p>
+        <p style="font-size: 1.1em; color: #555;">Thank you for accepting the new offer for your Order <strong>#${orderId}</strong>.</p>
+        <div style="background-color: #e6ffe6; border: 1px solid #c3e6cb; border-radius: 8px; padding: 20px; margin: 30px auto; max-width: 500px;">
+          <p style="font-size: 1.2em; font-weight: bold; color: #28a745; margin-bottom: 10px;">
+            Accepted Offer: $${newPrice.toFixed(2)}
+          </p>
+          <p style="font-size: 0.9em; color: #666;">
+            Reason for re-offer: <em>${reason}</em>
+          </p>
+        </div>
+        <p style="font-size: 1.1em; color: #555;">We will process your payment shortly.</p>
+        <p style="margin-top: 30px;">
+          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
+        </p>
       </div>
     `);
   } catch (err) {
     console.error(`Error accepting offer for Order #${orderId}:`, err);
-    res.status(500).send("Error processing your request to accept the offer.");
+    res.status(500).send(`
+      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
+        <h2 style="color: #dc3545; font-size: 2.5em; margin-bottom: 20px;">Error! &#x274C;</h2>
+        <p style="font-size: 1.1em; color: #555;">There was an error processing your request to accept the offer for Order <strong>#${orderId}</strong>.</p>
+        <p style="font-size: 1.1em; color: #555;">Please try again or contact support.</p>
+        <p style="margin-top: 30px;">
+          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
+        </p>
+      </div>
+    `);
   }
 });
 
@@ -485,17 +510,33 @@ app.get("/return-phone", async (req, res) => {
       return res.status(404).send("Error: Order not found.");
     }
 
+    const orderData = doc.data();
+    const newPrice = orderData.reofferDetails?.newPrice || orderData.estimatedQuote;
+    const reason = orderData.reofferDetails?.reason || 'N/A';
+    const buyerName = orderData.shippingInfo?.fullName || 'Customer';
+
     await docRef.update({
       status: "return_requested",
       returnRequestedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     res.status(200).send(`
-      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-        <h2 style="color: #d9534f;">Phone Return Requested</h2>
-        <p>You have requested your phone to be returned for Order #${orderId}.</p>
-        <p>We will process the return shipment shortly.</p>
-        <p><a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none;">Return to SwiftBuyBack</a></p>
+      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
+        <h2 style="color: #dc3545; font-size: 2.5em; margin-bottom: 20px;">Phone Return Requested &#x274C;</h2>
+        <p style="font-size: 1.1em; color: #555;">Hello ${buyerName},</p>
+        <p style="font-size: 1.1em; color: #555;">You have requested your phone to be returned for Order <strong>#${orderId}</strong>.</p>
+        <div style="background-color: #fff0f0; border: 1px solid #f5c6cb; border-radius: 8px; padding: 20px; margin: 30px auto; max-width: 500px;">
+          <p style="font-size: 1.2em; font-weight: bold; color: #dc3545; margin-bottom: 10px;">
+            Declined Offer: $${newPrice.toFixed(2)}
+          </p>
+          <p style="font-size: 0.9em; color: #666;">
+            Reason for re-offer: <em>${reason}</em>
+          </p>
+        </div>
+        <p style="font-size: 1.1em; color: #555;">We will process the return shipment shortly.</p>
+        <p style="margin-top: 30px;">
+          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
+        </p>
       </div>
     `);
   } catch (err) {

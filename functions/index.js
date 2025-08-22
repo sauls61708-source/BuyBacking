@@ -280,10 +280,13 @@ const SHIPSTATION_API_KEY = functions.config().shipstation.key;
 
 async function createShipmentAndLabel(orderId, orderDetails) {
   // Validate essential shipping info
-  if (!orderDetails || !orderDetails.shippingInfo || 
-      !orderDetails.shippingInfo.fullName || !orderDetails.shippingInfo.streetAddress ||
-      !orderDetails.shippingInfo.city || !orderDetails.shippingInfo.state ||
-      !orderDetails.shippingInfo.postalCode) {
+  const shippingInfo = orderDetails?.shippingInfo;
+  if (!shippingInfo || 
+      !shippingInfo.fullName || shippingInfo.fullName.trim() === '' ||
+      !shippingInfo.streetAddress || shippingInfo.streetAddress.trim() === '' ||
+      !shippingInfo.city || shippingInfo.city.trim() === '' ||
+      !shippingInfo.state || shippingInfo.state.trim() === '' ||
+      !shippingInfo.postalCode || shippingInfo.postalCode.trim() === '') {
     throw new Error("Missing or incomplete customer shipping information for label generation.");
   }
 
@@ -292,11 +295,11 @@ async function createShipmentAndLabel(orderId, orderDetails) {
       shipment: {
         serviceCode: "usps_priority_mail", // Ensure service code is always present
         shipFrom: {
-          name: orderDetails.shippingInfo.fullName,
-          addressLine1: orderDetails.shippingInfo.streetAddress,
-          cityLocality: orderDetails.shippingInfo.city,
-          stateProvince: orderDetails.shippingInfo.state,
-          postalCode: orderDetails.shippingInfo.postalCode,
+          name: shippingInfo.fullName,
+          addressLine1: shippingInfo.streetAddress,
+          cityLocality: shippingInfo.city,
+          stateProvince: shippingInfo.state,
+          postalCode: shippingInfo.postalCode,
           countryCode: "US",
         },
         shipTo: {
@@ -338,10 +341,13 @@ async function createShipmentAndLabel(orderId, orderDetails) {
 // ------------------------------
 async function createReturnLabel(orderId, orderDetails) {
   // Validate essential shipping info
-  if (!orderDetails || !orderDetails.shippingInfo || 
-      !orderDetails.shippingInfo.fullName || !orderDetails.shippingInfo.streetAddress ||
-      !orderDetails.shippingInfo.city || !orderDetails.shippingInfo.state ||
-      !orderDetails.shippingInfo.postalCode) {
+  const shippingInfo = orderDetails?.shippingInfo;
+  if (!shippingInfo || 
+      !shippingInfo.fullName || shippingInfo.fullName.trim() === '' ||
+      !shippingInfo.streetAddress || shippingInfo.streetAddress.trim() === '' ||
+      !shippingInfo.city || shippingInfo.city.trim() === '' ||
+      !shippingInfo.state || shippingInfo.state.trim() === '' ||
+      !shippingInfo.postalCode || shippingInfo.postalCode.trim() === '') {
     throw new Error("Missing or incomplete customer shipping information for return label generation.");
   }
 
@@ -358,11 +364,11 @@ async function createReturnLabel(orderId, orderDetails) {
           countryCode: "US",
         },
         shipTo: { // Customer is receiving the phone back
-          name: orderDetails.shippingInfo.fullName,
-          addressLine1: orderDetails.shippingInfo.streetAddress,
-          cityLocality: orderDetails.shippingInfo.city,
-          stateProvince: orderDetails.shippingInfo.state,
-          postalCode: orderDetails.shippingInfo.postalCode,
+          name: shippingInfo.fullName,
+          addressLine1: shippingInfo.streetAddress,
+          cityLocality: shippingInfo.city,
+          stateProvince: shippingInfo.state,
+          postalCode: shippingInfo.postalCode,
           countryCode: "US",
         },
         packages: [

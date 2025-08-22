@@ -359,7 +359,7 @@
 
             let finalQuote = 0;
 
-            const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net/api';
+            const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net';
 
             function showQuoteMessage(msg, type) {
                 quoteMessage.textContent = msg;
@@ -507,7 +507,7 @@
 
                 try {
                     showQuoteMessage('Submitting your order...', 'success');
-                    const response = await fetch(`${BACKEND_URL}/api/submit-order`, {
+                    const response = await fetch(`${BACKEND_URL}/submit-order`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

@@ -28,6 +28,20 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/accept-offer/**",
+        "function": "api"
+      },
+      {
+        "source": "/return-phone/**",
+        "function": "api"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
   }
 }

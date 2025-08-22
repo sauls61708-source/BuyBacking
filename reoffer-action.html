@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftBuyBack Offer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .btn-green-light { background-color: #a7f3d0; color: #065f46; } /* Tailwind green-200, green-800 */
+        .btn-green-light:hover { background-color: #6ee7b7; } /* Tailwind green-300 */
+        .btn-red-light { background-color: #fecaca; color: #991b1b; } /* Tailwind red-200, red-800 */
+        .btn-red-light:hover { background-color: #fca5a5; } /* Tailwind red-300 */
+        .btn-blue-light { background-color: #bfdbfe; color: #1e40af; } /* Tailwind blue-200, blue-800 */
+        .btn-blue-light:hover { background-color: #93c5fd; } /* Tailwind blue-300 */
+        .btn-disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg text-center">
+        <div id="loadingState" class="mb-4">
+            <p class="text-blue-500 text-lg">Loading offer details...</p>
+        </div>
+
+        <!-- Initial state: Shows offer details and Yes/No buttons -->
+        <div id="offerDetailsState" class="hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Your SwiftBuyBack Offer</h2>
+            <p class="text-xl text-gray-700 mb-4">Hello <span id="buyerName" class="font-semibold"></span>,</p>
+            <p class="text-lg text-gray-700 mb-2">For Order <strong id="orderIdDisplay"></strong>:</p>
+            
+            <div class="space-y-3 text-left bg-gray-50 p-6 rounded-md border border-gray-200 mb-8">
+                <p class="text-lg font-semibold text-gray-800">New Offer Price: <span id="newOfferPrice" class="font-bold text-green-700"></span></p>
+                <p class="text-sm text-gray-600">Reason for re-offer: <em id="reofferReason"></em></p>
+            </div>
+
+            <div id="actionButtons" class="space-y-4 md:flex md:space-y-0 md:space-x-4 mb-8">
+                <button id="acceptOfferBtn" class="flex-1 w-full btn-green-light text-center font-bold py-4 px-6 rounded-lg transition duration-300">
+                    Accept Offer
+                </button>
+                <button id="returnPhoneBtn" class="flex-1 w-full btn-red-light text-center font-bold py-4 px-6 rounded-lg transition duration-300">
+                    Return Phone
+                </button>
+            </div>
+        </div>
+
+        <!-- Confirmation state: Shows Yes/No status after action -->
+        <div id="confirmationState" class="hidden">
+            <h2 id="confirmationHeading" class="text-4xl font-bold mb-6"></h2>
+            <p id="confirmationMessage" class="text-xl text-gray-700 mb-8"></p>
+            <button id="changeReplyBtn" class="btn-blue-light font-bold py-3 px-6 rounded-lg transition duration-300 mb-4 hidden">
+                Change Reply
+            </button>
+            <p id="changeReplyMessage" class="text-sm text-gray-600 mb-8 hidden"></p>
+        </div>
+
+        <div id="errorMessage" class="text-red-600 text-lg mb-4 hidden"></div>
+
+        <!-- Reply section (always visible once order details are loaded) -->
+        <div id="replySection" class="mt-8 pt-6 border-t border-gray-200 hidden">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Have a question or want to add a comment?</h3>
+            <form id="replyForm" class="space-y-4">
+                <textarea id="replyMessageInput" name="replyMessage" rows="4" placeholder="Type your message here..."
+                          class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 resize-vertical"></textarea>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300">
+                    Send Reply
+                </button>
+            </form>
+            <p id="replyStatus" class="mt-4 text-sm"></p>
+        </div>
+
+        <p class="mt-8 text-md text-gray-600">
+            <a href="https://buyback-a0f05.web.app/" class="text-blue-600 hover:underline font-bold">Return to SwiftBuyBack Homepage</a>
+        </p>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net/api'; // Your Cloud Function URL
+        const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId');
+
+            const loadingState = document.getElementById('loadingState');
+            const offerDetailsState = document.getElementById('offerDetailsState');
+            const confirmationState = document.getElementById('confirmationState');
+            const confirmationHeading = document.getElementById('confirmationHeading');
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            const orderIdDisplay = document.getElementById('orderIdDisplay');
+            const newOfferPrice = document.getElementById('newOfferPrice');
+            const reofferReason = document.getElementById('reofferReason');
+            const buyerNameSpan = document.getElementById('buyerName');
+            const errorMessage = document.getElementById('errorMessage');
+            const acceptOfferBtn = document.getElementById('acceptOfferBtn');
+            const returnPhoneBtn = document.getElementById('returnPhoneBtn');
+            const actionButtonsDiv = document.getElementById('actionButtons');
+            const replySection = document.getElementById('replySection');
+            const replyForm = document.getElementById('replyForm');
+            const replyMessageInput = document.getElementById('replyMessageInput'); // Renamed for clarity
+            const replyStatus = document.getElementById('replyStatus');
+            const changeReplyBtn = document.getElementById('changeReplyBtn'); // New button
+            const changeReplyMessage = document.getElementById('changeReplyMessage'); // New message for change reply
+
+            let currentOrderData = null; // Store order data for reply form and status checks
+
+            if (!orderId) {
+                errorMessage.textContent = 'Error: Order ID is missing from the URL.';
+                errorMessage.classList.remove('hidden');
+                loadingState.classList.add('hidden');
+                return;
+            }
+
+            orderIdDisplay.textContent = `#${orderId}`;
+
+            const renderConfirmationState = (status, timestamp) => {
+                offerDetailsState.classList.add('hidden');
+                loadingState.classList.add('hidden');
+                confirmationState.classList.remove('hidden');
+                actionButtonsDiv.classList.add('hidden'); // Hide action buttons
+
+                const accepted = status === 'offer_accepted';
+                confirmationHeading.textContent = accepted ? 'Yes! ✅' : 'No. ❌';
+                confirmationHeading.className = `text-4xl font-bold mb-6 ${accepted ? 'text-green-600' : 'text-red-600'}`;
+                confirmationMessage.textContent = accepted 
+                    ? `Offer accepted for Order #${orderId}. We will process your payment shortly.`
+                    : `Phone return requested for Order #${orderId}. We will process the return shipment shortly.`;
+                
+                // Show/hide and enable/disable Change Reply button based on timestamp
+                if (timestamp) {
+                    const decisionTime = new Date(timestamp._seconds * 1000); // Firestore timestamp to JS Date
+                    const currentTime = new Date();
+                    const timeDifference = currentTime.getTime() - decisionTime.getTime();
+
+                    changeReplyBtn.classList.remove('hidden');
+                    changeReplyMessage.classList.remove('hidden');
+
+                    if (timeDifference < TWENTY_FOUR_HOURS_MS) {
+                        changeReplyBtn.disabled = false;
+                        changeReplyBtn.classList.remove('btn-disabled');
+                        changeReplyMessage.textContent = `You can change your reply within 24 hours of your decision. Time remaining: ${formatTimeRemaining(TWENTY_FOUR_HOURS_MS - timeDifference)}`;
+                    } else {
+                        changeReplyBtn.disabled = true;
+                        changeReplyBtn.classList.add('btn-disabled');
+                        changeReplyMessage.textContent = 'The 24-hour window to change your reply has passed.';
+                    }
+                } else {
+                    changeReplyBtn.classList.add('hidden');
+                    changeReplyMessage.classList.add('hidden');
+                }
+                replySection.classList.remove('hidden'); // Keep reply section visible
+            };
+
+            const formatTimeRemaining = (ms) => {
+                const hours = Math.floor(ms / (1000 * 60 * 60));
+                const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+                return `${hours}h ${minutes}m ${seconds}s`;
+            };
+
+            const loadOfferDetails = async () => {
+                loadingState.classList.remove('hidden');
+                offerDetailsState.classList.add('hidden');
+                confirmationState.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+                replySection.classList.add('hidden'); // Hide reply section during loading
+
+                try {
+                    const orderResponse = await fetch(`${BACKEND_URL}/orders/${orderId}`);
+                    if (!orderResponse.ok) {
+                        throw new Error(`Failed to fetch order details: ${orderResponse.statusText}`);
+                    }
+                    currentOrderData = await orderResponse.json();
+
+                    newOfferPrice.textContent = `$${currentOrderData.reofferDetails?.newPrice?.toFixed(2) || currentOrderData.estimatedQuote?.toFixed(2) || 'N/A'}`;
+                    reofferReason.textContent = currentOrderData.reofferDetails?.reason || 'N/A';
+                    buyerNameSpan.textContent = currentOrderData.shippingInfo?.fullName || 'Customer';
+                    
+                    loadingState.classList.add('hidden');
+
+                    // Check current status and render accordingly
+                    if (currentOrderData.status === 'offer_accepted') {
+                        renderConfirmationState('offer_accepted', currentOrderData.acceptedAt);
+                    } else if (currentOrderData.status === 'return_requested') {
+                        renderConfirmationState('return_requested', currentOrderData.returnRequestedAt);
+                    } else {
+                        offerDetailsState.classList.remove('hidden');
+                        actionButtonsDiv.classList.remove('hidden'); // Ensure action buttons are visible
+                        replySection.classList.remove('hidden'); // Show reply section
+                    }
+
+                } catch (error) {
+                    console.error('Error loading offer page:', error);
+                    errorMessage.textContent = `Error: ${error.message}. Please try again or contact support.`;
+                    errorMessage.classList.remove('hidden');
+                    loadingState.classList.add('hidden');
+                }
+            };
+
+            // Initial load
+            await loadOfferDetails();
+
+            // Event listener for Change Reply button
+            changeReplyBtn.addEventListener('click', () => {
+                confirmationState.classList.add('hidden');
+                offerDetailsState.classList.remove('hidden');
+                actionButtonsDiv.classList.remove('hidden'); // Show action buttons again
+                changeReplyBtn.classList.add('hidden'); // Hide change reply button
+                changeReplyMessage.classList.add('hidden');
+            });
+
+            const disableActionButtons = (disable) => {
+                acceptOfferBtn.disabled = disable;
+                returnPhoneBtn.disabled = disable;
+                if (disable) {
+                    acceptOfferBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    returnPhoneBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    acceptOfferBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    returnPhoneBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            };
+
+            const handleAction = async (actionType) => {
+                disableActionButtons(true); // Disable buttons immediately
+                loadingState.classList.remove('hidden');
+                offerDetailsState.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+
+                try {
+                    const actionEndpoint = `${BACKEND_URL}/api/${actionType}-action`;
+                    const response = await fetch(actionEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId: orderId })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `Failed to ${actionType} offer.`);
+                    }
+
+                    // Reload order data to get updated timestamp
+                    await loadOfferDetails(); 
+                    
+                } catch (error) {
+                    console.error(`Error during ${actionType} action:`, error);
+                    loadingState.classList.add('hidden');
+                    errorMessage.textContent = `Error: ${error.message}. Please try again or contact support.`;
+                    errorMessage.classList.remove('hidden');
+                    disableActionButtons(false); // Re-enable if action failed
+                    offerDetailsState.classList.remove('hidden'); // Show offer details again if error
+                }
+            };
+
+            acceptOfferBtn.addEventListener('click', () => handleAction('accept-offer'));
+            returnPhoneBtn.addEventListener('click', () => handleAction('return-phone'));
+
+            // Handle reply form submission
+            replyForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const message = replyMessageInput.value.trim();
+                if (!message) {
+                    replyStatus.textContent = 'Please enter a message.';
+                    replyStatus.style.color = 'red';
+                    return;
+                }
+
+                replyStatus.textContent = 'Sending reply...';
+                replyStatus.style.color = 'blue';
+
+                try {
+                    const replyBackendUrl = `${BACKEND_URL}/orders/${orderId}/add-buyer-reply`;
+                    const replyResponse = await fetch(replyBackendUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ replyMessage: message })
+                    });
+
+                    if (replyResponse.ok) {
+                        replyStatus.textContent = 'Reply sent successfully!';
+                        replyStatus.style.color = 'green';
+                        replyMessageInput.value = ''; // Clear the textarea
+                    } else {
+                        const errorText = await replyResponse.text();
+                        throw new Error(errorText || 'Failed to send reply.');
+                    }
+                } catch (error) {
+                    console.error('Error sending reply:', error);
+                    replyStatus.textContent = `Error sending reply: ${error.message}`;
+                    replyStatus.style.color = 'red';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

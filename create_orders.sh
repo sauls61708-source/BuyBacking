@@ -42,7 +42,7 @@ echo "----------------------------------------"
 for i in $(seq 0 9); do
     # Generate dynamic data for each order
     NAME="${NAMES[$i]}"
-    EMAIL="customer${i}@example.com"
+    EMAIL="saulsetton191@gmail.com"
     STREET="${STREETS[$i]}"
     CITY="${CITIES[$i]}"
     STATE="${STATES[$i]}"

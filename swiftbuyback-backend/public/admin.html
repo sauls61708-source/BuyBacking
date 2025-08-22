@@ -12,6 +12,9 @@
     .nav-item.active {
         @apply bg-gray-700 text-white;
     }
+    .sub-nav-item {
+        @apply pl-8; /* Indent sub-items */
+    }
 </style>
 </head>
 <body class="bg-gray-100 text-gray-900 min-h-screen flex">
@@ -56,20 +59,41 @@
                         Received
                     </a>
                 </li>
+                <!-- Re-offered Parent Menu Item -->
+                <li>
+                    <a href="#" class="nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="reoffered_parent">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 110-6 3 3 0 010 6z" />
+                        </svg>
+                        Re-offered
+                    </a>
+                    <ul class="sub-menu ml-4">
+                        <li>
+                            <a href="#" class="nav-item sub-nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="re-offered">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                                Pending
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item sub-nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="offer_accepted">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                                Accepted
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item sub-nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="return_requested">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+                                Declined
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 <li>
                     <a href="#" class="nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="completed">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm2 1a1 1 0 100-2 1 1 0 000 2zm4-1a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
                         </svg>
                         Completed
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="re-offered">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 110-6 3 3 0 010 6z" />
-                        </svg>
-                        Re-offered
                     </a>
                 </li>
             </ul>
@@ -90,22 +114,22 @@
         <div id="contentContainer" class="bg-white p-6 rounded-lg shadow-md">
             <div id="dashboardContent" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-blue-100 p-6 rounded-lg text-center">
+                    <button class="dashboard-card bg-blue-100 p-6 rounded-lg text-center cursor-pointer hover:bg-blue-200 transition duration-200" data-status="all_orders">
                         <h3 class="text-3xl font-bold text-blue-800" id="totalOrdersCount">0</h3>
                         <p class="text-sm text-blue-600 font-semibold">Total Orders</p>
-                    </div>
-                    <div class="bg-yellow-100 p-6 rounded-lg text-center">
+                    </button>
+                    <button class="dashboard-card bg-yellow-100 p-6 rounded-lg text-center cursor-pointer hover:bg-yellow-200 transition duration-200" data-status="pending_shipment">
                         <h3 class="text-3xl font-bold text-yellow-800" id="awaitingShipmentCount">0</h3>
                         <p class="text-sm text-yellow-600 font-semibold">Awaiting Shipment</p>
-                    </div>
-                    <div class="bg-green-100 p-6 rounded-lg text-center">
+                    </button>
+                    <button class="dashboard-card bg-green-100 p-6 rounded-lg text-center cursor-pointer hover:bg-green-200 transition duration-200" data-status="label_generated">
                         <h3 class="text-3xl font-bold text-green-800" id="shippedCount">0</h3>
                         <p class="text-sm text-green-600 font-semibold">Shipped</p>
-                    </div>
-                    <div class="bg-purple-100 p-6 rounded-lg text-center">
+                    </button>
+                    <button class="dashboard-card bg-purple-100 p-6 rounded-lg text-center cursor-pointer hover:bg-purple-200 transition duration-200" data-status="completed">
                         <h3 class="text-3xl font-bold text-purple-800" id="completedCount">0</h3>
                         <p class="text-sm text-purple-600 font-semibold">Completed</p>
-                    </div>
+                    </button>
                 </div>
             </div>
 
@@ -146,8 +170,9 @@
                 <p><strong>Email:</strong> <span id="modalShippingEmail"></span></p>
                 <h4 class="text-lg font-semibold mt-4 mb-2">Current Status: <span id="modalOrderStatus" class="font-bold"></span></h4>
                 <p id="modalLabelUrl" class="hidden"><strong>USPS Label:</strong> <a href="#" target="_blank" class="text-blue-600 hover:underline">View Label</a></p>
+                <p id="modalReturnLabelUrl" class="hidden"><strong>Return Label:</strong> <a href="#" target="_blank" class="text-blue-600 hover:underline">View Return Label</a></p>
                 
-                <!-- New button structure -->
+                <!-- Action Buttons -->
                 <div class="mt-6 space-y-3">
                     <button id="completeOrderBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
                         Complete Order
@@ -158,13 +183,17 @@
                     <button id="openContactBuyerFormBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
                         Contact Buyer
                     </button>
-
-                    <!-- Original action buttons (visibility managed by JS) -->
                     <button id="generateLabelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
                         Generate USPS Label
                     </button>
                     <button id="markReceivedBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
                         Mark as Received
+                    </button>
+                    <button id="sendPhoneBackBtn" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
+                        Send Phone Back
+                    </button>
+                    <button id="payNowBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
+                        Pay Now
                     </button>
                     <p id="modalMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></p>
                 </div>
@@ -222,10 +251,29 @@
                         Send Email
                     </button>
                 </div>
+
+                <!-- Payment Modal (initially hidden) -->
+                <div id="paymentModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+                    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md modal-font relative">
+                        <button id="closePaymentModalBtn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6">Process Payment</h3>
+                        <div class="space-y-4 text-gray-700">
+                            <p><strong>Order ID:</strong> <span id="paymentModalOrderId"></span></p>
+                            <p><strong>Amount to Pay:</strong> <span id="paymentModalAmount" class="font-bold text-green-700 text-xl"></span></p>
+                            <p><strong>Payment Method:</strong> <span id="paymentModalMethod"></span></p>
+                            <p><strong>Recipient Account:</strong> <span id="paymentModalRecipient"></span></p>
+                            <button id="initiatePaymentBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 mt-6">
+                                Initiate Payment
+                            </button>
+                            <p id="paymentModalMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
-    
+    </aside>
+
     <script>
         const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net/api';
 
@@ -242,6 +290,7 @@
             const markReceivedBtn = document.getElementById('markReceivedBtn');
             const modalMessage = document.getElementById('modalMessage');
             const modalLabelUrl = document.getElementById('modalLabelUrl');
+            const modalReturnLabelUrl = document.getElementById('modalReturnLabelUrl'); // New element
             const mainTitle = document.getElementById('mainTitle');
             const dashboardContent = document.getElementById('dashboardContent');
             const ordersListContent = document.getElementById('ordersListContent');
@@ -252,24 +301,43 @@
             const openContactBuyerFormBtn = document.getElementById('openContactBuyerFormBtn');
             const reofferFormSection = document.getElementById('reofferFormSection');
             const contactBuyerFormSection = document.getElementById('contactBuyerFormSection');
-            const submitNewReofferBtn = document.getElementById('submitNewReofferBtn'); // Renamed from submitReofferBtn
+            const submitNewReofferBtn = document.getElementById('submitNewReofferBtn');
             const reofferPriceInput = document.getElementById('reofferPrice');
             const reofferReasonCheckboxes = document.querySelectorAll('#reofferFormSection input[type="checkbox"]');
             const reofferAdditionalComment = document.getElementById('reofferAdditionalComment');
             const emailSubjectInput = document.getElementById('emailSubject');
             const emailBodyInput = document.getElementById('emailBody');
             const sendCustomEmailBtn = document.getElementById('sendCustomEmailBtn');
+            const sendPhoneBackBtn = document.getElementById('sendPhoneBackBtn'); // New button
+            const payNowBtn = document.getElementById('payNowBtn'); // New button
+
+            // Payment Modal elements
+            const paymentModal = document.getElementById('paymentModal');
+            const closePaymentModalBtn = document.getElementById('closePaymentModalBtn');
+            const paymentModalOrderId = document.getElementById('paymentModalOrderId');
+            const paymentModalAmount = document.getElementById('paymentModalAmount');
+            const paymentModalMethod = document.getElementById('paymentModalMethod');
+            const paymentModalRecipient = document.getElementById('paymentModalRecipient');
+            const initiatePaymentBtn = document.getElementById('initiatePaymentBtn');
+            const paymentModalMessage = document.getElementById('paymentModalMessage');
+
+            // Dashboard cards
+            const dashboardCards = document.querySelectorAll('.dashboard-card');
 
 
             const dashboardCounts = {
                 totalOrders: 0,
                 awaitingShipment: 0,
                 shipped: 0,
-                completed: 0
+                completed: 0,
+                reofferedPending: 0,
+                reofferedAccepted: 0,
+                reofferedDeclined: 0
             };
 
             let allOrders = [];
             let currentOrderId = null;
+            let currentOrderDetails = null; // Store full order details for modal actions
             let currentStatusFilter = 'dashboard';
 
             function showModalMessage(msg, type) {
@@ -285,6 +353,9 @@
                 dashboardCounts.awaitingShipment = allOrders.filter(o => o.status === 'pending_shipment').length;
                 dashboardCounts.shipped = allOrders.filter(o => o.status === 'label_generated').length;
                 dashboardCounts.completed = allOrders.filter(o => o.status === 'completed').length;
+                dashboardCounts.reofferedPending = allOrders.filter(o => o.status === 're-offered').length;
+                dashboardCounts.reofferedAccepted = allOrders.filter(o => o.status === 'offer_accepted').length;
+                dashboardCounts.reofferedDeclined = allOrders.filter(o => o.status === 'return_requested').length;
             
                 document.getElementById('totalOrdersCount').textContent = dashboardCounts.totalOrders;
                 document.getElementById('awaitingShipmentCount').textContent = dashboardCounts.awaitingShipment;
@@ -345,7 +416,12 @@
                 ordersList.innerHTML = '';
                 const searchTerm = searchInput.value.toLowerCase();
                 let filteredOrders = allOrders.filter(order => {
-                    const matchesStatus = currentStatusFilter === 'dashboard' || order.status === currentStatusFilter;
+                    // Handle 'all_orders' for dashboard card, 'reoffered_parent' for parent menu
+                    const matchesStatus = (currentStatusFilter === 'all_orders') ||
+                                          (currentStatusFilter === 'dashboard' && !['re-offered', 'offer_accepted', 'return_requested'].includes(order.status)) ||
+                                          (currentStatusFilter === 'reoffered_parent' && ['re-offered', 'offer_accepted', 'return_requested'].includes(order.status)) ||
+                                          (currentStatusFilter === order.status);
+                    
                     const matchesSearch = Object.values(order).some(val => 
                         String(val).toLowerCase().includes(searchTerm)
                     );
@@ -364,6 +440,7 @@
 
             function openOrderDetailModal(id, order) {
                 currentOrderId = id;
+                currentOrderDetails = order; // Store full order details
                 document.getElementById('modalOrderId').textContent = id;
                 document.getElementById('modalEstimatedQuote').textContent = `$${order.estimatedQuote?.toFixed(2) || '0.00'}`;
                 document.getElementById('modalDeviceModel').textContent = order.device || '';
@@ -374,7 +451,7 @@
                 document.getElementById('modalConditionCracks').textContent = order.condition_cracks || '';
                 document.getElementById('modalConditionCosmetic').textContent = order.condition_cosmetic || '';
                 document.getElementById('modalPaymentMethod').textContent = order.paymentMethod || '';
-                document.getElementById('modalPaymentValue').textContent = order.paymentDetails?.venmoUsername || 'N/A';
+                document.getElementById('modalPaymentValue').textContent = order.paymentDetails?.venmoUsername || order.paymentDetails?.paypalEmail || 'N/A';
                 document.getElementById('modalShippingName').textContent = order.shippingInfo?.fullName || '';
                 document.getElementById('modalShippingAddress').textContent = order.shippingInfo
                     ? `${order.shippingInfo.streetAddress}, ${order.shippingInfo.city}, ${order.shippingInfo.state} ${order.shippingInfo.zipCode}`
@@ -387,6 +464,12 @@
                     labelLink.href = order.uspsLabelUrl;
                     modalLabelUrl.classList.remove('hidden');
                 } else modalLabelUrl.classList.add('hidden');
+
+                const returnLabelLink = modalReturnLabelUrl.querySelector('a');
+                if (order.returnLabelUrl) { // Check for new returnLabelUrl
+                    returnLabelLink.href = order.returnLabelUrl;
+                    modalReturnLabelUrl.classList.remove('hidden');
+                } else modalReturnLabelUrl.classList.add('hidden');
             
                 // Hide all action buttons and sections initially
                 generateLabelBtn.classList.add('hidden');
@@ -396,6 +479,9 @@
                 openContactBuyerFormBtn.classList.add('hidden');
                 reofferFormSection.classList.add('hidden');
                 contactBuyerFormSection.classList.add('hidden');
+                sendPhoneBackBtn.classList.add('hidden'); // Hide new button
+                payNowBtn.classList.add('hidden'); // Hide new button
+
 
                 // Show actions based on status
                 if (order.status === 'pending_shipment') {
@@ -406,34 +492,123 @@
                     completeOrderBtn.classList.remove('hidden');
                     openReofferFormBtn.classList.remove('hidden');
                     openContactBuyerFormBtn.classList.remove('hidden');
-                } else if (order.status === 're-offered') {
-                    // If a re-offer has already been made, show the details instead of the form
-                    reofferFormSection.classList.remove('hidden'); // Show the section, but populate it with details
+                } else if (order.status === 're-offered') { // Pending re-offer
+                    completeOrderBtn.classList.remove('hidden');
+                    openReofferFormBtn.classList.remove('hidden');
+                    openContactBuyerFormBtn.classList.remove('hidden');
+                    // Display re-offer details
+                    reofferFormSection.classList.remove('hidden');
+                    // Use optional chaining for reofferDetails
                     reofferFormSection.innerHTML = `
                         <h4 class="text-lg font-semibold mt-4 mb-2">Current Re-offer</h4>
-                        <p><strong>New Price:</strong> $${order.reofferDetails.newPrice.toFixed(2)}</p>
-                        <p><strong>Reason:</strong> ${order.reofferDetails.reason}</p>
+                        <p><strong>New Price:</strong> $${order.reofferDetails?.newPrice?.toFixed(2) || 'N/A'}</p>
+                        <p><strong>Reason:</strong> ${order.reofferDetails?.reason || 'N/A'}</p>
+                        <p class="text-sm text-gray-500 mt-2">Status: <span class="font-bold">${order.status}</span></p>
                         <p class="text-sm text-gray-500 mt-2">Awaiting buyer response.</p>
                     `;
+                } else if (order.status === 'offer_accepted') { // Re-offer Accepted
+                    completeOrderBtn.classList.remove('hidden');
+                    openContactBuyerFormBtn.classList.remove('hidden');
+                    payNowBtn.classList.remove('hidden'); // Show Pay Now button
+                    // Display re-offer details
+                    reofferFormSection.classList.remove('hidden');
+                    // Use optional chaining for reofferDetails
+                    reofferFormSection.innerHTML = `
+                        <h4 class="text-lg font-semibold mt-4 mb-2">Accepted Offer Details</h4>
+                        <p><strong>New Price:</strong> $${order.reofferDetails?.newPrice?.toFixed(2) || 'N/A'}</p>
+                        <p><strong>Reason:</strong> ${order.reofferDetails?.reason || 'N/A'}</p>
+                        <p class="text-sm text-gray-500 mt-2">Status: <span class="font-bold">${order.status}</span></p>
+                    `;
+                } else if (order.status === 'return_requested') { // Re-offer Declined
+                    completeOrderBtn.classList.remove('hidden');
+                    openContactBuyerFormBtn.classList.remove('hidden');
+                    sendPhoneBackBtn.classList.remove('hidden'); // Show Send Phone Back button
+                    // Display re-offer details
+                    reofferFormSection.classList.remove('hidden');
+                    // Use optional chaining for reofferDetails
+                    reofferFormSection.innerHTML = `
+                        <h4 class="text-lg font-semibold mt-4 mb-2">Declined Offer Details</h4>
+                        <p><strong>New Price:</strong> $${order.reofferDetails?.newPrice?.toFixed(2) || 'N/A'}</p>
+                        <p><strong>Reason:</strong> ${order.reofferDetails?.reason || 'N/A'}</p>
+                        <p class="text-sm text-gray-500 mt-2">Status: <span class="font-bold">${order.status}</span></p>
+                    `;
+                } else if (order.status === 'completed') { // Completed order
+                    payNowBtn.classList.remove('hidden'); // Show Pay Now button
+                    openContactBuyerFormBtn.classList.remove('hidden');
                 }
-                
+            
                 orderDetailModal.classList.remove('hidden');
             }
             
             navItems.forEach(item => {
                 item.addEventListener('click', e => {
                     e.preventDefault();
+                    // Remove 'active' from all nav items
                     navItems.forEach(i => i.classList.remove('active'));
+                    
+                    // Add 'active' to the clicked item
                     item.classList.add('active');
                     currentStatusFilter = item.dataset.status;
                     mainTitle.textContent = item.textContent.trim();
+
+                    // Handle sub-menu visibility
+                    const parentLi = item.closest('li');
+                    const isSubNavItem = item.classList.contains('sub-nav-item');
+
+                    // If a sub-nav item is clicked, ensure its parent 'Re-offered' is also active and its sub-menu is open
+                    if (isSubNavItem) {
+                        const reofferedParentNavItem = document.querySelector('.nav-item[data-status="reoffered_parent"]');
+                        if (reofferedParentNavItem) {
+                            reofferedParentNavItem.classList.add('active');
+                            reofferedParentNavItem.nextElementSibling.classList.remove('hidden'); // Ensure sub-menu is open
+                        }
+                    } else {
+                        // If a top-level nav item (not 'Re-offered' parent itself) is clicked, close all sub-menus
+                        if (item.dataset.status !== 'reoffered_parent') {
+                            document.querySelectorAll('.sub-menu').forEach(sub => sub.classList.add('hidden'));
+                        }
+                    }
+
+                    // For 'reoffered_parent' click, just toggle sub-menu and don't filter immediately
+                    if (currentStatusFilter === 'reoffered_parent') {
+                        const subMenu = item.nextElementSibling;
+                        if (subMenu && subMenu.classList.contains('sub-menu')) {
+                            subMenu.classList.toggle('hidden');
+                        }
+                        // Default to showing dashboard or all re-offered if parent is clicked
+                        dashboardContent.classList.remove('hidden');
+                        ordersListContent.classList.add('hidden');
+                        return;
+                    }
+
                     filterAndRenderOrders();
                 });
             });
 
+            // Make dashboard cards clickable
+            dashboardCards.forEach(card => {
+                card.addEventListener('click', e => {
+                    const statusToFilter = card.dataset.status;
+                    // Simulate clicking the corresponding nav item
+                    const correspondingNavItem = document.querySelector(`.nav-item[data-status="${statusToFilter}"]`);
+                    if (correspondingNavItem) {
+                        correspondingNavItem.click();
+                    } else {
+                        // Fallback for 'all_orders' which doesn't have a direct nav item
+                        navItems.forEach(i => i.classList.remove('active'));
+                        document.querySelector(`.nav-item[data-status="dashboard"]`).classList.add('active'); // Activate dashboard
+                        currentStatusFilter = statusToFilter;
+                        mainTitle.textContent = card.querySelector('p').textContent.trim();
+                        filterAndRenderOrders();
+                    }
+                });
+            });
+
+
             closeModalBtn.addEventListener('click', () => {
                 orderDetailModal.classList.add('hidden');
                 currentOrderId = null;
+                currentOrderDetails = null;
                 fetchAllOrders();
             });
 
@@ -465,6 +640,7 @@
                     modalLabelUrl.classList.remove('hidden');
                     generateLabelBtn.classList.add('hidden');
                     markReceivedBtn.classList.remove('hidden');
+                    fetchAllOrders(); // Refresh orders to update status in list
                 } catch (err) {
                     showModalMessage(`Error: ${err.message}`, 'error');
                 }
@@ -488,12 +664,13 @@
                     completeOrderBtn.classList.remove('hidden');
                     openReofferFormBtn.classList.remove('hidden');
                     openContactBuyerFormBtn.classList.remove('hidden');
+                    fetchAllOrders(); // Refresh orders to update status in list
                 } catch (err) {
                     showModalMessage(`Error: ${err.message}`, 'error');
                 }
             });
 
-            // New: Handle "Complete Order" button click
+            // Handle "Complete Order" button click
             completeOrderBtn.addEventListener('click', async () => {
                 if (!currentOrderId) return;
                 showModalMessage('Marking as completed...', 'success');
@@ -512,12 +689,14 @@
                     openContactBuyerFormBtn.classList.add('hidden');
                     reofferFormSection.classList.add('hidden');
                     contactBuyerFormSection.classList.add('hidden');
+                    payNowBtn.classList.remove('hidden'); // Show Pay Now button for completed
+                    fetchAllOrders(); // Refresh orders to update status in list
                 } catch (err) {
                     showModalMessage(`Error: ${err.message}`, 'error');
                 }
             });
 
-            // New: Toggle Re-offer form visibility
+            // Toggle Re-offer form visibility
             openReofferFormBtn.addEventListener('click', () => {
                 reofferFormSection.classList.toggle('hidden');
                 contactBuyerFormSection.classList.add('hidden'); // Hide other form
@@ -527,7 +706,7 @@
                 reofferAdditionalComment.value = '';
             });
 
-            // New: Toggle Contact Buyer form visibility
+            // Toggle Contact Buyer form visibility
             openContactBuyerFormBtn.addEventListener('click', () => {
                 contactBuyerFormSection.classList.toggle('hidden');
                 reofferFormSection.classList.add('hidden'); // Hide other form
@@ -536,7 +715,7 @@
                 emailBodyInput.value = '';
             });
 
-            // Updated: Submit New Re-offer button click (was submitReofferBtn)
+            // Submit New Re-offer button click
             submitNewReofferBtn.addEventListener('click', async () => {
                 if (!currentOrderId) return;
                 const newPrice = reofferPriceInput.value;
@@ -585,12 +764,13 @@
                     openReofferFormBtn.classList.add('hidden');
                     openContactBuyerFormBtn.classList.add('hidden');
                     completeOrderBtn.classList.remove('hidden'); // Still allow completion
+                    fetchAllOrders(); // Refresh orders to update status in list
                 } catch (err) {
                     showModalMessage(`Error: ${err.message}`, 'error');
                 }
             });
 
-            // New: Send Custom Email button click
+            // Send Custom Email button click
             sendCustomEmailBtn.addEventListener('click', async () => {
                 if (!currentOrderId) return;
                 const subject = emailSubjectInput.value.trim();
@@ -620,6 +800,76 @@
                     contactBuyerFormSection.classList.add('hidden');
                 } catch (err) {
                     showModalMessage(`Error: ${err.message}`, 'error');
+                }
+            });
+
+            // NEW: Send Phone Back button click (for Declined offers)
+            sendPhoneBackBtn.addEventListener('click', async () => {
+                if (!currentOrderId || !currentOrderDetails) return;
+                showModalMessage('Generating return label...', 'success');
+                try {
+                    const resp = await fetch(`${BACKEND_URL}/api/generate-return-label/${currentOrderId}`, { method: 'POST' });
+                    const result = await resp.json();
+                    if (!resp.ok) throw new Error(result.error || 'Failed to generate return label');
+                    showModalMessage(result.message, 'success');
+                    document.getElementById('modalOrderStatus').textContent = 'return_label_generated'; // Update status
+                    modalReturnLabelUrl.querySelector('a').href = result.returnLabelUrl;
+                    modalReturnLabelUrl.classList.remove('hidden');
+                    sendPhoneBackBtn.classList.add('hidden'); // Hide button after generating
+                    fetchAllOrders(); // Refresh orders to update status in list
+                } catch (err) {
+                    showModalMessage(`Error: ${err.message}`, 'error');
+                }
+            });
+
+            // NEW: Pay Now button click (for Accepted and Completed orders)
+            payNowBtn.addEventListener('click', () => {
+                if (!currentOrderId || !currentOrderDetails) return;
+
+                paymentModalOrderId.textContent = currentOrderId;
+                paymentModalAmount.textContent = `$${currentOrderDetails.reofferDetails?.newPrice?.toFixed(2) || currentOrderDetails.estimatedQuote?.toFixed(2) || '0.00'}`;
+                paymentModalMethod.textContent = currentOrderDetails.paymentMethod || 'N/A';
+                paymentModalRecipient.textContent = currentOrderDetails.paymentDetails?.venmoUsername || currentOrderDetails.paymentDetails?.paypalEmail || 'N/A';
+                
+                paymentModalMessage.classList.add('hidden'); // Clear previous messages
+                paymentModal.classList.remove('hidden'); // Show the payment modal
+            });
+
+            // Close Payment Modal
+            closePaymentModalBtn.addEventListener('click', () => {
+                paymentModal.classList.add('hidden');
+            });
+
+            // Initiate Payment button inside modal
+            initiatePaymentBtn.addEventListener('click', () => {
+                if (!currentOrderDetails) return;
+
+                const amount = currentOrderDetails.reofferDetails?.newPrice || currentOrderDetails.estimatedQuote;
+                const paymentMethod = currentOrderDetails.paymentMethod;
+                const recipient = currentOrderDetails.paymentDetails?.venmoUsername || currentOrderDetails.paymentDetails?.paypalEmail;
+                const orderNote = `Payment for SwiftBuyBack Order #${currentOrderId}`;
+
+                let paymentLink = '';
+
+                if (paymentMethod === 'Venmo' && recipient && amount) {
+                    paymentLink = `venmo://pay?recipients=${recipient.replace('@', '')}&amount=${amount.toFixed(2)}&note=${encodeURIComponent(orderNote)}`;
+                } else if (paymentMethod === 'PayPal' && recipient && amount) {
+                    // PayPal.me link for direct payment (requires recipient to have a PayPal.me link)
+                    // Or a more complex PayPal API integration for actual payment initiation.
+                    // For simplicity, we'll use a generic link or instruct admin.
+                    paymentLink = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${recipient}&amount=${amount.toFixed(2)}&item_name=${encodeURIComponent(orderNote)}`;
+                    paymentModalMessage.textContent = "Note: PayPal payment might require manual entry if recipient doesn't have PayPal.me or direct API is not set up.";
+                    paymentModalMessage.classList.remove('hidden');
+                } else {
+                    paymentModalMessage.textContent = 'Unable to generate direct payment link. Please process manually.';
+                    paymentModalMessage.classList.remove('hidden');
+                    return;
+                }
+
+                if (paymentLink) {
+                    window.open(paymentLink, '_blank'); // Open payment app/page
+                    paymentModalMessage.textContent = 'Payment link opened. Please complete the transaction.';
+                    paymentModalMessage.classList.remove('hidden');
                 }
             });
 

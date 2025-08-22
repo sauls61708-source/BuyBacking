@@ -31,11 +31,11 @@
     ],
     "rewrites": [
       {
-        "source": "/accept-offer/**",
+        "source": "/api/**",
         "function": "api"
       },
       {
-        "source": "/return-phone/**",
+        "source": "/orders/:id/add-buyer-reply",
         "function": "api"
       },
       {

@@ -6,15 +6,26 @@ const axios = require("axios");
 
 const app = express();
 
+// Define allowed origins for CORS. Ensure your frontend URL is included.
 const allowedOrigins = [
   "https://toratyosef.github.io",
   "https://buyback-a0f05.web.app"
 ];
 
+// Apply CORS middleware to all routes
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"], // Explicitly allow Content-Type and Authorization headers
   })
 );
 app.use(express.json());
@@ -81,8 +92,10 @@ Reason: ${reason}
 async function sendBuyerReofferEmailViaZendesk(orderId, buyerEmail, orderDetails, newPrice, reason) {
   // Frontend URL must be configured for the action links
   // firebase functions:config:set app.frontend_url="https://buyback-a0f05.web.app"
-  const acceptLink = `${functions.config().app.frontend_url}/accept-offer?orderId=${orderId}`;
-  const returnLink = `${functions.config().app.frontend_url}/return-phone?orderId=${orderId}`;
+  // Links now point to the single reoffer-action.html page
+  const reofferActionPage = `${functions.config().app.frontend_url}/reoffer-action.html?orderId=${orderId}`;
+  const acceptLink = reofferActionPage; // Both buttons go to the same page
+  const returnLink = reofferActionPage; // Both buttons go to the same page
 
   // Ensure buyerName is never empty, providing a fallback
   const buyerName = orderDetails.shippingInfo.fullName || 'Customer'; 
@@ -106,17 +119,22 @@ async function sendBuyerReofferEmailViaZendesk(orderId, buyerEmail, orderDetails
       
       <table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
         <tr>
-          <td align="center">
-            <table cellspacing="0" cellpadding="0">
+          <td align="center" style="padding: 0 10px;"> <!-- Added padding to td for spacing -->
+            <table cellspacing="0" cellpadding="0" style="width: 100%;">
               <tr>
-                <td style="border-radius: 5px;" bgcolor="#5cb85c">
-                  <a href="${acceptLink}" target="_blank" style="padding: 10px 20px; border: 1px solid #5cb85c; border-radius: 5px; font-family: Arial, sans-serif; font-size: 15px; color: #ffffff; text-decoration: none; font-weight: bold; display: inline-block;">
+                <td style="border-radius: 5px; background-color: #a7f3d0; text-align: center;"> <!-- Lighter green background -->
+                  <a href="${acceptLink}" target="_blank" style="padding: 15px 25px; border: 1px solid #6ee7b7; border-radius: 5px; font-family: Arial, sans-serif; font-size: 16px; color: #065f46; text-decoration: none; font-weight: bold; display: block;">
                     Accept Offer ($${newPrice.toFixed(2)})
                   </a>
                 </td>
-                <td width="20">&nbsp;</td> <!-- Spacer -->
-                <td style="border-radius: 5px;" bgcolor="#d9534f">
-                  <a href="${returnLink}" target="_blank" style="padding: 10px 20px; border: 1px solid #d9534f; border-radius: 5px; font-family: Arial, sans-serif; font-size: 15px; color: #ffffff; text-decoration: none; font-weight: bold; display: inline-block;">
+              </tr>
+            </table>
+          </td>
+          <td align="center" style="padding: 0 10px;"> <!-- Added padding to td for spacing -->
+            <table cellspacing="0" cellpadding="0" style="width: 100%;">
+              <tr>
+                <td style="border-radius: 5px; background-color: #fecaca; text-align: center;"> <!-- Lighter red background -->
+                  <a href="${returnLink}" target="_blank" style="padding: 15px 25px; border: 1px solid #fca5a5; border-radius: 5px; font-family: Arial, sans-serif; font-size: 16px; color: #991b1b; text-decoration: none; font-weight: bold; display: block;">
                     Return Phone Now
                   </a>
                 </td>
@@ -230,11 +248,6 @@ async function addCommentToZendeskTicket(zendeskTicketId, commentBody, buyerEmai
           body: commentBody,
           public: true, // Make this a public comment
         },
-        // Zendesk API requires the requester_id or email to be set for public comments
-        // if the author_id is not an agent. For simplicity, we'll assume ZENDESK_USER
-        // is an agent and the comment is from them, but the body indicates the buyer's reply.
-        // If you need the comment to appear *as if* from the buyer, you'd need to
-        // find the buyer's Zendesk user ID and set it as author_id.
       }
     };
 
@@ -260,22 +273,30 @@ async function addCommentToZendeskTicket(zendeskTicketId, commentBody, buyerEmai
 
 
 // ------------------------------
-// ShipStation Helper Function
-// This function creates a shipment and generates a shipping label using ShipEngine API.
+// ShipStation Helper Function (Generate Outgoing Label)
+// This function creates a shipment and generates a shipping label from SwiftBuyBack to the customer.
 // ------------------------------
 const SHIPSTATION_API_KEY = functions.config().shipstation.key;
 
 async function createShipmentAndLabel(orderId, orderDetails) {
+  // Validate essential shipping info
+  if (!orderDetails || !orderDetails.shippingInfo || 
+      !orderDetails.shippingInfo.fullName || !orderDetails.shippingInfo.streetAddress ||
+      !orderDetails.shippingInfo.city || !orderDetails.shippingInfo.state ||
+      !orderDetails.shippingInfo.postalCode) {
+    throw new Error("Missing or incomplete customer shipping information for label generation.");
+  }
+
   try {
     const shipmentData = {
       shipment: {
-        serviceCode: "usps_priority_mail",
+        serviceCode: "usps_priority_mail", // Ensure service code is always present
         shipFrom: {
           name: orderDetails.shippingInfo.fullName,
           addressLine1: orderDetails.shippingInfo.streetAddress,
           cityLocality: orderDetails.shippingInfo.city,
           stateProvince: orderDetails.shippingInfo.state,
-          postalCode: orderDetails.shippingInfo.zipCode,
+          postalCode: orderDetails.shippingInfo.postalCode,
           countryCode: "US",
         },
         shipTo: {
@@ -306,8 +327,66 @@ async function createShipmentAndLabel(orderId, orderDetails) {
     const response = await axios.post(url, shipmentData, { headers });
     return response.data.label_download.pdf;
   } catch (err) {
-    console.error("ShipStation label generation failed:", err.response?.data || err);
+    console.error("ShipStation label generation failed:", JSON.stringify(err.response?.data) || err);
     throw new Error("Failed to generate shipping label.");
+  }
+}
+
+// ------------------------------
+// NEW ShipStation Helper Function (Generate Return Label from Business to Customer)
+// This function creates a return shipping label from SwiftBuyBack to the customer.
+// ------------------------------
+async function createReturnLabel(orderId, orderDetails) {
+  // Validate essential shipping info
+  if (!orderDetails || !orderDetails.shippingInfo || 
+      !orderDetails.shippingInfo.fullName || !orderDetails.shippingInfo.streetAddress ||
+      !orderDetails.shippingInfo.city || !orderDetails.shippingInfo.state ||
+      !orderDetails.shippingInfo.postalCode) {
+    throw new Error("Missing or incomplete customer shipping information for return label generation.");
+  }
+
+  try {
+    const shipmentData = {
+      shipment: {
+        serviceCode: "usps_priority_mail", // Or another suitable return service
+        shipFrom: { // SwiftBuyBack is sending the phone back
+          name: "SwiftBuyBack",
+          addressLine1: "1795 west 3rd st",
+          cityLocality: "Anytown",
+          stateProvince: "CA",
+          postalCode: "90210",
+          countryCode: "US",
+        },
+        shipTo: { // Customer is receiving the phone back
+          name: orderDetails.shippingInfo.fullName,
+          addressLine1: orderDetails.shippingInfo.streetAddress,
+          cityLocality: orderDetails.shippingInfo.city,
+          stateProvince: orderDetails.shippingInfo.state,
+          postalCode: orderDetails.shippingInfo.postalCode,
+          countryCode: "US",
+        },
+        packages: [
+          {
+            weight: {
+              value: 1,
+              unit: "pound",
+            },
+          },
+        ],
+      },
+    };
+
+    const url = "https://api.shipengine.com/v1/labels";
+    const headers = {
+      "Content-Type": "application/json",
+      "API-Key": SHIPSTATION_API_KEY,
+    };
+
+    const response = await axios.post(url, shipmentData, { headers });
+    return response.data.label_download.pdf;
+  } catch (err) {
+    console.error("ShipStation return label generation failed:", JSON.stringify(err.response?.data) || err);
+    throw new Error("Failed to generate return shipping label.");
   }
 }
 
@@ -471,7 +550,7 @@ app.post("/orders/:id/add-buyer-reply", async (req, res) => {
   const { replyMessage } = req.body;
 
   if (!replyMessage) {
-    return res.status(400).send("Error: Reply message is required.");
+    return res.status(400).json({ error: "Reply message is required." });
   }
 
   try {
@@ -479,7 +558,7 @@ app.post("/orders/:id/add-buyer-reply", async (req, res) => {
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return res.status(404).send("Error: Order not found.");
+      return res.status(404).json({ error: "Order not found." });
     }
 
     const orderData = doc.data();
@@ -489,70 +568,25 @@ app.post("/orders/:id/add-buyer-reply", async (req, res) => {
 
     if (!zendeskTicketId) {
       console.warn(`No Zendesk Ticket ID found for Order #${orderId}. Cannot add reply.`);
-      return res.status(400).send("Error: No associated Zendesk ticket found for this order.");
+      return res.status(400).json({ error: "No associated Zendesk ticket found for this order." });
     }
 
-    // Add the buyer's reply as a public comment to the existing Zendesk ticket
     await addCommentToZendeskTicket(zendeskTicketId, `Buyer's Reply: ${replyMessage}`, buyerEmail, buyerName);
 
-    res.status(200).send(`
-      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
-        <h2 style="color: #28a745; font-size: 2.5em; margin-bottom: 20px;">Reply Sent! &#x1F4E8;</h2>
-        <p style="font-size: 1.1em; color: #555;">Thank you, ${buyerName}. Your message has been sent!</p>
-        <p style="font-size: 1.1em; color: #555;">We will get back to you shortly regarding Order <strong>#${orderId}</strong>.</p>
-        <p style="margin-top: 30px;">
-          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
-        </p>
-      </div>
-    `);
+    res.status(200).json({ message: "Reply sent successfully." });
   } catch (err) {
     console.error(`Error adding buyer reply for Order #${orderId}:`, err);
-    res.status(500).send(`
-      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
-        <h2 style="color: #dc3545; font-size: 2.5em; margin-bottom: 20px;">Error! &#x274C;</h2>
-        <p style="font-size: 1.1em; color: #555;">There was an error sending your reply for Order <strong>#${orderId}</strong>.</p>
-        <p style="font-size: 1.1em; color: #555;">Please try again or contact support.</p>
-        <p style="margin-top: 30px;">
-          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
-        </p>
-      </div>
-    `);
+    res.status(500).json({ error: "Failed to process your request to add reply." });
   }
 });
 
 
-// PUT (update) the status of an order
-app.put("/orders/:id/status", async (req, res) => {
-  try {
-    const { status } = req.body;
-    if (!status) return res.status(400).json({ error: "Status is required." });
-
-    const docRef = ordersCollection.doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) return res.status(404).json({ error: "Order not found." });
-
-    await docRef.update({
-      status: status
-    });
-
-    res.status(200).json({ message: `Order status updated to "${status}".` });
-  } catch (err) {
-    console.error("Error updating status:", err);
-    res.status(500).json({ error: "Failed to update status." });
-  }
-});
-
-// ------------------------------
-// Buyer Action Endpoints
-// These endpoints are triggered when a buyer clicks a button in the re-offer email.
-// ------------------------------
-
-// Endpoint for buyer to accept the re-offer
-app.get("/accept-offer", async (req, res) => {
-  const { orderId } = req.query;
+// NEW API ENDPOINT: POST to handle the 'Accept Offer' action from the static page
+app.post("/api/accept-offer-action", async (req, res) => {
+  const { orderId } = req.body;
 
   if (!orderId) {
-    return res.status(400).send("Error: Order ID is required.");
+    return res.status(400).json({ error: "Order ID is required." });
   }
 
   try {
@@ -560,14 +594,14 @@ app.get("/accept-offer", async (req, res) => {
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return res.status(404).send("Error: Order not found.");
+      return res.status(404).json({ error: "Order not found." });
     }
 
     const orderData = doc.data();
     const newPrice = orderData.reofferDetails?.newPrice || orderData.estimatedQuote;
     const reason = orderData.reofferDetails?.reason || 'N/A';
     const buyerName = orderData.shippingInfo?.fullName || 'Customer';
-    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com'; // Added buyerEmail
+    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com';
     const zendeskTicketId = orderData.zendeskTicketId;
 
     await docRef.update({
@@ -579,36 +613,19 @@ app.get("/accept-offer", async (req, res) => {
       await addCommentToZendeskTicket(zendeskTicketId, `Buyer (${buyerName}) has accepted the new offer of $${newPrice.toFixed(2)} for Order #${orderId}. Reason for re-offer: "${reason}".`, buyerEmail, buyerName);
     }
 
-    res.status(200).send(`
-      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
-        <h2 style="color: #28a745; font-size: 3em; margin-bottom: 20px;">Yes! &#x2705;</h2>
-        <p style="font-size: 1.2em; color: #555;">Offer accepted for Order <strong>#${orderId}</strong>.</p>
-        <p style="margin-top: 30px;">
-          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
-        </p>
-      </div>
-    `);
+    res.status(200).json({ message: "Offer accepted successfully." });
   } catch (err) {
-    console.error(`Error accepting offer for Order #${orderId}:`, err);
-    res.status(500).send(`
-      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
-        <h2 style="color: #dc3545; font-size: 2.5em; margin-bottom: 20px;">Error! &#x274C;</h2>
-        <p style="font-size: 1.1em; color: #555;">There was an error processing your request to accept the offer for Order <strong>#${orderId}</strong>.</p>
-        <p style="font-size: 1.1em; color: #555;">Please try again or contact support.</p>
-        <p style="margin-top: 30px;">
-          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
-        </p>
-      </div>
-    `);
+    console.error(`Error accepting offer action for Order #${orderId}:`, err);
+    res.status(500).json({ error: "Failed to process your request to accept the offer." });
   }
 });
 
-// Endpoint for buyer to reject the re-offer and request phone return
-app.get("/return-phone", async (req, res) => {
-  const { orderId } = req.query;
+// NEW API ENDPOINT: POST to handle the 'Return Phone' action from the static page
+app.post("/api/return-phone-action", async (req, res) => {
+  const { orderId } = req.body;
 
   if (!orderId) {
-    return res.status(400).send("Error: Order ID is required.");
+    return res.status(400).json({ error: "Order ID is required." });
   }
 
   try {
@@ -616,14 +633,14 @@ app.get("/return-phone", async (req, res) => {
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return res.status(404).send("Error: Order not found.");
+      return res.status(404).json({ error: "Order not found." });
     }
 
     const orderData = doc.data();
     const newPrice = orderData.reofferDetails?.newPrice || orderData.estimatedQuote;
     const reason = orderData.reofferDetails?.reason || 'N/A';
     const buyerName = orderData.shippingInfo?.fullName || 'Customer';
-    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com'; // Added buyerEmail
+    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com';
     const zendeskTicketId = orderData.zendeskTicketId;
 
     await docRef.update({
@@ -635,18 +652,32 @@ app.get("/return-phone", async (req, res) => {
       await addCommentToZendeskTicket(zendeskTicketId, `Buyer (${buyerName}) has declined the new offer of $${newPrice.toFixed(2)} and requested phone return for Order #${orderId}. Reason for re-offer: "${reason}".`, buyerEmail, buyerName);
     }
 
-    res.status(200).send(`
-      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9;">
-        <h2 style="color: #dc3545; font-size: 3em; margin-bottom: 20px;">No. &#x274C;</h2>
-        <p style="font-size: 1.2em; color: #555;">Phone return requested for Order <strong>#${orderId}</strong>.</p>
-        <p style="margin-top: 30px;">
-          <a href="${functions.config().app.frontend_url}" style="color: #007bff; text-decoration: none; font-weight: bold;">Return to SwiftBuyBack Homepage</a>
-        </p>
-      </div>
-    `);
+    res.status(200).json({ message: "Return phone requested successfully." });
   } catch (err) {
-    console.error(`Error requesting phone return for Order #${orderId}:`, err);
+    console.error(`Error requesting phone return action for Order #${orderId}:`, err);
     res.status(500).json({ error: "Failed to process your request to return the phone." });
+  }
+});
+
+// NEW API ENDPOINT: POST to generate a return shipping label (from business to customer)
+app.post("/api/generate-return-label/:id", async (req, res) => {
+  try {
+    const docRef = ordersCollection.doc(req.params.id);
+    const doc = await docRef.get();
+    if (!doc.exists) return res.status(404).json({ error: "Order not found" });
+    const order = { id: doc.id, ...doc.data() };
+
+    const returnLabelUrl = await createReturnLabel(order.id, order); // Use the new helper function
+
+    await docRef.update({
+      status: "return_label_generated", // New status for return label
+      returnLabelUrl: returnLabelUrl,
+    });
+
+    res.status(200).json({ message: "Return label generated successfully.", returnLabelUrl });
+  } catch (err) {
+    console.error("Error generating return label:", err);
+    res.status(500).json({ error: err.message || "Failed to generate return label." });
   }
 });
 

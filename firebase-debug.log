@@ -101,3 +101,60 @@
 [debug] [2025-08-22T17:10:16.992Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/buyback-a0f05/configs/zendesk/variables/token {"name":"projects/buyback-a0f05/configs/zendesk/variables/token","updateTime":"2025-08-22T15:46:58.949764076Z","text":"pEzycb1FyooOhV5LcY1zbLVuEXCqaWHKlQPixndT"}
 [debug] [2025-08-22T17:10:17.087Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/buyback-a0f05/configs/zendesk/variables/user 200
 [debug] [2025-08-22T17:10:17.087Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/buyback-a0f05/configs/zendesk/variables/user {"name":"projects/buyback-a0f05/configs/zendesk/variables/user","updateTime":"2025-08-22T15:49:33.521506265Z","text":"saulsetton16@gmail.com"}
+[debug] [2025-08-22T17:10:17.088Z] Validating nodejs source
+[warn] ⚠  functions: Runtime Node.js 18 was deprecated on 2025-04-30 and will be decommissioned on 2025-10-30, after which you will not be able to deploy without upgrading. Consider upgrading now to avoid disruption. See https://cloud.google.com/functions/docs/runtime-support for full details on the lifecycle policy 
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] ⚠  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2025-08-22T17:10:17.504Z] > [functions] package.json contents: {
+  "name": "functions",
+  "engines": {
+    "node": "18"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.5",
+    "axios": "^1.5.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^4.9.0"
+  }
+}
+[debug] [2025-08-22T17:10:17.504Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[info] i  functions: You are using a version of firebase-functions SDK (4.9.0) that does not have support for the newest Firebase Extensions features. Please update firebase-functions SDK to >=5.1.0 to use them correctly 
+[debug] [2025-08-22T17:10:17.505Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-08-22T17:10:17.509Z] Found firebase-functions binary at '/workspaces/BuyBacking/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8675
+
+[debug] [2025-08-22T17:10:17.844Z] Got response from /__/functions.yaml {"endpoints":{"api":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"httpsTrigger":{},"entryPoint":"api"}},"specVersion":"v1alpha1","requiredAPIs":[]}
+[debug] [2025-08-22T17:10:21.864Z] Validating nodejs source
+[debug] [2025-08-22T17:10:22.250Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2025-08-22T17:10:22.251Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase buybacks to determine what to deploy 
+[debug] [2025-08-22T17:10:22.251Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-08-22T17:10:22.252Z] Found firebase-functions binary at '/workspaces/BuyBacking/buybacks/node_modules/.bin/firebase-functions'
+[info] Serving at port 8534
+
+[debug] [2025-08-22T17:10:22.538Z] Got response from /__/functions.yaml {"endpoints":{},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}

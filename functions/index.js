@@ -44,7 +44,7 @@ app.get("/api/orders", async (req,res)=>{
   }
 });
 
-// 📌 Fetch a single order by ID (NEW ROUTE)
+// 📌 Fetch a single order by ID
 app.get("/orders/:id", async (req, res) => {
   try {
     const docRef = ordersCollection.doc(req.params.id);
@@ -91,17 +91,19 @@ async function createShipStationLabel(order){
   const payload = {
     shipment: {
       service_code: "usps_priority_mail",
-      ship_to: order.shippingInfo,
-      ship_from: {
-        name: "QuickBuck Buyback",
-        company_name: "QuickBuck",
-        phone: "0000000000",
-        address_line1: "123 Example St",
+      // SHIP TO ADDRESS IS NOW HARDCODED
+      ship_to: {
+        name: "SwiftBuyBack Returns",
+        company_name: "SwiftBuyBack",
+        phone: "555-555-5555",
+        address_line1: "1795 West 3rd St",
         city_locality: "Brooklyn",
         state_province: "NY",
-        postal_code: "11230",
+        postal_code: "11223",
         country_code: "US"
       },
+      // SHIP FROM ADDRESS IS NOW DYNAMICALLY PULLED FROM FIREBASE
+      ship_from: order.shippingInfo,
       packages: [{ weight: { value: 1, unit: "ounce" } }]
     }
   };

@@ -1,119 +1,22 @@
-[debug] [2025-08-21T22:22:58.170Z] ----------------------------------------------------------------------
-[debug] [2025-08-21T22:22:58.172Z] Command:       /usr/local/share/nvm/versions/node/v20.19.4/bin/node /usr/local/share/nvm/versions/node/v20.19.4/bin/firebase deploy
-[debug] [2025-08-21T22:22:58.172Z] CLI Version:   14.13.0
-[debug] [2025-08-21T22:22:58.172Z] Platform:      linux
-[debug] [2025-08-21T22:22:58.172Z] Node Version:  v20.19.4
-[debug] [2025-08-21T22:22:58.172Z] Time:          Thu Aug 21 2025 22:22:58 GMT+0000 (Coordinated Universal Time)
-[debug] [2025-08-21T22:22:58.173Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
-[debug] [2025-08-21T22:22:58.173Z] ----------------------------------------------------------------------
+[debug] [2025-08-22T04:21:22.912Z] ----------------------------------------------------------------------
+[debug] [2025-08-22T04:21:22.914Z] Command:       /usr/local/share/nvm/versions/node/v20.19.4/bin/node /usr/local/share/nvm/versions/node/v20.19.4/bin/firebase deploy
+[debug] [2025-08-22T04:21:22.914Z] CLI Version:   14.13.0
+[debug] [2025-08-22T04:21:22.915Z] Platform:      linux
+[debug] [2025-08-22T04:21:22.915Z] Node Version:  v20.19.4
+[debug] [2025-08-22T04:21:22.915Z] Time:          Fri Aug 22 2025 04:21:22 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-08-22T04:21:22.915Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
+[debug] [2025-08-22T04:21:22.915Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2025-08-21T22:22:58.374Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2025-08-21T22:22:58.374Z] > authorizing via signed-in user (saulsetton87@gmail.com)
-[debug] [2025-08-21T22:22:58.375Z] [iam] checking project buyback-a0f05 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]
-[debug] [2025-08-21T22:22:58.375Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.376Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.376Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions [none]
-[debug] [2025-08-21T22:22:58.377Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions x-goog-quota-user=projects/buyback-a0f05
-[debug] [2025-08-21T22:22:58.377Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
-[debug] [2025-08-21T22:22:58.491Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions 200
-[debug] [2025-08-21T22:22:58.492Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
-[debug] [2025-08-21T22:22:58.492Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.492Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.492Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/buyback-a0f05/serviceAccounts/buyback-a0f05@appspot.gserviceaccount.com:testIamPermissions [none]
-[debug] [2025-08-21T22:22:58.492Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/buyback-a0f05/serviceAccounts/buyback-a0f05@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
-[debug] [2025-08-21T22:22:58.638Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/buyback-a0f05/serviceAccounts/buyback-a0f05@appspot.gserviceaccount.com:testIamPermissions 200
-[debug] [2025-08-21T22:22:58.638Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/buyback-a0f05/serviceAccounts/buyback-a0f05@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
-[debug] [2025-08-21T22:22:58.638Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.638Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.639Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/buyback-a0f05 [none]
-[debug] [2025-08-21T22:22:58.812Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/buyback-a0f05 200
-[debug] [2025-08-21T22:22:58.812Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/buyback-a0f05 {"projectId":"buyback-a0f05","projectNumber":"876430429098","displayName":"BuyBack","name":"projects/buyback-a0f05","resources":{"hostingSite":"buyback-a0f05"},"state":"ACTIVE","etag":"1_2eea51fd-762f-4447-9ed0-07a250db79d6"}
-[info] 
-[info] === Deploying to 'buyback-a0f05'...
-[info] 
-[info] i  deploying firestore, functions, hosting 
-[info] i  firestore: reading indexes from firestore.indexes.json... 
-[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
-[debug] [2025-08-21T22:22:58.817Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.817Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.817Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/buyback-a0f05:test [none]
-[debug] [2025-08-21T22:22:58.817Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/buyback-a0f05:test [omitted]
-[debug] [2025-08-21T22:22:58.979Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/buyback-a0f05:test 200
-[debug] [2025-08-21T22:22:58.979Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/buyback-a0f05:test {}
-[info] ✔  cloud.firestore: rules file firestore.rules compiled successfully 
-[debug] [2025-08-21T22:22:58.981Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.981Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:58.981Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05 [none]
-[debug] [2025-08-21T22:22:59.073Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05 200
-[debug] [2025-08-21T22:22:59.073Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05 {"projectNumber":"876430429098","projectId":"buyback-a0f05","lifecycleState":"ACTIVE","name":"BuyBack","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-08-17T02:29:39.778320Z"}
-[info] i  functions: preparing codebase default for deployment 
-[info] i  functions: preparing codebase buybacks for deployment 
-[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
-[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
-[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
-[debug] [2025-08-21T22:22:59.075Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:59.075Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:59.075Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/buyback-a0f05/adminSdkConfig [none]
-[debug] [2025-08-21T22:22:59.244Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/buyback-a0f05/adminSdkConfig 200
-[debug] [2025-08-21T22:22:59.245Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/buyback-a0f05/adminSdkConfig {"projectId":"buyback-a0f05","storageBucket":"buyback-a0f05.firebasestorage.app"}
-[debug] [2025-08-21T22:22:59.245Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:59.245Z] Checked if tokens are valid: true, expires at: 1755818085109
-[debug] [2025-08-21T22:22:59.245Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/buyback-a0f05/configs [none]
-[debug] [2025-08-21T22:22:59.357Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/buyback-a0f05/configs 200
-[debug] [2025-08-21T22:22:59.357Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/buyback-a0f05/configs {}
-[debug] [2025-08-21T22:22:59.358Z] Validating nodejs source
-[warn] ⚠  functions: Runtime Node.js 18 was deprecated on 2025-04-30 and will be decommissioned on 2025-10-30, after which you will not be able to deploy without upgrading. Consider upgrading now to avoid disruption. See https://cloud.google.com/functions/docs/runtime-support for full details on the lifecycle policy 
-[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
-[warn] ⚠  functions: Please note that there will be breaking changes when you upgrade. 
-[debug] [2025-08-21T22:22:59.987Z] > [functions] package.json contents: {
-  "name": "functions",
-  "engines": {
-    "node": "18"
-  },
-  "dependencies": {
-    "axios": "^1.5.0",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "firebase-admin": "^12.7.0",
-    "firebase-functions": "^4.9.0"
-  }
-}
-[debug] [2025-08-21T22:22:59.987Z] Building nodejs source
-[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
-[info] i  functions: You are using a version of firebase-functions SDK (4.9.0) that does not have support for the newest Firebase Extensions features. Please update firebase-functions SDK to >=5.1.0 to use them correctly 
-[debug] [2025-08-21T22:22:59.988Z] Could not find functions.yaml. Must use http discovery
-[debug] [2025-08-21T22:22:59.992Z] Found firebase-functions binary at '/workspaces/BuyBacking/functions/node_modules/.bin/firebase-functions'
-[info] Serving at port 8271
-
-[debug] [2025-08-21T22:23:00.661Z] Got response from /__/functions.yaml {"endpoints":{"api":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"httpsTrigger":{},"entryPoint":"api"}},"specVersion":"v1alpha1","requiredAPIs":[]}
-[debug] [2025-08-21T22:23:04.679Z] Validating nodejs source
-[debug] [2025-08-21T22:23:05.129Z] > [functions] package.json contents: {
-  "name": "functions",
-  "description": "Cloud Functions for Firebase",
-  "scripts": {
-    "serve": "firebase emulators:start --only functions",
-    "shell": "firebase functions:shell",
-    "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
-  },
-  "engines": {
-    "node": "22"
-  },
-  "main": "index.js",
-  "dependencies": {
-    "firebase-admin": "^12.6.0",
-    "firebase-functions": "^6.0.1"
-  },
-  "devDependencies": {
-    "firebase-functions-test": "^3.1.0"
-  },
-  "private": true
-}
-[debug] [2025-08-21T22:23:05.129Z] Building nodejs source
-[info] i  functions: Loading and analyzing source code for codebase buybacks to determine what to deploy 
-[debug] [2025-08-21T22:23:05.129Z] Could not find functions.yaml. Must use http discovery
-[debug] [2025-08-21T22:23:05.130Z] Found firebase-functions binary at '/workspaces/BuyBacking/buybacks/node_modules/.bin/firebase-functions'
-[info] Serving at port 8980
-
-[debug] [2025-08-21T22:23:05.454Z] Got response from /__/functions.yaml {"endpoints":{},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[debug] [2025-08-22T04:21:23.131Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-22T04:21:23.131Z] > authorizing via signed-in user (saulsetton87@gmail.com)
+[debug] [2025-08-22T04:21:23.131Z] [iam] checking project buyback-a0f05 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-08-22T04:21:23.132Z] Checked if tokens are valid: false, expires at: 1755818085109
+[debug] [2025-08-22T04:21:23.132Z] Checked if tokens are valid: false, expires at: 1755818085109
+[debug] [2025-08-22T04:21:23.133Z] > refreshing access token with scopes: []
+[debug] [2025-08-22T04:21:23.134Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-08-22T04:21:23.134Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-08-22T04:21:23.234Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-08-22T04:21:23.235Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-08-22T04:21:23.247Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions [none]
+[debug] [2025-08-22T04:21:23.247Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions x-goog-quota-user=projects/buyback-a0f05
+[debug] [2025-08-22T04:21:23.247Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}

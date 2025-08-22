@@ -44,6 +44,21 @@ app.get("/api/orders", async (req,res)=>{
   }
 });
 
+// 📌 Fetch a single order by ID (NEW ROUTE)
+app.get("/api/orders/:id", async (req, res) => {
+  try {
+    const docRef = ordersCollection.doc(req.params.id);
+    const doc = await docRef.get();
+    if (!doc.exists) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.json({ id: doc.id, ...doc.data() });
+  } catch (err) {
+    console.error("Error fetching single order:", err);
+    res.status(500).json({ error: "Failed to fetch order" });
+  }
+});
+
 // 📌 Submit new order
 app.post("/api/submit-order", async (req,res)=>{
   try {

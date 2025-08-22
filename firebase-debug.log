@@ -122,3 +122,40 @@
 [info] Serving at port 8454
 
 [debug] [2025-08-22T04:21:33.161Z] Got response from /__/functions.yaml {"endpoints":{},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] i  extensions: ensuring required API firebaseextensions.googleapis.com is enabled... 
+[debug] [2025-08-22T04:21:37.176Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-22T04:21:37.176Z] > authorizing via signed-in user (saulsetton87@gmail.com)
+[debug] [2025-08-22T04:21:37.176Z] [iam] checking project buyback-a0f05 for permissions ["firebase.projects.get","firebaseextensions.instances.list"]
+[debug] [2025-08-22T04:21:37.176Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:37.176Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:37.177Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions [none]
+[debug] [2025-08-22T04:21:37.177Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions x-goog-quota-user=projects/buyback-a0f05
+[debug] [2025-08-22T04:21:37.177Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2025-08-22T04:21:37.237Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions 200
+[debug] [2025-08-22T04:21:37.238Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2025-08-22T04:21:37.238Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:37.238Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:37.239Z] >>> [apiv2][query] GET https://firebaseextensions.googleapis.com/v1beta/projects/buyback-a0f05/instances pageSize=100&pageToken=
+[debug] [2025-08-22T04:21:37.484Z] <<< [apiv2][status] GET https://firebaseextensions.googleapis.com/v1beta/projects/buyback-a0f05/instances 200
+[debug] [2025-08-22T04:21:37.484Z] <<< [apiv2][body] GET https://firebaseextensions.googleapis.com/v1beta/projects/buyback-a0f05/instances {}
+[info] i  functions: preparing functions directory for uploading... 
+[info] i  functions: packaged /workspaces/BuyBacking/functions (31.63 KB) for uploading 
+[debug] [2025-08-22T04:21:37.517Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:37.517Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:37.517Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/buyback-a0f05/locations/-/functions [none]
+[debug] [2025-08-22T04:21:38.021Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/buyback-a0f05/locations/-/functions 200
+[debug] [2025-08-22T04:21:38.021Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/buyback-a0f05/locations/-/functions {"functions":[{"name":"projects/buyback-a0f05/locations/us-central1/functions/api","httpsTrigger":{"url":"https://us-central1-buyback-a0f05.cloudfunctions.net/api","securityLevel":"SECURE_ALWAYS"},"status":"ACTIVE","entryPoint":"api","timeout":"60s","availableMemoryMb":256,"serviceAccountEmail":"buyback-a0f05@appspot.gserviceaccount.com","updateTime":"2025-08-21T22:24:35.704Z","versionId":"2","labels":{"deployment-tool":"cli-firebase","firebase-functions-hash":"c68031e27792049a1301ec74f362e4772a991237"},"sourceUploadUrl":"https://storage.googleapis.com/uploads-1030852006428.us-central1.cloudfunctions.appspot.com/10b8cd69-64ef-4f97-ae90-bdd14e1b1260.zip","environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"buyback-a0f05\",\"storageBucket\":\"buyback-a0f05.firebasestorage.app\"}","GCLOUD_PROJECT":"buyback-a0f05","EVENTARC_CLOUD_EVENT_SOURCE":"projects/buyback-a0f05/locations/us-central1/functions/api"},"runtime":"nodejs18","ingressSettings":"ALLOW_ALL","buildId":"2662c25d-3558-47ec-83ac-75208fc42c00","buildEnvironmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"buildName":"projects/876430429098/locations/us-central1/builds/2662c25d-3558-47ec-83ac-75208fc42c00","dockerRegistry":"ARTIFACT_REGISTRY","automaticUpdatePolicy":{},"buildServiceAccount":"projects/buyback-a0f05/serviceAccounts/876430429098-compute@developer.gserviceaccount.com","satisfiesPzi":true}]}
+[debug] [2025-08-22T04:21:38.021Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:38.021Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:38.022Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/buyback-a0f05/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2025-08-22T04:21:38.407Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/buyback-a0f05/locations/-/functions 200
+[debug] [2025-08-22T04:21:38.407Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/buyback-a0f05/locations/-/functions {}
+[debug] [2025-08-22T04:21:38.410Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:38.410Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:38.410Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05 [none]
+[debug] [2025-08-22T04:21:38.518Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05 200
+[debug] [2025-08-22T04:21:38.518Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/buyback-a0f05 {"projectNumber":"876430429098","projectId":"buyback-a0f05","lifecycleState":"ACTIVE","name":"BuyBack","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-08-17T02:29:39.778320Z"}
+[debug] [2025-08-22T04:21:38.519Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:38.519Z] Checked if tokens are valid: true, expires at: 1755840082235
+[debug] [2025-08-22T04:21:38.520Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/buyback-a0f05/versions [none]
+[debug] [2025-08-22T04:21:38.520Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/buyback-a0f05/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}

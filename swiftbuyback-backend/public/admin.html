@@ -59,7 +59,6 @@
                         Received
                     </a>
                 </li>
-                <!-- Re-offered Parent Menu Item -->
                 <li>
                     <a href="#" class="nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="reoffered_parent">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
@@ -114,19 +113,19 @@
         <div id="contentContainer" class="bg-white p-6 rounded-lg shadow-md">
             <div id="dashboardContent" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-blue-100 p-6 rounded-lg text-center">
+                    <div class="bg-blue-100 p-6 rounded-lg text-center cursor-pointer" data-status="total">
                         <h3 class="text-3xl font-bold text-blue-800" id="totalOrdersCount">0</h3>
                         <p class="text-sm text-blue-600 font-semibold">Total Orders</p>
                     </div>
-                    <div class="bg-yellow-100 p-6 rounded-lg text-center">
+                    <div class="bg-yellow-100 p-6 rounded-lg text-center cursor-pointer" data-status="pending_shipment">
                         <h3 class="text-3xl font-bold text-yellow-800" id="awaitingShipmentCount">0</h3>
                         <p class="text-sm text-yellow-600 font-semibold">Awaiting Shipment</p>
                     </div>
-                    <div class="bg-green-100 p-6 rounded-lg text-center">
+                    <div class="bg-green-100 p-6 rounded-lg text-center cursor-pointer" data-status="label_generated">
                         <h3 class="text-3xl font-bold text-green-800" id="shippedCount">0</h3>
                         <p class="text-sm text-green-600 font-semibold">Shipped</p>
                     </div>
-                    <div class="bg-purple-100 p-6 rounded-lg text-center">
+                    <div class="bg-purple-100 p-6 rounded-lg text-center cursor-pointer" data-status="completed">
                         <h3 class="text-3xl font-bold text-purple-800" id="completedCount">0</h3>
                         <p class="text-sm text-purple-600 font-semibold">Completed</p>
                     </div>
@@ -172,7 +171,6 @@
                 <p id="modalLabelUrl" class="hidden"><strong>USPS Label:</strong> <a href="#" target="_blank" class="text-blue-600 hover:underline">View Label</a></p>
                 <p id="modalReturnLabelUrl" class="hidden"><strong>Return Label:</strong> <a href="#" target="_blank" class="text-blue-600 hover:underline">View Return Label</a></p>
                 
-                <!-- Action Buttons -->
                 <div class="mt-6 space-y-3">
                     <button id="completeOrderBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
                         Complete Order
@@ -198,7 +196,6 @@
                     <p id="modalMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></p>
                 </div>
 
-                <!-- Re-offer Section (initially hidden, toggled by "Send New Offer" button) -->
                 <div id="reofferFormSection" class="mt-6 space-y-3 p-4 border rounded-lg bg-gray-50 hidden">
                     <h4 class="text-lg font-semibold mb-2">Create New Offer</h4>
                     <p class="text-sm text-gray-500">Adjust the offer based on device condition.</p>
@@ -236,7 +233,6 @@
                     </button>
                 </div>
 
-                <!-- Contact Buyer Section (initially hidden, toggled by "Contact Buyer" button) -->
                 <div id="contactBuyerFormSection" class="mt-6 space-y-3 p-4 border rounded-lg bg-gray-50 hidden">
                     <h4 class="text-lg font-semibold mb-2">Send Custom Email to Buyer</h4>
                     <div>
@@ -252,7 +248,6 @@
                     </button>
                 </div>
 
-                <!-- Payment Modal (initially hidden) -->
                 <div id="paymentModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
                     <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md modal-font relative">
                         <button id="closePaymentModalBtn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
@@ -316,11 +311,13 @@
             const closePaymentModalBtn = document.getElementById('closePaymentModalBtn');
             const paymentModalOrderId = document.getElementById('paymentModalOrderId');
             const paymentModalAmount = document.getElementById('paymentModalAmount');
-            const paymentModalMethod = document.getElementById('paymentModalMethod');
+            const paymentModalMethod = document.getElementById('modalPaymentMethod');
             const paymentModalRecipient = document.getElementById('paymentModalRecipient');
             const initiatePaymentBtn = document.getElementById('initiatePaymentBtn');
             const paymentModalMessage = document.getElementById('paymentModalMessage');
 
+            // Dashboard cards for click events
+            const dashboardCards = document.querySelectorAll('#dashboardContent > div > div');
 
             const dashboardCounts = {
                 totalOrders: 0,
@@ -413,9 +410,8 @@
                 ordersList.innerHTML = '';
                 const searchTerm = searchInput.value.toLowerCase();
                 let filteredOrders = allOrders.filter(order => {
-                    // Handle 'reoffered_parent' to show all re-offer related statuses
-                    const matchesStatus = (currentStatusFilter === 'dashboard' && !order.status.startsWith('re-offered') && !order.status.startsWith('offer_accepted') && !order.status.startsWith('return_requested')) ||
-                                          (currentStatusFilter === 'reoffered_parent' && (order.status === 're-offered' || order.status === 'offer_accepted' || order.status === 'return_requested')) ||
+                    const matchesStatus = (currentStatusFilter === 'dashboard' || currentStatusFilter === 'total') ||
+                                          (currentStatusFilter === 'reoffered_parent' && (order.status === 're-offered' || order.status === 'offer_accepted' || order.status === 'return_requested' || order.status === 'return_label_generated')) ||
                                           (currentStatusFilter === order.status);
                     
                     const matchesSearch = Object.values(order).some(val => 
@@ -536,27 +532,50 @@
             navItems.forEach(item => {
                 item.addEventListener('click', e => {
                     e.preventDefault();
+
+                    const isSubItem = item.classList.contains('sub-nav-item');
+                    const parentItem = item.closest('ul').previousElementSibling;
+
+                    // Deactivate all nav items and hide all sub-menus initially
                     navItems.forEach(i => i.classList.remove('active'));
+                    document.querySelectorAll('.sub-menu').forEach(sub => sub.classList.add('hidden'));
+
+                    // Set active class for the clicked item and its parent
                     item.classList.add('active');
+                    if (isSubItem && parentItem) {
+                        parentItem.classList.add('active');
+                        item.closest('.sub-menu').classList.remove('hidden');
+                    }
+
                     currentStatusFilter = item.dataset.status;
                     mainTitle.textContent = item.textContent.trim();
 
-                    // Toggle sub-menu visibility
+                    // If a main nav item is clicked, check for sub-menu
                     if (item.dataset.status === 'reoffered_parent') {
                         const subMenu = item.nextElementSibling;
-                        if (subMenu && subMenu.classList.contains('sub-menu')) {
+                        if (subMenu) {
                             subMenu.classList.toggle('hidden');
                         }
-                        // Do not filter if clicking the parent, let sub-items handle it
+                        // Do not filter when just opening the parent menu
                         ordersListContent.classList.add('hidden');
                         dashboardContent.classList.remove('hidden');
-                        return; // Exit to prevent filtering by parent status
-                    } else {
-                        // Hide all sub-menus when a non-parent item is clicked
-                        document.querySelectorAll('.sub-menu').forEach(sub => sub.classList.add('hidden'));
+                        return;
                     }
 
+                    // Otherwise, filter and render orders
                     filterAndRenderOrders();
+                });
+            });
+
+            // Handle dashboard card clicks
+            dashboardCards.forEach(card => {
+                card.addEventListener('click', e => {
+                    const status = card.dataset.status;
+                    const navItem = document.querySelector(`.nav-item[data-status="${status}"]`);
+                    if (navItem) {
+                        // Simulate a click on the corresponding nav item to reuse logic
+                        navItem.click();
+                    }
                 });
             });
 

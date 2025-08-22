@@ -108,22 +108,18 @@ async function sendBuyerReofferEmailViaZendesk(orderId, buyerEmail, orderDetails
       
       <table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
         <tr>
-          <td align="center" style="padding: 0 10px;"> <!-- Added padding to td for spacing -->
-            <table cellspacing="0" cellpadding="0" style="width: 100%;">
+          <td align="center" style="padding: 0 10px;"> <table cellspacing="0" cellpadding="0" style="width: 100%;">
               <tr>
-                <td style="border-radius: 5px; background-color: #a7f3d0; text-align: center;"> <!-- Lighter green background -->
-                  <a href="${acceptLink}" target="_blank" style="padding: 15px 25px; border: 1px solid #6ee7b7; border-radius: 5px; font-family: Arial, sans-serif; font-size: 16px; color: #065f46; text-decoration: none; font-weight: bold; display: block;">
+                <td style="border-radius: 5px; background-color: #a7f3d0; text-align: center;"> <a href="${acceptLink}" target="_blank" style="padding: 15px 25px; border: 1px solid #6ee7b7; border-radius: 5px; font-family: Arial, sans-serif; font-size: 16px; color: #065f46; text-decoration: none; font-weight: bold; display: block;">
                     Accept Offer ($${newPrice.toFixed(2)})
                   </a>
                 </td>
               </tr>
             </table>
           </td>
-          <td align="center" style="padding: 0 10px;"> <!-- Added padding to td for spacing -->
-            <table cellspacing="0" cellpadding="0" style="width: 100%;">
+          <td align="center" style="padding: 0 10px;"> <table cellspacing="0" cellpadding="0" style="width: 100%;">
               <tr>
-                <td style="border-radius: 5px; background-color: #fecaca; text-align: center;"> <!-- Lighter red background -->
-                  <a href="${returnLink}" target="_blank" style="padding: 15px 25px; border: 1px solid #fca5a5; border-radius: 5px; font-family: Arial, sans-serif; font-size: 16px; color: #991b1b; text-decoration: none; font-weight: bold; display: block;">
+                <td style="border-radius: 5px; background-color: #fecaca; text-align: center;"> <a href="${returnLink}" target="_blank" style="padding: 15px 25px; border: 1px solid #fca5a5; border-radius: 5px; font-family: Arial, sans-serif; font-size: 16px; color: #991b1b; text-decoration: none; font-weight: bold; display: block;">
                     Return Phone Now
                   </a>
                 </td>
@@ -269,37 +265,36 @@ const SHIPSTATION_API_KEY = functions.config().shipstation.key;
 
 async function createShipmentAndLabel(orderId, orderDetails) {
   try {
+    // FIX: Remove the outer 'shipment' key to match API documentation
     const shipmentData = {
-      shipment: {
-        serviceCode: "usps_priority_mail",
-        shipFrom: {
-          name: orderDetails.shippingInfo.fullName,
-          addressLine1: orderDetails.shippingInfo.streetAddress,
-          cityLocality: orderDetails.shippingInfo.city,
-          stateProvince: orderDetails.shippingInfo.state,
-          postalCode: orderDetails.shippingInfo.zipCode,
-          countryCode: "US",
-        },
-        shipTo: {
-          name: "SwiftBuyBack",
-          addressLine1: "1795 west 3rd st",
-          cityLocality: "Anytown",
-          stateProvince: "CA",
-          postalCode: "90210",
-          countryCode: "US",
-        },
-        packages: [
-          {
-            weight: {
-              value: 1,
-              unit: "pound",
-            },
-          },
-        ],
+      serviceCode: "usps_priority_mail",
+      shipFrom: {
+        name: orderDetails.shippingInfo.fullName,
+        addressLine1: orderDetails.shippingInfo.streetAddress,
+        cityLocality: orderDetails.shippingInfo.city,
+        stateProvince: orderDetails.shippingInfo.state,
+        postalCode: orderDetails.shippingInfo.zipCode,
+        countryCode: "US",
       },
+      shipTo: {
+        name: "SwiftBuyBack",
+        addressLine1: "1795 west 3rd st",
+        cityLocality: "Anytown",
+        stateProvince: "CA",
+        postalCode: "90210",
+        countryCode: "US",
+      },
+      packages: [
+        {
+          weight: {
+            value: 1,
+            unit: "pound",
+          },
+        },
+      ],
     };
 
-    const url = "https://api.shipengine.com/v1/labels";
+    const url = "https://api.shipengine.com/v1/test_labels";
     const headers = {
       "Content-Type": "application/json",
       "API-Key": SHIPSTATION_API_KEY,
@@ -313,6 +308,54 @@ async function createShipmentAndLabel(orderId, orderDetails) {
   }
 }
 
+// ------------------------------
+// NEW: ShipStation Helper Function for Return Labels
+// This function creates a return shipment with addresses reversed.
+// ------------------------------
+async function createReturnShipmentAndLabel(orderId, orderDetails) {
+  try {
+    // FIX: Remove the outer 'shipment' key to match API documentation
+    const shipmentData = {
+      serviceCode: "usps_priority_mail",
+      shipFrom: {
+        name: "SwiftBuyBack",
+        addressLine1: "1795 west 3rd st",
+        cityLocality: "Anytown",
+        stateProvince: "CA",
+        postalCode: "90210",
+        countryCode: "US",
+      },
+      shipTo: {
+        name: orderDetails.shippingInfo.fullName,
+        addressLine1: orderDetails.shippingInfo.streetAddress,
+        cityLocality: orderDetails.shippingInfo.city,
+        stateProvince: orderDetails.shippingInfo.state,
+        postalCode: orderDetails.shippingInfo.zipCode,
+        countryCode: "US",
+      },
+      packages: [
+        {
+          weight: {
+            value: 1, // Assuming 1 lb for a phone
+            unit: "pound",
+          },
+        },
+      ],
+    };
+
+    const url = "https://api.shipengine.com/v1/test_labels";
+    const headers = {
+      "Content-Type": "application/json",
+      "API-Key": SHIPSTATION_API_KEY,
+    };
+
+    const response = await axios.post(url, shipmentData, { headers });
+    return response.data.label_download.pdf;
+  } catch (err) {
+    console.error("ShipStation return label generation failed:", err.response?.data || err);
+    throw new Error("Failed to generate return shipping label.");
+  }
+}
 
 // ------------------------------
 // API ROUTES
@@ -429,6 +472,29 @@ app.post("/generate-label/:id", async (req, res) => {
     res.status(500).json({ error: err.message || "Failed to generate label." });
   }
 });
+
+// NEW ROUTE: POST to generate a return shipping label
+app.post("/api/generate-return-label/:id", async (req, res) => {
+    try {
+        const docRef = ordersCollection.doc(req.params.id);
+        const doc = await docRef.get();
+        if (!doc.exists) return res.status(404).json({ error: "Order not found" });
+        const order = { id: doc.id, ...doc.data() };
+
+        const returnLabelUrl = await createReturnShipmentAndLabel(order.id, order);
+
+        await docRef.update({
+            status: "return_label_generated",
+            returnLabelUrl: returnLabelUrl,
+        });
+
+        res.status(200).json({ message: "Return label generated successfully.", returnLabelUrl });
+    } catch (err) {
+        console.error("Error generating return label:", err);
+        res.status(500).json({ error: err.message || "Failed to generate return label." });
+    }
+});
+
 
 // NEW ROUTE: POST to send a custom email to the buyer via Zendesk
 app.post("/orders/:id/send-custom-email", async (req, res) => {

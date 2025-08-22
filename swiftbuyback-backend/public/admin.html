@@ -340,7 +340,7 @@
                 if (!currentOrderId) return;
                 showModalMessage('Generating label...', 'success');
                 try {
-                    const resp = await fetch(`${BACKEND_URL}/api/generate-label/${currentOrderId}`, { method: 'POST' });
+                    const resp = await fetch(`${BACKEND_URL}/generate-label/${currentOrderId}`, { method: 'POST' });
                     const result = await resp.json();
                     if (!resp.ok) throw new Error(result.error || 'Failed to generate label');
                     showModalMessage(result.message, 'success');

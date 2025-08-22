@@ -45,7 +45,7 @@ app.get("/api/orders", async (req,res)=>{
 });
 
 // 📌 Fetch a single order by ID (NEW ROUTE)
-app.get("/api/orders/:id", async (req, res) => {
+app.get("/orders/:id", async (req, res) => {
   try {
     const docRef = ordersCollection.doc(req.params.id);
     const doc = await docRef.get();
@@ -118,7 +118,7 @@ async function createShipStationLabel(order){
 }
 
 // 📌 Generate USPS label
-app.post("/api/generate-label/:id", async (req,res)=>{
+app.post("/generate-label/:id", async (req,res)=>{
   try {
     const doc = await ordersCollection.doc(req.params.id).get();
     if(!doc.exists) return res.status(404).json({error:"Order not found"});

@@ -108,6 +108,7 @@ async function createShipStationLabel(order){
       // SHIP FROM ADDRESS (Dynamically pulled from Firestore with corrected field names)
       ship_from: {
         name: shipFromInfo.fullName,
+        phone: "555-555-5555",
         address_line1: shipFromInfo.streetAddress,
         city_locality: shipFromInfo.city,
         state_province: shipFromInfo.state,

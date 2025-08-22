@@ -281,13 +281,23 @@ const SHIPSTATION_API_KEY = functions.config().shipstation.key;
 async function createShipmentAndLabel(orderId, orderDetails) {
   // Validate essential shipping info
   const shippingInfo = orderDetails?.shippingInfo;
-  if (!shippingInfo || 
-      !shippingInfo.fullName || shippingInfo.fullName.trim() === '' ||
-      !shippingInfo.streetAddress || shippingInfo.streetAddress.trim() === '' ||
-      !shippingInfo.city || shippingInfo.city.trim() === '' ||
-      !shippingInfo.state || shippingInfo.state.trim() === '' ||
-      !shippingInfo.postalCode || shippingInfo.postalCode.trim() === '') {
-    throw new Error("Missing or incomplete customer shipping information for label generation.");
+  if (!shippingInfo) {
+    throw new Error("Missing shippingInfo object in orderDetails.");
+  }
+
+  // Sanitize and default values to empty strings if null/undefined/whitespace
+  const fullName = (shippingInfo.fullName || '').trim();
+  let streetAddress = (shippingInfo.streetAddress || '').trim();
+  const city = (shippingInfo.city || '').trim();
+  const state = (shippingInfo.state || '').trim();
+  const postalCode = (shippingInfo.postalCode || '').trim();
+
+  // Further sanitize streetAddress: remove common trailing punctuation
+  streetAddress = streetAddress.replace(/[,.;]$/, ''); // Remove trailing comma, semicolon, or period
+
+  // Re-validate after sanitization
+  if (!fullName || !streetAddress || !city || !state || !postalCode) {
+    throw new Error("Missing or incomplete customer shipping information for label generation after sanitization.");
   }
 
   try {
@@ -295,11 +305,11 @@ async function createShipmentAndLabel(orderId, orderDetails) {
       shipment: {
         serviceCode: "usps_priority_mail", // Ensure service code is always present
         shipFrom: {
-          name: shippingInfo.fullName,
-          addressLine1: shippingInfo.streetAddress,
-          cityLocality: shippingInfo.city,
-          stateProvince: shippingInfo.state,
-          postalCode: shippingInfo.postalCode,
+          name: fullName,
+          addressLine1: streetAddress,
+          cityLocality: city,
+          stateProvince: state,
+          postalCode: postalCode,
           countryCode: "US",
         },
         shipTo: {
@@ -342,13 +352,23 @@ async function createShipmentAndLabel(orderId, orderDetails) {
 async function createReturnLabel(orderId, orderDetails) {
   // Validate essential shipping info
   const shippingInfo = orderDetails?.shippingInfo;
-  if (!shippingInfo || 
-      !shippingInfo.fullName || shippingInfo.fullName.trim() === '' ||
-      !shippingInfo.streetAddress || shippingInfo.streetAddress.trim() === '' ||
-      !shippingInfo.city || shippingInfo.city.trim() === '' ||
-      !shippingInfo.state || shippingInfo.state.trim() === '' ||
-      !shippingInfo.postalCode || shippingInfo.postalCode.trim() === '') {
-    throw new Error("Missing or incomplete customer shipping information for return label generation.");
+  if (!shippingInfo) {
+    throw new Error("Missing shippingInfo object in orderDetails for return label generation.");
+  }
+
+  // Sanitize and default values to empty strings if null/undefined/whitespace
+  const fullName = (shippingInfo.fullName || '').trim();
+  let streetAddress = (shippingInfo.streetAddress || '').trim();
+  const city = (shippingInfo.city || '').trim();
+  const state = (shippingInfo.state || '').trim();
+  const postalCode = (shippingInfo.postalCode || '').trim();
+
+  // Further sanitize streetAddress: remove common trailing punctuation
+  streetAddress = streetAddress.replace(/[,.;]$/, ''); // Remove trailing comma, semicolon, or period
+
+  // Re-validate after sanitization
+  if (!fullName || !streetAddress || !city || !state || !postalCode) {
+    throw new Error("Missing or incomplete customer shipping information for return label generation after sanitization.");
   }
 
   try {
@@ -364,11 +384,11 @@ async function createReturnLabel(orderId, orderDetails) {
           countryCode: "US",
         },
         shipTo: { // Customer is receiving the phone back
-          name: shippingInfo.fullName,
-          addressLine1: shippingInfo.streetAddress,
-          cityLocality: shippingInfo.city,
-          stateProvince: shippingInfo.state,
-          postalCode: shippingInfo.postalCode,
+          name: fullName,
+          addressLine1: streetAddress,
+          cityLocality: city,
+          stateProvince: state,
+          postalCode: postalCode,
           countryCode: "US",
         },
         packages: [
@@ -564,7 +584,7 @@ app.post("/orders/:id/add-buyer-reply", async (req, res) => {
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found." });
+      return res.status(404).json({ error: "Order not found" });
     }
 
     const orderData = doc.data();
@@ -600,7 +620,7 @@ app.post("/api/accept-offer-action", async (req, res) => {
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found." });
+      return res.status(404).json({ error: "Order not found" });
     }
 
     const orderData = doc.data();
@@ -639,7 +659,7 @@ app.post("/api/return-phone-action", async (req, res) => {
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found." });
+      return res.status(404).json({ error: "Order not found" });
     }
 
     const orderData = doc.data();

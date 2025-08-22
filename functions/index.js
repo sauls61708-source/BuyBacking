@@ -6,26 +6,15 @@ const axios = require("axios");
 
 const app = express();
 
-// Define allowed origins for CORS. Ensure your frontend URL is included.
 const allowedOrigins = [
   "https://toratyosef.github.io",
   "https://buyback-a0f05.web.app"
 ];
 
-// Apply CORS middleware to all routes
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"], // Explicitly allow Content-Type and Authorization headers
   })
 );
 app.use(express.json());
@@ -273,43 +262,22 @@ async function addCommentToZendeskTicket(zendeskTicketId, commentBody, buyerEmai
 
 
 // ------------------------------
-// ShipStation Helper Function (Generate Outgoing Label)
-// This function creates a shipment and generates a shipping label from SwiftBuyBack to the customer.
+// ShipStation Helper Function
+// This function creates a shipment and generates a shipping label using ShipEngine API.
 // ------------------------------
 const SHIPSTATION_API_KEY = functions.config().shipstation.key;
 
 async function createShipmentAndLabel(orderId, orderDetails) {
-  // Validate essential shipping info
-  const shippingInfo = orderDetails?.shippingInfo;
-  if (!shippingInfo) {
-    throw new Error("Missing shippingInfo object in orderDetails.");
-  }
-
-  // Sanitize and default values to empty strings if null/undefined/whitespace
-  const fullName = (shippingInfo.fullName || '').trim();
-  let streetAddress = (shippingInfo.streetAddress || '').trim();
-  const city = (shippingInfo.city || '').trim();
-  const state = (shippingInfo.state || '').trim();
-  const postalCode = (shippingInfo.postalCode || '').trim();
-
-  // Further sanitize streetAddress: remove common trailing punctuation
-  streetAddress = streetAddress.replace(/[,.;]$/, ''); // Remove trailing comma, semicolon, or period
-
-  // Re-validate after sanitization
-  if (!fullName || !streetAddress || !city || !state || !postalCode) {
-    throw new Error("Missing or incomplete customer shipping information for label generation after sanitization.");
-  }
-
   try {
     const shipmentData = {
       shipment: {
-        serviceCode: "usps_priority_mail", // Ensure service code is always present
+        serviceCode: "usps_priority_mail",
         shipFrom: {
-          name: fullName,
-          addressLine1: streetAddress,
-          cityLocality: city,
-          stateProvince: state,
-          postalCode: postalCode,
+          name: orderDetails.shippingInfo.fullName,
+          addressLine1: orderDetails.shippingInfo.streetAddress,
+          cityLocality: orderDetails.shippingInfo.city,
+          stateProvince: orderDetails.shippingInfo.state,
+          postalCode: orderDetails.shippingInfo.zipCode,
           countryCode: "US",
         },
         shipTo: {
@@ -340,79 +308,8 @@ async function createShipmentAndLabel(orderId, orderDetails) {
     const response = await axios.post(url, shipmentData, { headers });
     return response.data.label_download.pdf;
   } catch (err) {
-    console.error("ShipStation label generation failed:", JSON.stringify(err.response?.data) || err);
+    console.error("ShipStation label generation failed:", err.response?.data || err);
     throw new Error("Failed to generate shipping label.");
-  }
-}
-
-// ------------------------------
-// NEW ShipStation Helper Function (Generate Return Label from Business to Customer)
-// This function creates a return shipping label from SwiftBuyBack to the customer.
-// ------------------------------
-async function createReturnLabel(orderId, orderDetails) {
-  // Validate essential shipping info
-  const shippingInfo = orderDetails?.shippingInfo;
-  if (!shippingInfo) {
-    throw new Error("Missing shippingInfo object in orderDetails for return label generation.");
-  }
-
-  // Sanitize and default values to empty strings if null/undefined/whitespace
-  const fullName = (shippingInfo.fullName || '').trim();
-  let streetAddress = (shippingInfo.streetAddress || '').trim();
-  const city = (shippingInfo.city || '').trim();
-  const state = (shippingInfo.state || '').trim();
-  const postalCode = (shippingInfo.postalCode || '').trim();
-
-  // Further sanitize streetAddress: remove common trailing punctuation
-  streetAddress = streetAddress.replace(/[,.;]$/, ''); // Remove trailing comma, semicolon, or period
-
-  // Re-validate after sanitization
-  if (!fullName || !streetAddress || !city || !state || !postalCode) {
-    throw new Error("Missing or incomplete customer shipping information for return label generation after sanitization.");
-  }
-
-  try {
-    const shipmentData = {
-      shipment: {
-        serviceCode: "usps_priority_mail", // Or another suitable return service
-        shipFrom: { // SwiftBuyBack is sending the phone back
-          name: "SwiftBuyBack",
-          addressLine1: "1795 west 3rd st",
-          cityLocality: "Anytown",
-          stateProvince: "CA",
-          postalCode: "90210",
-          countryCode: "US",
-        },
-        shipTo: { // Customer is receiving the phone back
-          name: fullName,
-          addressLine1: streetAddress,
-          cityLocality: city,
-          stateProvince: state,
-          postalCode: postalCode,
-          countryCode: "US",
-        },
-        packages: [
-          {
-            weight: {
-              value: 1,
-              unit: "pound",
-            },
-          },
-        ],
-      },
-    };
-
-    const url = "https://api.shipengine.com/v1/labels";
-    const headers = {
-      "Content-Type": "application/json",
-      "API-Key": SHIPSTATION_API_KEY,
-    };
-
-    const response = await axios.post(url, shipmentData, { headers });
-    return response.data.label_download.pdf;
-  } catch (err) {
-    console.error("ShipStation return label generation failed:", JSON.stringify(err.response?.data) || err);
-    throw new Error("Failed to generate return shipping label.");
   }
 }
 
@@ -584,7 +481,7 @@ app.post("/orders/:id/add-buyer-reply", async (req, res) => {
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found" });
+      return res.status(404).json({ error: "Order not found." });
     }
 
     const orderData = doc.data();
@@ -597,6 +494,7 @@ app.post("/orders/:id/add-buyer-reply", async (req, res) => {
       return res.status(400).json({ error: "No associated Zendesk ticket found for this order." });
     }
 
+    // Add the buyer's reply as a public comment to the existing Zendesk ticket
     await addCommentToZendeskTicket(zendeskTicketId, `Buyer's Reply: ${replyMessage}`, buyerEmail, buyerName);
 
     res.status(200).json({ message: "Reply sent successfully." });
@@ -620,7 +518,7 @@ app.post("/api/accept-offer-action", async (req, res) => {
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found" });
+      return res.status(404).json({ error: "Order not found." });
     }
 
     const orderData = doc.data();
@@ -659,7 +557,7 @@ app.post("/api/return-phone-action", async (req, res) => {
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found" });
+      return res.status(404).json({ error: "Order not found." });
     }
 
     const orderData = doc.data();
@@ -682,28 +580,6 @@ app.post("/api/return-phone-action", async (req, res) => {
   } catch (err) {
     console.error(`Error requesting phone return action for Order #${orderId}:`, err);
     res.status(500).json({ error: "Failed to process your request to return the phone." });
-  }
-});
-
-// NEW API ENDPOINT: POST to generate a return shipping label (from business to customer)
-app.post("/api/generate-return-label/:id", async (req, res) => {
-  try {
-    const docRef = ordersCollection.doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) return res.status(404).json({ error: "Order not found" });
-    const order = { id: doc.id, ...doc.data() };
-
-    const returnLabelUrl = await createReturnLabel(order.id, order); // Use the new helper function
-
-    await docRef.update({
-      status: "return_label_generated", // New status for return label
-      returnLabelUrl: returnLabelUrl,
-    });
-
-    res.status(200).json({ message: "Return label generated successfully.", returnLabelUrl });
-  } catch (err) {
-    console.error("Error generating return label:", err);
-    res.status(500).json({ error: err.message || "Failed to generate return label." });
   }
 });
 

@@ -67,7 +67,7 @@
                         </svg>
                         Re-offered
                     </a>
-                    <ul class="sub-menu ml-4">
+                    <ul class="sub-menu ml-4 hidden">
                         <li>
                             <a href="#" class="nav-item sub-nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="re-offered">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
@@ -114,22 +114,22 @@
         <div id="contentContainer" class="bg-white p-6 rounded-lg shadow-md">
             <div id="dashboardContent" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <button class="dashboard-card bg-blue-100 p-6 rounded-lg text-center cursor-pointer hover:bg-blue-200 transition duration-200" data-status="all_orders">
+                    <div class="bg-blue-100 p-6 rounded-lg text-center">
                         <h3 class="text-3xl font-bold text-blue-800" id="totalOrdersCount">0</h3>
                         <p class="text-sm text-blue-600 font-semibold">Total Orders</p>
-                    </button>
-                    <button class="dashboard-card bg-yellow-100 p-6 rounded-lg text-center cursor-pointer hover:bg-yellow-200 transition duration-200" data-status="pending_shipment">
+                    </div>
+                    <div class="bg-yellow-100 p-6 rounded-lg text-center">
                         <h3 class="text-3xl font-bold text-yellow-800" id="awaitingShipmentCount">0</h3>
                         <p class="text-sm text-yellow-600 font-semibold">Awaiting Shipment</p>
-                    </button>
-                    <button class="dashboard-card bg-green-100 p-6 rounded-lg text-center cursor-pointer hover:bg-green-200 transition duration-200" data-status="label_generated">
+                    </div>
+                    <div class="bg-green-100 p-6 rounded-lg text-center">
                         <h3 class="text-3xl font-bold text-green-800" id="shippedCount">0</h3>
                         <p class="text-sm text-green-600 font-semibold">Shipped</p>
-                    </button>
-                    <button class="dashboard-card bg-purple-100 p-6 rounded-lg text-center cursor-pointer hover:bg-purple-200 transition duration-200" data-status="completed">
+                    </div>
+                    <div class="bg-purple-100 p-6 rounded-lg text-center">
                         <h3 class="text-3xl font-bold text-purple-800" id="completedCount">0</h3>
                         <p class="text-sm text-purple-600 font-semibold">Completed</p>
-                    </button>
+                    </div>
                 </div>
             </div>
 
@@ -321,9 +321,6 @@
             const initiatePaymentBtn = document.getElementById('initiatePaymentBtn');
             const paymentModalMessage = document.getElementById('paymentModalMessage');
 
-            // Dashboard cards
-            const dashboardCards = document.querySelectorAll('.dashboard-card');
-
 
             const dashboardCounts = {
                 totalOrders: 0,
@@ -416,10 +413,9 @@
                 ordersList.innerHTML = '';
                 const searchTerm = searchInput.value.toLowerCase();
                 let filteredOrders = allOrders.filter(order => {
-                    // Handle 'all_orders' for dashboard card, 'reoffered_parent' for parent menu
-                    const matchesStatus = (currentStatusFilter === 'all_orders') ||
-                                          (currentStatusFilter === 'dashboard' && !['re-offered', 'offer_accepted', 'return_requested'].includes(order.status)) ||
-                                          (currentStatusFilter === 'reoffered_parent' && ['re-offered', 'offer_accepted', 'return_requested'].includes(order.status)) ||
+                    // Handle 'reoffered_parent' to show all re-offer related statuses
+                    const matchesStatus = (currentStatusFilter === 'dashboard' && !order.status.startsWith('re-offered') && !order.status.startsWith('offer_accepted') && !order.status.startsWith('return_requested')) ||
+                                          (currentStatusFilter === 'reoffered_parent' && (order.status === 're-offered' || order.status === 'offer_accepted' || order.status === 'return_requested')) ||
                                           (currentStatusFilter === order.status);
                     
                     const matchesSearch = Object.values(order).some(val => 
@@ -498,11 +494,10 @@
                     openContactBuyerFormBtn.classList.remove('hidden');
                     // Display re-offer details
                     reofferFormSection.classList.remove('hidden');
-                    // Use optional chaining for reofferDetails
                     reofferFormSection.innerHTML = `
                         <h4 class="text-lg font-semibold mt-4 mb-2">Current Re-offer</h4>
-                        <p><strong>New Price:</strong> $${order.reofferDetails?.newPrice?.toFixed(2) || 'N/A'}</p>
-                        <p><strong>Reason:</strong> ${order.reofferDetails?.reason || 'N/A'}</p>
+                        <p><strong>New Price:</strong> $${order.reofferDetails.newPrice.toFixed(2)}</p>
+                        <p><strong>Reason:</strong> ${order.reofferDetails.reason}</p>
                         <p class="text-sm text-gray-500 mt-2">Status: <span class="font-bold">${order.status}</span></p>
                         <p class="text-sm text-gray-500 mt-2">Awaiting buyer response.</p>
                     `;
@@ -512,11 +507,10 @@
                     payNowBtn.classList.remove('hidden'); // Show Pay Now button
                     // Display re-offer details
                     reofferFormSection.classList.remove('hidden');
-                    // Use optional chaining for reofferDetails
                     reofferFormSection.innerHTML = `
                         <h4 class="text-lg font-semibold mt-4 mb-2">Accepted Offer Details</h4>
-                        <p><strong>New Price:</strong> $${order.reofferDetails?.newPrice?.toFixed(2) || 'N/A'}</p>
-                        <p><strong>Reason:</strong> ${order.reofferDetails?.reason || 'N/A'}</p>
+                        <p><strong>New Price:</strong> $${order.reofferDetails.newPrice.toFixed(2)}</p>
+                        <p><strong>Reason:</strong> ${order.reofferDetails.reason}</p>
                         <p class="text-sm text-gray-500 mt-2">Status: <span class="font-bold">${order.status}</span></p>
                     `;
                 } else if (order.status === 'return_requested') { // Re-offer Declined
@@ -525,11 +519,10 @@
                     sendPhoneBackBtn.classList.remove('hidden'); // Show Send Phone Back button
                     // Display re-offer details
                     reofferFormSection.classList.remove('hidden');
-                    // Use optional chaining for reofferDetails
                     reofferFormSection.innerHTML = `
                         <h4 class="text-lg font-semibold mt-4 mb-2">Declined Offer Details</h4>
-                        <p><strong>New Price:</strong> $${order.reofferDetails?.newPrice?.toFixed(2) || 'N/A'}</p>
-                        <p><strong>Reason:</strong> ${order.reofferDetails?.reason || 'N/A'}</p>
+                        <p><strong>New Price:</strong> $${order.reofferDetails.newPrice.toFixed(2)}</p>
+                        <p><strong>Reason:</strong> ${order.reofferDetails.reason}</p>
                         <p class="text-sm text-gray-500 mt-2">Status: <span class="font-bold">${order.status}</span></p>
                     `;
                 } else if (order.status === 'completed') { // Completed order
@@ -543,67 +536,29 @@
             navItems.forEach(item => {
                 item.addEventListener('click', e => {
                     e.preventDefault();
-                    // Remove 'active' from all nav items
                     navItems.forEach(i => i.classList.remove('active'));
-                    
-                    // Add 'active' to the clicked item
                     item.classList.add('active');
                     currentStatusFilter = item.dataset.status;
                     mainTitle.textContent = item.textContent.trim();
 
-                    // Handle sub-menu visibility
-                    const parentLi = item.closest('li');
-                    const isSubNavItem = item.classList.contains('sub-nav-item');
-
-                    // If a sub-nav item is clicked, ensure its parent 'Re-offered' is also active and its sub-menu is open
-                    if (isSubNavItem) {
-                        const reofferedParentNavItem = document.querySelector('.nav-item[data-status="reoffered_parent"]');
-                        if (reofferedParentNavItem) {
-                            reofferedParentNavItem.classList.add('active');
-                            reofferedParentNavItem.nextElementSibling.classList.remove('hidden'); // Ensure sub-menu is open
-                        }
-                    } else {
-                        // If a top-level nav item (not 'Re-offered' parent itself) is clicked, close all sub-menus
-                        if (item.dataset.status !== 'reoffered_parent') {
-                            document.querySelectorAll('.sub-menu').forEach(sub => sub.classList.add('hidden'));
-                        }
-                    }
-
-                    // For 'reoffered_parent' click, just toggle sub-menu and don't filter immediately
-                    if (currentStatusFilter === 'reoffered_parent') {
+                    // Toggle sub-menu visibility
+                    if (item.dataset.status === 'reoffered_parent') {
                         const subMenu = item.nextElementSibling;
                         if (subMenu && subMenu.classList.contains('sub-menu')) {
                             subMenu.classList.toggle('hidden');
                         }
-                        // Default to showing dashboard or all re-offered if parent is clicked
-                        dashboardContent.classList.remove('hidden');
+                        // Do not filter if clicking the parent, let sub-items handle it
                         ordersListContent.classList.add('hidden');
-                        return;
+                        dashboardContent.classList.remove('hidden');
+                        return; // Exit to prevent filtering by parent status
+                    } else {
+                        // Hide all sub-menus when a non-parent item is clicked
+                        document.querySelectorAll('.sub-menu').forEach(sub => sub.classList.add('hidden'));
                     }
 
                     filterAndRenderOrders();
                 });
             });
-
-            // Make dashboard cards clickable
-            dashboardCards.forEach(card => {
-                card.addEventListener('click', e => {
-                    const statusToFilter = card.dataset.status;
-                    // Simulate clicking the corresponding nav item
-                    const correspondingNavItem = document.querySelector(`.nav-item[data-status="${statusToFilter}"]`);
-                    if (correspondingNavItem) {
-                        correspondingNavItem.click();
-                    } else {
-                        // Fallback for 'all_orders' which doesn't have a direct nav item
-                        navItems.forEach(i => i.classList.remove('active'));
-                        document.querySelector(`.nav-item[data-status="dashboard"]`).classList.add('active'); // Activate dashboard
-                        currentStatusFilter = statusToFilter;
-                        mainTitle.textContent = card.querySelector('p').textContent.trim();
-                        filterAndRenderOrders();
-                    }
-                });
-            });
-
 
             closeModalBtn.addEventListener('click', () => {
                 orderDetailModal.classList.add('hidden');

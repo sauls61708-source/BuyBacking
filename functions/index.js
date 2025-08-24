@@ -81,7 +81,7 @@ app.get("/orders", async (req, res) => {
     }
 });
 
-// Get a single order by ID
+// Get a single order by Firestore document ID
 // Frontend should call: GET https://<cloud-function-url>/api/orders/:id
 app.get("/orders/:id", async (req, res) => {
     try {
@@ -92,10 +92,30 @@ app.get("/orders/:id", async (req, res) => {
         }
         res.json({ id: doc.id, ...doc.data() });
     } catch (err) {
-        console.error("Error fetching single order:", err);
+        console.error("Error fetching single order by Firestore ID:", err);
         res.status(500).json({ error: "Failed to fetch order" });
     }
 });
+
+// Get a single order by custom five-digit order ID (XX-XXX format)
+// Frontend should call: GET https://<cloud-function-url>/api/orders/custom/:customOrderId
+app.get("/orders/custom/:customOrderId", async (req, res) => {
+    try {
+        const customOrderId = req.params.customOrderId;
+        const snapshot = await ordersCollection.where("customOrderId", "==", customOrderId).limit(1).get();
+
+        if (snapshot.empty) {
+            return res.status(404).json({ error: "Order not found with this custom ID" });
+        }
+
+        const doc = snapshot.docs[0];
+        res.json({ id: doc.id, ...doc.data() });
+    } catch (err) {
+        console.error("Error fetching single order by custom ID:", err);
+        res.status(500).json({ error: "Failed to fetch order by custom ID" });
+    }
+});
+
 
 // Submit a new order
 // Frontend should call: POST https://<cloud-function-url>/api/submit-order

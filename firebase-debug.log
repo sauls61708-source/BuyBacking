@@ -158,3 +158,34 @@
 [info] Serving at port 8046
 
 [debug] [2025-08-24T07:46:50.844Z] Got response from /__/functions.yaml {"endpoints":{"autoAcceptOffers":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"scheduleTrigger":{"schedule":"every 24 hours","retryConfig":{"retryCount":null,"maxDoublings":null,"maxRetryDuration":null,"maxBackoffDuration":null,"minBackoffDuration":null},"timeZone":null},"labels":{},"entryPoint":"autoAcceptOffers"},"api":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"httpsTrigger":{},"entryPoint":"api"}},"specVersion":"v1alpha1","requiredAPIs":[{"api":"cloudscheduler.googleapis.com","reason":"Needed for scheduled functions."}]}
+[debug] [2025-08-24T07:46:54.863Z] Validating nodejs source
+[debug] [2025-08-24T07:46:55.237Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2025-08-24T07:46:55.237Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase buybacks to determine what to deploy 
+[debug] [2025-08-24T07:46:55.238Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-08-24T07:46:55.239Z] Found firebase-functions binary at '/workspaces/BuyBacking/buybacks/node_modules/.bin/firebase-functions'
+[info] Serving at port 8892
+
+[debug] [2025-08-24T07:46:55.547Z] Got response from /__/functions.yaml {"endpoints":{},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}

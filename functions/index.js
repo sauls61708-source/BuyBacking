@@ -40,7 +40,7 @@ const transporter = nodemailer.createTransport({
 
 /**
  * Generates a unique five-digit order number in the XX-XXX format.
- * It retries if the generated number already exists in the database to ensure uniqueness.
+ * It retries if the generated number already exists as a document ID in the database to ensure uniqueness.
  * @returns {Promise<string>} A unique order number string (e.g., "12-345").
  */
 async function generateUniqueFiveDigitOrderNumber() {
@@ -54,9 +54,10 @@ async function generateUniqueFiveDigitOrderNumber() {
         const secondPart = String(num).substring(2, 5);
         orderNumber = `${firstPart}-${secondPart}`;
 
-        // Check if an order with this custom ID already exists
-        const snapshot = await ordersCollection.where("customOrderId", "==", orderNumber).limit(1).get();
-        if (snapshot.empty) {
+        // Check if an order with this custom ID already exists as a document ID
+        const docRef = ordersCollection.doc(orderNumber);
+        const doc = await docRef.get();
+        if (!doc.exists) {
             unique = true; // Found a unique number
         }
     }
@@ -73,6 +74,7 @@ async function generateUniqueFiveDigitOrderNumber() {
 app.get("/orders", async (req, res) => {
     try {
         const snapshot = await ordersCollection.get();
+        // Map doc.id (which is now the XX-XXX order ID) and data
         const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         res.json(orders);
     } catch (err) {
@@ -81,40 +83,24 @@ app.get("/orders", async (req, res) => {
     }
 });
 
-// Get a single order by Firestore document ID
-// Frontend should call: GET https://<cloud-function-url>/api/orders/:id
+// Get a single order by its five-digit order ID (XX-XXX format)
+// Frontend should call: GET https://<cloud-function-url>/api/orders/:id (where :id is the XX-XXX format)
 app.get("/orders/:id", async (req, res) => {
     try {
-        const docRef = ordersCollection.doc(req.params.id);
+        const docRef = ordersCollection.doc(req.params.id); // req.params.id is now the XX-XXX order ID
         const doc = await docRef.get();
         if (!doc.exists) {
             return res.status(404).json({ error: "Order not found" });
         }
         res.json({ id: doc.id, ...doc.data() });
     } catch (err) {
-        console.error("Error fetching single order by Firestore ID:", err);
+        console.error("Error fetching single order:", err);
         res.status(500).json({ error: "Failed to fetch order" });
     }
 });
 
-// Get a single order by custom five-digit order ID (XX-XXX format)
-// Frontend should call: GET https://<cloud-function-url>/api/orders/custom/:customOrderId
-app.get("/orders/custom/:customOrderId", async (req, res) => {
-    try {
-        const customOrderId = req.params.customOrderId;
-        const snapshot = await ordersCollection.where("customOrderId", "==", customOrderId).limit(1).get();
-
-        if (snapshot.empty) {
-            return res.status(404).json({ error: "Order not found with this custom ID" });
-        }
-
-        const doc = snapshot.docs[0];
-        res.json({ id: doc.id, ...doc.data() });
-    } catch (err) {
-        console.error("Error fetching single order by custom ID:", err);
-        res.status(500).json({ error: "Failed to fetch order by custom ID" });
-    }
-});
+// Removed the /orders/custom/:customOrderId endpoint as it's now redundant.
+// The primary /orders/:id endpoint will handle the XX-XXX formatted IDs.
 
 
 // Submit a new order
@@ -126,17 +112,19 @@ app.post("/submit-order", async (req, res) => {
             return res.status(400).json({ error: "Invalid order data" });
         }
 
-        // Generate a unique five-digit order number
-        const customOrderId = await generateUniqueFiveDigitOrderNumber();
+        // Generate a unique five-digit order number, which will be the document ID
+        const orderId = await generateUniqueFiveDigitOrderNumber();
 
-        const docRef = await ordersCollection.add({
+        // Use .set() with the generated orderId to create the document with that specific ID
+        await ordersCollection.doc(orderId).set({
             ...orderData,
-            customOrderId: customOrderId, // Store the custom formatted order ID
+            // The customOrderId field is no longer needed in the document itself,
+            // as the document ID (orderId) now holds this value.
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             status: "pending_shipment"
         });
-        // Return both the Firestore doc ID and the custom order ID
-        res.status(201).json({ message: "Order submitted", orderId: docRef.id, customOrderId: customOrderId });
+        // Return the new document ID (which is the XX-XXX format)
+        res.status(201).json({ message: "Order submitted", orderId: orderId });
     } catch (err) {
         console.error("Error submitting order:", err);
         res.status(500).json({ error: "Failed to submit order" });
@@ -148,7 +136,7 @@ app.post("/submit-order", async (req, res) => {
  * This function can now be used for both initial labels (buyer to SwiftBuyBack)
  * and return labels (SwiftBuyBack to buyer) by setting the isReturnLabel flag.
  *
- * @param {object} order - The order data containing shipping information and customOrderId.
+ * @param {object} order - The order data. The 'id' property now contains the XX-XXX order ID.
  * @param {boolean} [isReturnLabel=false] - If true, generates a return label (from SwiftBuyBack to buyer).
  * @returns {Promise<object>} The label data from ShipEngine.
  */
@@ -192,8 +180,8 @@ async function createShipStationLabel(order, isReturnLabel = false) {
         shipToAddress = swiftBuyBackAddress;
     }
 
-    // Use the custom five-digit order ID for tracking on the label
-    const customOrderIdForLabel = order.customOrderId || 'N/A';
+    // Use the document ID (which is now the XX-XXX order ID) for tracking on the label
+    const orderIdForLabel = order.id || 'N/A';
 
     const payload = {
         shipment: {
@@ -202,10 +190,10 @@ async function createShipStationLabel(order, isReturnLabel = false) {
             ship_from: shipFromAddress,
             packages: [{
                 weight: { value: 1, unit: "ounce" }, // Default weight, adjust if needed
-                // Add the custom order ID to the label messages for easier tracking.
+                // Add the order ID to the label messages for easier tracking.
                 // This will typically appear as a reference number on the physical label.
                 label_messages: {
-                    reference1: `OrderRef: ${customOrderIdForLabel}`
+                    reference1: `OrderRef: ${orderIdForLabel}`
                 }
             }]
         }
@@ -256,7 +244,7 @@ app.post("/generate-label/:id", async (req, res) => {
             subject: 'Your SwiftBuyBack Shipping Label',
             html: `
                 <p>Hello ${order.shippingInfo.fullName},</p>
-                <p>Your shipping label for order **${order.customOrderId}** is ready!</p>
+                <p>Your shipping label for order **${order.id}** is ready!</p>
                 <p>Tracking Number: <strong>${trackingNumber || 'N/A'}</strong></p>
                 <p>Please use the link below to download and print your label:</p>
                 <a href="${labelData.label_download?.pdf}">Download Label</a>
@@ -276,7 +264,7 @@ app.post("/generate-label/:id", async (req, res) => {
             message: "Label generated",
             uspsLabelUrl: labelData.label_download?.pdf,
             trackingNumber: trackingNumber,
-            customOrderId: order.customOrderId // Include custom order ID in response
+            orderId: order.id // The orderId is now the XX-XXX custom ID
         });
     } catch (err) {
         console.error("Error generating label:", err.response?.data || err);
@@ -303,7 +291,7 @@ app.put("/orders/:id/status", async (req, res) => {
 app.post("/orders/:id/re-offer", async (req, res) => {
     try {
         const { newPrice, reasons, comments } = req.body;
-        const orderId = req.params.id; // This is the Firestore document ID
+        const orderId = req.params.id; // This is now the XX-XXX document ID
 
         if (!newPrice || !reasons || !Array.isArray(reasons) || reasons.length === 0) {
             return res.status(400).json({ error: "New price and at least one reason are required" });
@@ -313,7 +301,7 @@ app.post("/orders/:id/re-offer", async (req, res) => {
         if (!orderDoc.exists) {
             return res.status(404).json({ error: "Order not found" });
         }
-        const order = orderDoc.data();
+        const order = { id: orderDoc.id, ...orderDoc.data() }; // Include id in order object for consistency
         await orderRef.update({
             reOffer: {
                 newPrice,
@@ -334,7 +322,7 @@ app.post("/orders/:id/re-offer", async (req, res) => {
         const zendeskHtmlContent = `
         <div style="font-family: 'system-ui','-apple-system','BlinkMacSystemFont','Segoe UI','Roboto','Oxygen-Sans','Ubuntu','Cantarell','Helvetica Neue','Arial','sans-serif'; font-size: 14px; line-height: 1.5; color: #444444;">
           <h2 style="color: #0056b3; font-weight: bold; text-transform: none; font-size: 20px; line-height: 26px; margin: 5px 0 10px;">Hello ${order.shippingInfo.fullName},</h2>
-          <p style="color: #2b2e2f; line-height: 22px; margin: 15px 0;">We've received your device for Order #${order.customOrderId} and after inspection, we have a revised offer for you.</p>
+          <p style="color: #2b2e2f; line-height: 22px; margin: 15px 0;">We've received your device for Order #${order.id} and after inspection, we have a revised offer for you.</p>
           <p style="color: #2b2e2f; line-height: 22px; margin: 15px 0;"><strong>Original Quote:</strong> $${order.estimatedQuote.toFixed(2)}</p>
           <p style="font-size: 1.2em; color: #d9534f; font-weight: bold; line-height: 22px; margin: 15px 0;">
             <strong>New Offer Price:</strong> $${newPrice.toFixed(2)}
@@ -383,7 +371,7 @@ app.post("/orders/:id/re-offer", async (req, res) => {
 
         const zendeskPayload = {
             ticket: {
-                subject: `Re-offer for Order #${order.customOrderId} - New Offer!`,
+                subject: `Re-offer for Order #${order.id} - New Offer!`,
                 comment: {
                     html_body: zendeskHtmlContent,
                     public: true
@@ -413,7 +401,7 @@ app.post("/orders/:id/re-offer", async (req, res) => {
             console.error('Failed to create Zendesk ticket:', zendeskErr.response?.data || zendeskErr.message);
         }
 
-        res.json({ message: "Re-offer submitted successfully", newPrice, customOrderId: order.customOrderId });
+        res.json({ message: "Re-offer submitted successfully", newPrice, orderId: order.id });
     } catch (err) {
         console.error("Error submitting re-offer:", err);
         res.status(500).json({ error: "Failed to submit re-offer" });
@@ -445,7 +433,7 @@ app.post("/orders/:id/return-label", async (req, res) => {
             subject: 'Your SwiftBuyBack Return Label',
             html: `
                 <p>Hello ${order.shippingInfo.fullName},</p>
-                <p>As requested, here is your return shipping label for your device (Order ID: ${order.customOrderId}):</p>
+                <p>As requested, here is your return shipping label for your device (Order ID: ${order.id}):</p>
                 <p>Return Tracking Number: <strong>${returnTrackingNumber || 'N/A'}</strong></p>
                 <a href="${returnLabelData.label_download?.pdf}">Download Return Label</a>
                 <p>Thank you,</p>
@@ -458,7 +446,7 @@ app.post("/orders/:id/return-label", async (req, res) => {
             message: "Return label generated successfully.",
             returnLabelUrl: returnLabelData.label_download?.pdf,
             returnTrackingNumber: returnTrackingNumber,
-            customOrderId: order.customOrderId // Include custom order ID in response
+            orderId: order.id // The orderId is now the XX-XXX custom ID
         });
     } catch (err) {
         console.error("Error generating return label:", err.response?.data || err);
@@ -470,7 +458,7 @@ app.post("/orders/:id/return-label", async (req, res) => {
 // Frontend should call: POST https://<cloud-function-url>/api/accept-offer-action
 app.post("/accept-offer-action", async (req, res) => {
     try {
-        const { orderId } = req.body; // This is the Firestore document ID
+        const { orderId } = req.body; // This is the XX-XXX document ID
         if (!orderId) {
             return res.status(400).json({ error: "Order ID is required" });
         }
@@ -480,7 +468,7 @@ app.post("/accept-offer-action", async (req, res) => {
             return res.status(404).json({ error: "Order not found" });
         }
 
-        const orderData = doc.data();
+        const orderData = { id: doc.id, ...doc.data() }; // Include id in orderData for consistency
         if (orderData.status !== "re-offered-pending") {
             return res.status(409).json({ error: "This offer has already been accepted or declined." });
         }
@@ -495,7 +483,7 @@ app.post("/accept-offer-action", async (req, res) => {
             ticket: {
                 comment: {
                     html_body: `
-                        <p>The customer has **accepted** the revised offer of **$${orderData.reOffer.newPrice.toFixed(2)}** for Order #${orderData.customOrderId}.</p>
+                        <p>The customer has **accepted** the revised offer of **$${orderData.reOffer.newPrice.toFixed(2)}** for Order #${orderData.id}.</p>
                         <p>Please proceed with payment processing.</p>
                     `,
                     public: true
@@ -522,7 +510,7 @@ app.post("/accept-offer-action", async (req, res) => {
             console.error('Failed to create Zendesk ticket comment:', zendeskErr.response?.data || zendeskErr.message);
         }
 
-        res.json({ message: "Offer accepted successfully.", customOrderId: orderData.customOrderId });
+        res.json({ message: "Offer accepted successfully.", orderId: orderData.id });
     } catch (err) {
         console.error("Error accepting offer:", err);
         res.status(500).json({ error: "Failed to accept offer" });
@@ -533,7 +521,7 @@ app.post("/accept-offer-action", async (req, res) => {
 // Frontend should call: POST https://<cloud-function-url>/api/return-phone-action
 app.post("/return-phone-action", async (req, res) => {
     try {
-        const { orderId } = req.body; // This is the Firestore document ID
+        const { orderId } = req.body; // This is the XX-XXX document ID
         if (!orderId) {
             return res.status(400).json({ error: "Order ID is required" });
         }
@@ -543,7 +531,7 @@ app.post("/return-phone-action", async (req, res) => {
             return res.status(404).json({ error: "Order not found" });
         }
 
-        const orderData = doc.data();
+        const orderData = { id: doc.id, ...doc.data() }; // Include id in orderData for consistency
         if (orderData.status !== "re-offered-pending") {
             return res.status(409).json({ error: "This offer has already been accepted or declined." });
         }
@@ -559,7 +547,7 @@ app.post("/return-phone-action", async (req, res) => {
             ticket: {
                 comment: {
                     html_body: `
-                        <p>The customer has **declined** the revised offer for Order #${orderData.customOrderId} and has requested that their phone be returned.</p>
+                        <p>The customer has **declined** the revised offer for Order #${orderData.id} and has requested that their phone be returned.</p>
                         <p>Please initiate the return process and send a return shipping label.</p>
                     `,
                     public: true
@@ -586,7 +574,7 @@ app.post("/return-phone-action", async (req, res) => {
             console.error('Failed to create Zendesk ticket comment:', zendeskErr.response?.data || zendeskErr.message);
         }
 
-        res.json({ message: "Return requested successfully.", customOrderId: orderData.customOrderId });
+        res.json({ message: "Return requested successfully.", orderId: orderData.id });
     } catch (err) {
         console.error("Error requesting return:", err);
         res.status(500).json({ error: "Failed to request return" });
@@ -603,14 +591,14 @@ exports.autoAcceptOffers = functions.pubsub.schedule('every 24 hours').onRun(asy
 
     const updates = expiredOffers.docs.map(async doc => { // Added async here
         const orderRef = ordersCollection.doc(doc.id);
-        const orderData = doc.data();
+        const orderData = { id: doc.id, ...doc.data() }; // Include id in orderData for consistency
 
         // Prepare Zendesk payload for auto-acceptance
         const zendeskPayload = {
             ticket: {
                 comment: {
                     html_body: `
-                        <p>The revised offer of **$${orderData.reOffer.newPrice.toFixed(2)}** for Order #${orderData.customOrderId} has been **auto-accepted** due to no response from the customer within the 7-day period.</p>
+                        <p>The revised offer of **$${orderData.reOffer.newPrice.toFixed(2)}** for Order #${orderData.id} has been **auto-accepted** due to no response from the customer within the 7-day period.</p>
                         <p>Please proceed with payment processing.</p>
                     `,
                     public: true
@@ -633,13 +621,13 @@ exports.autoAcceptOffers = functions.pubsub.schedule('every 24 hours').onRun(asy
                     'Content-Type': 'application/json'
                 }
             });
-            console.log(`Zendesk ticket comment for auto-accept created for order ID: ${doc.customOrderId}`);
+            console.log(`Zendesk ticket comment for auto-accept created for order ID: ${orderData.id}`);
         } catch (err) {
-            console.error(`Failed to create Zendesk ticket comment for auto-accept for order ID: ${doc.customOrderId}: ${err.response?.data || err.message}`);
+            console.error(`Failed to create Zendesk ticket comment for auto-accept for order ID: ${orderData.id}: ${err.response?.data || err.message}`);
         }
 
 
-        console.log(`Auto-accepting expired offer for order ID: ${orderData.customOrderId}`);
+        console.log(`Auto-accepting expired offer for order ID: ${orderData.id}`);
         return orderRef.update({
             status: 're-offered-auto-accepted',
             acceptedAt: admin.firestore.FieldValue.serverTimestamp()

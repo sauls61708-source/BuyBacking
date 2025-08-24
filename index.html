@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwiftBuyBack - Turn Your Old Phone into Cash!</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -25,18 +26,80 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind shadow-lg */
         }
         /* Styles for the circular monogram */
-        .initials-monogram {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        .user-monogram {
+            @apply flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-800 font-bold text-lg cursor-pointer select-none;
+        }
+        .auth-dropdown {
+            @apply absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20;
+        }
+
+        /* Modal specific styles - copied from iphone-16-pro-max.html */
+        .modal {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-out;
+        }
+        .modal.is-visible .modal-content {
+            transform: translateY(0);
+        }
+
+        /* Button styles for Google/Email login - copied from iphone-16-pro-max.html */
+        .btn-google-style {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: #ffffff; /* White text for contrast */
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            background-color: white;
+            color: #475569; /* slate-700 */
+            padding: 0.75rem 1rem; /* py-3 */
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 1px solid #cbd5e1; /* border border-slate-300 */
+            font-weight: 600; /* font-semibold */
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            cursor: pointer;
+        }
+        .btn-google-style:hover {
+            background-color: #f8fafc; /* slate-50 */
+        }
+
+        .btn-dark-slate {
+            width: 100%;
+            background-color: #1e293b; /* slate-800 */
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-dark-slate:hover {
+            background-color: #0f172a; /* slate-900 */
+        }
+
+        .btn-red-logout {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem; /* text-sm */
+            color: #dc2626; /* red-600 */
+            background-color: transparent;
+            border: none;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-red-logout:hover {
+            background-color: #fef2f2; /* red-50 */
         }
     </style>
 </head>
@@ -46,18 +109,21 @@
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
-            <nav class="space-x-4 flex items-center">
+            <nav class="space-x-4">
                 <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
                 
-                <!-- Login link (visible when not logged in) -->
-                <a id="login-link" href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+                <!-- Authentication Status Container - Updated to match iphone-16-pro-max.html -->
+                <div id="authStatusContainer" class="relative inline-block">
+                    <!-- This will be dynamically updated by JS -->
+                    <a href="#" id="loginNavBtn" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login/Sign Up</a>
 
-                <!-- User menu (hidden by default, visible when logged in) -->
-                <div id="user-menu-container" class="relative hidden">
-                    <div id="user-monogram" class="initials-monogram cursor-pointer bg-indigo-500 text-white"></div>
-                    <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden">
+                    <!-- Monogram and Dropdown (initially hidden) -->
+                    <div id="userMonogram" class="user-monogram hidden">
+                        <!-- Initials will go here -->
+                    </div>
+                    <div id="authDropdown" class="auth-dropdown hidden">
                         <a href="my-account.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Account</a>
-                        <button id="dropdown-logout-button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                        <button id="logoutBtn" class="btn-red-logout">Logout</button>
                     </div>
                 </div>
             </nav>
@@ -212,7 +278,7 @@
             <!-- Samsung Galaxy Tab S9 Ultra -->
             <a href="phones/samsung-galaxy-tab-s9-ultra.html" class="homepage-card-link">
                 <div class="homepage-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="tbs9u_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/tablet/assets/tbs9u" alt="Samsung Galaxy Tab S9 Ultra" class="mx-auto mb-4 rounded-lg">
+                    <img id="tbs9u_pop_img" src="" data-base-src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/samsung/assets/tbs9u" alt="Samsung Galaxy Tab S9 Ultra" class="mx-auto mb-4 rounded-lg">
                     <h3 class="text-xl font-semibold mb-2">Samsung Galaxy Tab S9 Ultra</h3>
                     <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
                     <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
@@ -298,10 +364,90 @@
         </div>
     </footer>
 
+    <!-- Modal for Login/Signup - Copied from iphone-16-pro-max.html -->
+    <div id="loginModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0, 0, 0, 0.6);">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 relative modal-content">
+            <button id="closeModalBtn" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors duration-200">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Your SwiftBuyBack Account</h2>
+
+            <!-- Tab Navigation for Login/Sign Up -->
+            <div class="flex border-b border-slate-200 mb-6">
+                <button id="loginTabBtn" class="flex-1 py-3 text-center text-lg font-medium border-b-2 border-transparent text-slate-500 hover:text-indigo-600 hover:border-indigo-600 transition-colors duration-200">Login</button>
+                <button id="signupTabBtn" class="flex-1 py-3 text-center text-lg font-medium border-b-2 border-transparent text-slate-500 hover:text-indigo-600 hover:border-indigo-600 transition-colors duration-200">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="space-y-4">
+                <p class="text-slate-600 text-center">Log in to continue with your order.</p>
+                <button type="button" id="googleLoginBtn" class="btn-google-style">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="w-5 h-5">
+                    Login with Google
+                </button>
+                <div class="text-center text-slate-500 relative">
+                    <span class="bg-white px-2 z-10 relative">or</span>
+                    <hr class="absolute inset-0 top-1/2 border-slate-200 -z-10">
+                </div>
+                <div>
+                    <label for="loginEmail" class="sr-only">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="Email Address" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="loginPassword" class="sr-only">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Password" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="current-password">
+                </div>
+                <button type="submit" id="emailLoginBtn" class="btn-dark-slate">Login</button>
+                <p class="text-center text-sm text-slate-600">Forgot your password? <a href="#" class="text-indigo-600 font-semibold hover:underline">Reset it here</a></p>
+            </form>
+
+            <!-- Sign Up Form (Hidden by default) -->
+            <form id="signupForm" class="space-y-4 hidden">
+                <p class="text-slate-600 text-center">Create an account to complete your order.</p>
+                <button type="button" id="googleSignupBtn" class="btn-google-style">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="w-5 h-5">
+                    Sign Up with Google
+                </button>
+                <div class="text-center text-slate-500 relative">
+                    <span class="bg-white px-2 z-10 relative">or</span>
+                    <hr class="absolute inset-0 top-1/2 border-slate-200 -z-10">
+                </div>
+                <div>
+                    <label for="signupName" class="sr-only">Full Name</label>
+                    <input type="text" id="signupName" placeholder="Full Name" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="signupEmail" class="sr-only">Email Address</label>
+                    <input type="email" id="signupEmail" placeholder="Email Address" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="signupPassword" class="sr-only">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Password" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="new-password">
+                </div>
+                <div>
+                    <label for="signupPhone" class="sr-only">Phone Number (Optional)</label>
+                    <input type="tel" id="signupPhone" placeholder="Phone Number (Optional)" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button type="submit" id="emailSignupBtn" class="btn-dark-slate">Sign Up</button>
+                <p class="text-center text-sm text-slate-600">Already have an account? <a href="#" id="switchToLogin" class="text-indigo-600 font-semibold hover:underline">Log in here</a></p>
+            </form>
+            <div id="authMessage" class="mt-4 p-3 rounded-lg text-sm text-center hidden w-full"></div>
+        </div>
+    </div>
+
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getAuth, 
+            signOut, 
+            onAuthStateChanged,
+            signInWithPopup,
+            GoogleAuthProvider,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -359,11 +505,32 @@
             });
 
             // --- Header Link Management based on Firebase Auth State ---
-            const loginLink = document.getElementById('login-link');
-            const userMenuContainer = document.getElementById('user-menu-container');
-            const userMonogram = document.getElementById('user-monogram');
-            const userDropdown = document.getElementById('user-dropdown');
-            const dropdownLogoutButton = document.getElementById('dropdown-logout-button');
+            // const loginLink = document.getElementById('login-link'); // No longer needed as loginNavBtn replaces it
+            const authStatusContainer = document.getElementById('authStatusContainer'); // New
+            const loginNavBtn = document.getElementById('loginNavBtn'); // New
+            const userMonogram = document.getElementById('userMonogram'); // New
+            const authDropdown = document.getElementById('authDropdown'); // New
+            const logoutBtn = document.getElementById('logoutBtn'); // New
+
+            // Login Modal Elements
+            const loginModal = document.getElementById('loginModal'); // New
+            const closeModalBtn = document.getElementById('closeModalBtn'); // New
+            const loginTabBtn = document.getElementById('loginTabBtn'); // New
+            const signupTabBtn = document.getElementById('signupTabBtn'); // New
+            const loginForm = document.getElementById('loginForm'); // New
+            const signupForm = document.getElementById('signupForm'); // New
+            const googleLoginBtn = document.getElementById('googleLoginBtn'); // New
+            const emailLoginBtn = document.getElementById('emailLoginBtn'); // New
+            const loginEmailInput = document.getElementById('loginEmail'); // New
+            const loginPasswordInput = document.getElementById('loginPassword'); // New
+            const googleSignupBtn = document.getElementById('googleSignupBtn'); // New
+            const emailSignupBtn = document.getElementById('emailSignupBtn'); // New
+            const signupNameInput = document.getElementById('signupName'); // New
+            const signupEmailInput = document.getElementById('signupEmail'); // New
+            const signupPasswordInput = document.getElementById('signupPassword'); // New
+            const signupPhoneInput = document.getElementById('signupPhone'); // New
+            const authMessage = document.getElementById('authMessage'); // New
+            const switchToLogin = document.getElementById('switchToLogin'); // New
 
             // Function to generate a random light background color for monogram
             function getRandomLightColor() {
@@ -373,57 +540,212 @@
                 return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
             }
 
+            // --- Login Modal Functions ---
+            function showLoginModal() {
+                loginModal.classList.add('is-visible');
+                clearAuthMessage(); // Clear messages when modal opens
+                showTab('login');
+            }
+
+            function hideLoginModal() {
+                loginModal.classList.remove('is-visible');
+            }
+
+            function showTab(tabName) {
+                clearAuthMessage(); // Clear messages when switching tabs
+                loginTabBtn.classList.remove('border-indigo-600', 'text-indigo-600');
+                signupTabBtn.classList.remove('border-indigo-600', 'text-indigo-600');
+                loginTabBtn.classList.add('border-transparent', 'text-slate-500');
+                signupTabBtn.classList.add('border-transparent', 'text-slate-500');
+
+                if (tabName === 'login') {
+                    loginForm.classList.remove('hidden');
+                    signupForm.classList.add('hidden');
+                    loginTabBtn.classList.add('border-indigo-600', 'text-indigo-600');
+                } else { // signup
+                    signupForm.classList.remove('hidden');
+                    loginForm.classList.add('hidden');
+                    signupTabBtn.classList.add('border-indigo-600', 'text-indigo-600');
+                }
+            }
+
+            function showAuthMessage(msg, type) {
+                authMessage.textContent = msg;
+                authMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700');
+                if (type === 'error') {
+                    authMessage.classList.add('bg-red-100', 'text-red-700');
+                } else if (type === 'success') {
+                    authMessage.classList.add('bg-green-100', 'text-green-700');
+                } else if (type === 'info') {
+                    authMessage.classList.add('bg-blue-100', 'text-blue-700');
+                }
+                authMessage.classList.remove('hidden');
+            }
+
+            function clearAuthMessage() {
+                authMessage.classList.add('hidden');
+                authMessage.textContent = '';
+            }
+
+            // --- Event Listeners for Modals and Auth ---
+            closeModalBtn.addEventListener('click', hideLoginModal);
+            loginModal.addEventListener('click', (e) => {
+                if (e.target.id === 'loginModal') { // Clicked outside the modal content
+                    hideLoginModal();
+                }
+            });
+            loginTabBtn.addEventListener('click', () => showTab('login'));
+            signupTabBtn.addEventListener('click', () => showTab('signup'));
+            loginNavBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showLoginModal();
+            });
+            // Link to switch from signup to login form
+            if (switchToLogin) { // Check if element exists before adding listener
+                switchToLogin.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showTab('login');
+                });
+            }
+
+
+            // --- Firebase Authentication Logic ---
+
+            // Google Login/Signup
+            const googleProvider = new GoogleAuthProvider();
+
+            googleLoginBtn.addEventListener('click', async () => {
+                try {
+                    clearAuthMessage();
+                    showAuthMessage('Signing in with Google...', 'info');
+                    await signInWithPopup(auth, googleProvider);
+                } catch (error) {
+                    console.error("Google login error:", error);
+                    showAuthMessage(`Google login failed: ${error.message}`, 'error');
+                }
+            });
+
+            googleSignupBtn.addEventListener('click', async () => {
+                try {
+                    clearAuthMessage();
+                    showAuthMessage('Signing up with Google...', 'info');
+                    await signInWithPopup(auth, googleProvider);
+                } catch (error) {
+                    console.error("Google signup error:", error);
+                    showAuthMessage(`Google signup failed: ${error.message}`, 'error');
+                }
+            });
+
+            // Email/Password Login
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = loginEmailInput.value;
+                const password = loginPasswordInput.value;
+                if (!email || !password) {
+                    showAuthMessage('Please enter both email and password.', 'error');
+                    return;
+                }
+                try {
+                    clearAuthMessage();
+                    showAuthMessage('Logging in...', 'info');
+                    await signInWithEmailAndPassword(auth, email, password);
+                } catch (error) {
+                    console.error("Email login error:", error);
+                    showAuthMessage(`Login failed: ${error.message}`, 'error');
+                }
+            });
+
+            // Email/Password Sign Up
+            signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = signupNameInput.value;
+                const email = signupEmailInput.value;
+                const password = signupPasswordInput.value;
+                const phone = signupPhoneInput.value;
+
+                if (!name || !email || !password) {
+                    showAuthMessage('Please enter your name, email, and password.', 'error');
+                    return;
+                }
+                if (password.length < 6) {
+                    showAuthMessage('Password should be at least 6 characters.', 'error');
+                    return;
+                }
+
+                try {
+                    clearAuthMessage();
+                    showAuthMessage('Creating account...', 'info');
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await updateProfile(userCredential.user, {
+                        displayName: name
+                    });
+                    // You might want to store phone in Firestore if provided
+                    // const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net/api'; // Define if needed
+                    // if (phone) {
+                    //     const response = await fetch(`${BACKEND_URL}/save-user-profile`, {
+                    //          method: 'POST',
+                    //          headers: { 'Content-Type': 'application/json' },
+                    //          body: JSON.stringify({ uid: userCredential.user.uid, phone: phone })
+                    //     });
+                    //     if (!response.ok) console.error("Failed to save phone number");
+                    // }
+                    showAuthMessage('Account created successfully! You are now logged in.', 'success');
+                } catch (error) {
+                    console.error("Email signup error:", error);
+                    showAuthMessage(`Sign up failed: ${error.message}`, 'error');
+                }
+            });
+
+            // --- Header Auth State Listener ---
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     // User is signed in
-                    loginLink.classList.add('hidden');
-                    userMenuContainer.classList.remove('hidden');
+                    loginNavBtn.classList.add('hidden');
+                    authStatusContainer.classList.remove('hidden'); // Ensure container is visible
+                    userMonogram.classList.remove('hidden');
 
-                    // Generate initials
-                    let initials = '??';
-                    if (user.displayName) {
-                        const nameParts = user.displayName.split(' ').filter(part => part.length > 0);
-                        if (nameParts.length > 1) {
-                            initials = nameParts[0][0] + nameParts[nameParts.length - 1][0];
-                        } else if (nameParts.length === 1) {
-                            initials = nameParts[0][0];
-                        }
-                    } else if (user.email) {
-                        initials = user.email[0];
+                    // Get initials for monogram
+                    const displayName = user.displayName;
+                    const email = user.email;
+                    let initials = '';
+                    if (displayName) {
+                        initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                    } else if (email) {
+                        initials = email.charAt(0).toUpperCase();
                     }
-                    userMonogram.textContent = initials.toUpperCase();
-                    userMonogram.style.backgroundColor = getRandomLightColor();
+                    userMonogram.textContent = initials;
+                    userMonogram.style.backgroundColor = getRandomLightColor(); // Set random color
 
+                    hideLoginModal(); // Close modal if user logs in
                 } else {
                     // User is signed out
-                    loginLink.classList.remove('hidden');
-                    userMenuContainer.classList.add('hidden');
-                    userDropdown.classList.add('hidden'); // Ensure dropdown is hidden when logged out
+                    loginNavBtn.classList.remove('hidden');
+                    authStatusContainer.classList.remove('hidden'); // Ensure container is visible
+                    loginNavBtn.textContent = 'Login/Sign Up';
+                    userMonogram.classList.add('hidden');
+                    authDropdown.classList.add('hidden'); // Hide dropdown if user logs out
                 }
             });
 
-            // Toggle dropdown visibility when monogram is clicked
-            userMonogram.addEventListener('click', function(event) {
-                event.stopPropagation(); // Prevent document click from immediately closing it
-                userDropdown.classList.toggle('hidden');
+            // Toggle dropdown when monogram is clicked
+            userMonogram.addEventListener('click', (e) => {
+                e.stopPropagation();
+                authDropdown.classList.toggle('hidden');
             });
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!userMenuContainer.contains(event.target)) {
-                    userDropdown.classList.add('hidden');
+            // Close dropdown if clicking outside
+            document.addEventListener('click', (e) => {
+                if (!authStatusContainer.contains(e.target)) {
+                    authDropdown.classList.add('hidden');
                 }
             });
 
-            // Handle the logout button click from the dropdown
-            dropdownLogoutButton.addEventListener('click', async function() {
+            // Logout functionality
+            logoutBtn.addEventListener('click', async () => {
                 try {
                     await signOut(auth);
-                    // The onAuthStateChanged listener will automatically update the UI
-                    // and hide the user menu.
                 } catch (error) {
                     console.error("Logout error:", error);
-                    alert('Failed to log out. Please try again.');
                 }
             });
         });

@@ -3,652 +3,633 @@ const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
 const axios = require("axios");
-
-const app = express();
-
-const allowedOrigins = [
-  "https://toratyosef.github.io",
-  "https://buyback-a0f05.web.app"
-];
-
-app.use(
-  cors({
-    origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  })
-);
-app.use(express.json());
+const nodemailer = require("nodemailer");
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 const db = admin.firestore();
 const ordersCollection = db.collection("orders");
 
-// ------------------------------
-// Zendesk Configuration
-// ------------------------------
-const ZENDESK_API_TOKEN = functions.config().zendesk.token;
-const ZENDESK_SUBDOMAIN = functions.config().zendesk.subdomain;
-const ZENDESK_USER = functions.config().zendesk.user; // Typically an agent's email
+const app = express();
 
-// ------------------------------
-// Zendesk Helper Function (Internal Admin Notification)
-// This function creates a new ticket in Zendesk for internal re-offer notifications.
-// It will now be created as an internal note to prevent email notifications.
-// ------------------------------
-async function createZendeskInternalTicket(orderId, newPrice, reason) {
-  try {
-    const ticketData = {
-      ticket: {
-        subject: `Internal: New Offer for Order #${orderId}`, // Clarified subject for internal ticket
-        comment: {
-          body: `Order #${orderId} requires a re-offer.
-New Price: $${newPrice.toFixed(2)}
-Reason: ${reason}
-`,
-          public: false, // <--- IMPORTANT CHANGE: Set to false for internal notes
-        },
-        priority: "high",
-        tags: ["re-offer", "swiftbuyback", "internal-notification"], // Added internal tag
-      },
-    };
+// Configure CORS for all routes.
+// The Cloud Function itself is exposed under '/api', so the routes defined here
+// should not include '/api' in their path.
+const allowedOrigins = [
+    "https://toratyosef.github.io",
+    "https://buyback-a0f05.web.app"
+];
 
-    const response = await axios.post(
-      `https://${ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets.json`,
-      ticketData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${Buffer.from(
-            `${ZENDESK_USER}/token:${ZENDESK_API_TOKEN}`
-          ).toString("base64")}`,
-        },
-      }
-    );
-    console.log(`Internal Zendesk ticket created for Order #${orderId} (as private note).`);
-    return response.data;
-  } catch (err) {
-    console.error("Zendesk internal ticket creation failed:", err.response?.data || err);
-    throw new Error("Failed to create Zendesk internal ticket.");
-  }
-}
+app.use(cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type"], // Explicitly allow Content-Type header
+}));
+app.use(express.json()); // Middleware to parse JSON request bodies
 
-// ------------------------------
-// Zendesk Helper Function (Send Re-offer Email to Buyer)
-// This function creates a new Zendesk ticket with the buyer as the requester,
-// and the HTML content as a public comment, effectively sending an email.
-// ------------------------------
-async function sendBuyerReofferEmailViaZendesk(orderId, buyerEmail, orderDetails, newPrice, reason) {
-  // Frontend URL must be configured for the action links
-  // firebase functions:config:set app.frontend_url="https://buyback-a0f05.web.app"
-  // Links now point to the single reoffer-action.html page
-  const reofferActionPage = `${functions.config().app.frontend_url}/reoffer-action.html?orderId=${orderId}`;
-  const acceptLink = reofferActionPage; // Both buttons go to the same page
-  const returnLink = reofferActionPage; // Both buttons go to the same page
+// Set up Nodemailer transporter using the Firebase Functions config
+// IMPORTANT: Ensure you have configured these environment variables:
+// firebase functions:config:set email.user="your_email@gmail.com" email.pass="your_app_password"
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: functions.config().email.user,
+        pass: functions.config().email.pass
+    }
+});
 
-  // Ensure buyerName is never empty, providing a fallback
-  const buyerName = orderDetails.shippingInfo.fullName || 'Customer'; 
+/**
+ * Generates a unique five-digit order number in the XX-XXX format.
+ * It retries if the generated number already exists in the database to ensure uniqueness.
+ * @returns {Promise<string>} A unique order number string (e.g., "12-345").
+ */
+async function generateUniqueFiveDigitOrderNumber() {
+    let unique = false;
+    let orderNumber;
+    while (!unique) {
+        // Generate a random 5-digit number between 10000 and 99999
+        const num = Math.floor(10000 + Math.random() * 90000);
+        // Format it as XX-XXX
+        const firstPart = String(num).substring(0, 2);
+        const secondPart = String(num).substring(2, 5);
+        orderNumber = `${firstPart}-${secondPart}`;
 
-  const htmlContent = `
-    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-      <h2 style="color: #0056b3;">Hello ${buyerName},</h2>
-      <p>We've received your device for Order #${orderId} and after inspection, we have a revised offer for you.</p>
-      
-      <p><strong>Original Quote:</strong> $${orderDetails.estimatedQuote.toFixed(2)}</p>
-      <p style="font-size: 1.2em; color: #d9534f; font-weight: bold;">
-        <strong>New Offer Price:</strong> $${newPrice.toFixed(2)}
-      </p>
-      
-      <p><strong>Reason for New Offer:</strong></p>
-      <p style="background-color: #f8f8f8; padding: 10px; border-left: 5px solid #d9534f;">
-        <em>"${reason}"</em>
-      </p>
-      
-      <p>Please review the new offer. You have two options:</p>
-      
-      <table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
-        <tr>
-          <td align="center" style="padding: 0 10px;"> <table cellspacing="0" cellpadding="0" style="width: 100%;">
-              <tr>
-                <td style="border-radius: 5px; background-color: #a7f3d0; text-align: center;"> <a href="${acceptLink}" target="_blank" style="padding: 15px 25px; border: 1px solid #6ee7b7; border-radius: 5px; font-family: Arial, sans-serif; font-size: 16px; color: #065f46; text-decoration: none; font-weight: bold; display: block;">
-                    Accept Offer ($${newPrice.toFixed(2)})
-                  </a>
-                </td>
-              </tr>
-            </table>
-          </td>
-          <td align="center" style="padding: 0 10px;"> <table cellspacing="0" cellpadding="0" style="width: 100%;">
-              <tr>
-                <td style="border-radius: 5px; background-color: #fecaca; text-align: center;"> <a href="${returnLink}" target="_blank" style="padding: 15px 25px; border: 1px solid #fca5a5; border-radius: 5px; font-family: Arial, sans-serif; font-size: 16px; color: #991b1b; text-decoration: none; font-weight: bold; display: block;">
-                    Return Phone Now
-                  </a>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-
-      <p style="margin-top: 30px;">If you have any questions, please reply to this email.</p>
-      <p>Thank you,<br>The SwiftBuyBack Team</p>
-    </div>
-  `;
-
-  try {
-    const ticketData = {
-      ticket: {
-        requester: { email: buyerEmail, name: buyerName }, // Use the potentially defaulted buyerName
-        subject: `Your SwiftBuyBack Order #${orderId} - New Offer!`, // Email subject
-        comment: {
-          html_body: htmlContent, // HTML content for the email
-          public: true, // Make this a public comment, which sends it as an email
-        },
-        priority: "normal", // Set an appropriate priority
-        tags: ["re-offer", "swiftbuyback", "customer-email"], // Tags for this email ticket
-      },
-    };
-
-    const response = await axios.post(
-      `https://${ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets.json`,
-      ticketData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${Buffer.from(
-            `${ZENDESK_USER}/token:${ZENDESK_API_TOKEN}`
-          ).toString("base64")}`,
-        },
-      }
-    );
-    console.log(`Re-offer email sent via Zendesk to ${buyerEmail} for Order #${orderId} (Ticket ID: ${response.data.ticket.id})`);
-    // Store the Zendesk Ticket ID in the Firestore order document
-    await ordersCollection.doc(orderId).update({
-      zendeskTicketId: response.data.ticket.id
-    });
-    return response.data;
-  } catch (err) {
-    console.error(`Failed to send re-offer email via Zendesk to ${buyerEmail} for Order #${orderId}:`, err.response?.data || err);
-    throw new Error("Failed to send re-offer email via Zendesk.");
-  }
-}
-
-// ------------------------------
-// Zendesk Helper Function (Send Custom Email to Buyer)
-// This function creates a new Zendesk ticket with a custom subject and body,
-// sent to the buyer as a public comment.
-// ------------------------------
-async function sendCustomEmailViaZendesk(orderId, buyerEmail, buyerName, subject, body) {
-  // Ensure buyerName is never empty, providing a fallback
-  const formattedBuyerName = buyerName || 'Customer';
-
-  try {
-    const ticketData = {
-      ticket: {
-        requester: { email: buyerEmail, name: formattedBuyerName }, // Use the potentially defaulted buyerName
-        subject: subject,
-        comment: {
-          html_body: `<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">${body}</div>`,
-          public: true,
-        },
-        priority: "normal",
-        tags: ["swiftbuyback", "customer-custom-email"],
-      },
-    };
-
-    const response = await axios.post(
-      `https://${ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets.json`,
-      ticketData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${Buffer.from(
-            `${ZENDESK_USER}/token:${ZENDESK_API_TOKEN}`
-          ).toString("base64")}`,
-        },
-      }
-    );
-    console.log(`Custom email sent via Zendesk to ${buyerEmail} for Order #${orderId} (Ticket ID: ${response.data.ticket.id})`);
-    // Store the Zendesk Ticket ID in the Firestore order document if it's a new ticket
-    // This assumes custom emails might also initiate a new ticket for a conversation thread
-    await ordersCollection.doc(orderId).update({
-      zendeskTicketId: response.data.ticket.id // Store the new ticket ID
-    }, { merge: true }); // Use merge to avoid overwriting other fields
-    return response.data;
-  } catch (err) {
-    console.error(`Failed to send custom email via Zendesk to ${buyerEmail} for Order #${orderId}:`, err.response?.data || err);
-    throw new Error("Failed to send custom email via Zendesk.");
-  }
+        // Check if an order with this custom ID already exists
+        const snapshot = await ordersCollection.where("customOrderId", "==", orderNumber).limit(1).get();
+        if (snapshot.empty) {
+            unique = true; // Found a unique number
+        }
+    }
+    return orderNumber;
 }
 
 
 // ------------------------------
-// Zendesk Helper Function (Add Comment to Existing Ticket)
-// This function adds a public comment to an existing Zendesk ticket.
-// ------------------------------
-async function addCommentToZendeskTicket(zendeskTicketId, commentBody, buyerEmail, buyerName) {
-  try {
-    const commentData = {
-      ticket: {
-        comment: {
-          body: commentBody,
-          public: true, // Make this a public comment
-        },
-      }
-    };
-
-    const response = await axios.put(
-      `https://${ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets/${zendeskTicketId}.json`,
-      commentData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${Buffer.from(
-            `${ZENDESK_USER}/token:${ZENDESK_API_TOKEN}`
-          ).toString("base64")}`,
-        },
-      }
-    );
-    console.log(`Comment added to Zendesk Ticket #${zendeskTicketId} by ${buyerName}.`);
-    return response.data;
-  } catch (err) {
-    console.error(`Failed to add comment to Zendesk Ticket #${zendeskTicketId}:`, err.response?.data || err);
-    throw new Error("Failed to add comment to Zendesk ticket.");
-  }
-}
-
-
-// ------------------------------
-// ShipStation Helper Function
-// This function creates a shipment and generates a shipping label using ShipEngine API.
-// ------------------------------
-const SHIPSTATION_API_KEY = functions.config().shipstation.key;
-
-async function createShipmentAndLabel(orderId, orderDetails) {
-  try {
-    // FIX: Remove the outer 'shipment' key to match API documentation
-    const shipmentData = {
-      serviceCode: "usps_priority_mail",
-      shipFrom: {
-        name: orderDetails.shippingInfo.fullName,
-        addressLine1: orderDetails.shippingInfo.streetAddress,
-        cityLocality: orderDetails.shippingInfo.city,
-        stateProvince: orderDetails.shippingInfo.state,
-        postalCode: orderDetails.shippingInfo.zipCode,
-        countryCode: "US",
-      },
-      shipTo: {
-        name: "SwiftBuyBack",
-        addressLine1: "1795 west 3rd st",
-        cityLocality: "Anytown",
-        stateProvince: "CA",
-        postalCode: "90210",
-        countryCode: "US",
-      },
-      packages: [
-        {
-          weight: {
-            value: 1,
-            unit: "pound",
-          },
-        },
-      ],
-    };
-
-    const url = "https://api.shipengine.com/v1/test_labels";
-    const headers = {
-      "Content-Type": "application/json",
-      "API-Key": SHIPSTATION_API_KEY,
-    };
-
-    const response = await axios.post(url, shipmentData, { headers });
-    return response.data.label_download.pdf;
-  } catch (err) {
-    console.error("ShipStation label generation failed:", err.response?.data || err);
-    throw new Error("Failed to generate shipping label.");
-  }
-}
-
-// ------------------------------
-// NEW: ShipStation Helper Function for Return Labels
-// This function creates a return shipment with addresses reversed.
-// ------------------------------
-async function createReturnShipmentAndLabel(orderId, orderDetails) {
-  try {
-    // FIX: Remove the outer 'shipment' key to match API documentation
-    const shipmentData = {
-      serviceCode: "usps_priority_mail",
-      shipFrom: {
-        name: "SwiftBuyBack",
-        addressLine1: "1795 west 3rd st",
-        cityLocality: "Anytown",
-        stateProvince: "CA",
-        postalCode: "90210",
-        countryCode: "US",
-      },
-      shipTo: {
-        name: orderDetails.shippingInfo.fullName,
-        addressLine1: orderDetails.shippingInfo.streetAddress,
-        cityLocality: orderDetails.shippingInfo.city,
-        stateProvince: orderDetails.shippingInfo.state,
-        postalCode: orderDetails.shippingInfo.zipCode,
-        countryCode: "US",
-      },
-      packages: [
-        {
-          weight: {
-            value: 1, // Assuming 1 lb for a phone
-            unit: "pound",
-          },
-        },
-      ],
-    };
-
-    const url = "https://api.shipengine.com/v1/test_labels";
-    const headers = {
-      "Content-Type": "application/json",
-      "API-Key": SHIPSTATION_API_KEY,
-    };
-
-    const response = await axios.post(url, shipmentData, { headers });
-    return response.data.label_download.pdf;
-  } catch (err) {
-    console.error("ShipStation return label generation failed:", err.response?.data || err);
-    throw new Error("Failed to generate return shipping label.");
-  }
-}
-
-// ------------------------------
-// API ROUTES
+// ROUTES
 // ------------------------------
 
-// GET all orders
+// Get all orders
+// Frontend should call: GET https://<cloud-function-url>/api/orders
 app.get("/orders", async (req, res) => {
-  try {
-    const snapshot = await ordersCollection.get();
-    const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    res.json(orders);
-  } catch (err) {
-    console.error("Error fetching orders:", err);
-    res.status(500).json({ error: "Failed to fetch orders" });
-  }
+    try {
+        const snapshot = await ordersCollection.get();
+        const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.json(orders);
+    } catch (err) {
+        console.error("Error fetching orders:", err);
+        res.status(500).json({ error: "Failed to fetch orders" });
+    }
 });
 
-// GET a single order by ID
+// Get a single order by ID
+// Frontend should call: GET https://<cloud-function-url>/api/orders/:id
 app.get("/orders/:id", async (req, res) => {
-  try {
-    const docRef = ordersCollection.doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-    res.json({ id: doc.id, ...doc.data() });
-  } catch (err) {
-    console.error("Error fetching single order:", err);
-    res.status(500).json({ error: "Failed to fetch order" });
-  }
-});
-
-// POST a new order
-app.post("/submit-order", async (req, res) => {
-  try {
-    const orderData = req.body;
-    if (!orderData?.shippingInfo || !orderData?.estimatedQuote) {
-      return res.status(400).json({ error: "Invalid order data: missing shippingInfo or estimatedQuote" });
-    }
-
-    const docRef = await ordersCollection.add({
-      ...orderData,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      status: "pending_shipment"
-    });
-
-    res.status(201).json({ message: "Order submitted", orderId: docRef.id });
-  } catch (err) {
-    console.error("Error submitting order:", err);
-    res.status(500).json({ error: "Failed to submit order" });
-  }
-});
-
-// PUT (update) an order with a re-offer
-app.put("/orders/:id/reoffer", async (req, res) => {
-  try {
-    const { newPrice, reason } = req.body;
-    if (!newPrice || !reason) {
-      return res.status(400).json({ error: "New price and reason are required" });
-    }
-
-    const docRef = ordersCollection.doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) return res.status(404).json({ error: "Order not found" });
-    const orderData = doc.data();
-
-    const reofferDetails = {
-      newPrice: parseFloat(newPrice),
-      reason: reason,
-      reofferedAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
-
-    await docRef.update({
-      status: "re-offered",
-      reofferDetails: reofferDetails
-    });
-
-    // Create an internal Zendesk ticket for admin notification (now as a private note)
-    await createZendeskInternalTicket(req.params.id, reofferDetails.newPrice, reofferDetails.reason);
-
-    // Send re-offer email to the buyer via Zendesk and store the ticket ID
-    const buyerEmail = orderData.shippingInfo.email;
-    if (buyerEmail) {
-      await sendBuyerReofferEmailViaZendesk(req.params.id, buyerEmail, orderData, reofferDetails.newPrice, reofferDetails.reason);
-    } else {
-      console.warn(`No email found for order #${req.params.id}. Re-offer email not sent via Zendesk.`);
-    }
-
-    res.json({ message: "Re-offer successfully submitted, internal Zendesk ticket created, and email sent to buyer via Zendesk." });
-  } catch (err) {
-    console.error("Error creating re-offer:", err.response?.data || err);
-    res.status(500).json({ error: "Failed to create re-offer" });
-  }
-});
-
-// POST to generate a shipping label for an order
-app.post("/generate-label/:id", async (req, res) => {
-  try {
-    const docRef = ordersCollection.doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) return res.status(404).json({ error: "Order not found" });
-    const order = { id: doc.id, ...doc.data() };
-
-    const uspsLabelUrl = await createShipmentAndLabel(order.id, order);
-
-    await docRef.update({
-      status: "label_generated",
-      uspsLabelUrl: uspsLabelUrl,
-    });
-
-    res.status(200).json({ message: "Label generated successfully.", uspsLabelUrl });
-  } catch (err) {
-    console.error("Error generating label:", err);
-    res.status(500).json({ error: err.message || "Failed to generate label." });
-  }
-});
-
-// NEW ROUTE: POST to generate a return shipping label
-app.post("/api/generate-return-label/:id", async (req, res) => {
     try {
         const docRef = ordersCollection.doc(req.params.id);
         const doc = await docRef.get();
+        if (!doc.exists) {
+            return res.status(404).json({ error: "Order not found" });
+        }
+        res.json({ id: doc.id, ...doc.data() });
+    } catch (err) {
+        console.error("Error fetching single order:", err);
+        res.status(500).json({ error: "Failed to fetch order" });
+    }
+});
+
+// Submit a new order
+// Frontend should call: POST https://<cloud-function-url>/api/submit-order
+app.post("/submit-order", async (req, res) => {
+    try {
+        const orderData = req.body;
+        if (!orderData?.shippingInfo || !orderData?.estimatedQuote) {
+            return res.status(400).json({ error: "Invalid order data" });
+        }
+
+        // Generate a unique five-digit order number
+        const customOrderId = await generateUniqueFiveDigitOrderNumber();
+
+        const docRef = await ordersCollection.add({
+            ...orderData,
+            customOrderId: customOrderId, // Store the custom formatted order ID
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            status: "pending_shipment"
+        });
+        // Return both the Firestore doc ID and the custom order ID
+        res.status(201).json({ message: "Order submitted", orderId: docRef.id, customOrderId: customOrderId });
+    } catch (err) {
+        console.error("Error submitting order:", err);
+        res.status(500).json({ error: "Failed to submit order" });
+    }
+});
+
+/**
+ * Helper function to create a shipping label using ShipEngine API.
+ * This function can now be used for both initial labels (buyer to SwiftBuyBack)
+ * and return labels (SwiftBuyBack to buyer) by setting the isReturnLabel flag.
+ *
+ * @param {object} order - The order data containing shipping information and customOrderId.
+ * @param {boolean} [isReturnLabel=false] - If true, generates a return label (from SwiftBuyBack to buyer).
+ * @returns {Promise<object>} The label data from ShipEngine.
+ */
+async function createShipStationLabel(order, isReturnLabel = false) {
+    const isSandbox = true; // Reverted to true as per user request
+    const buyerShippingInfo = order.shippingInfo;
+
+    // Define SwiftBuyBack's fixed address for consistent use
+    const swiftBuyBackAddress = {
+        name: "SwiftBuyBack Returns",
+        company_name: "SwiftBuyBack",
+        phone: "555-555-5555", // Placeholder phone number
+        address_line1: "1795 West 3rd St",
+        city_locality: "Brooklyn",
+        state_province: "NY",
+        postal_code: "11223",
+        country_code: "US"
+    };
+
+    // Construct the buyer's address from order data
+    const buyerAddress = {
+        name: buyerShippingInfo.fullName,
+        phone: "555-555-5555", // Placeholder phone number, consider using actual buyer phone if available
+        address_line1: buyerShippingInfo.streetAddress,
+        city_locality: buyerShippingInfo.city,
+        state_province: buyerShippingInfo.state,
+        postal_code: buyerShippingInfo.zipCode,
+        country_code: "US"
+    };
+
+    let shipFromAddress;
+    let shipToAddress;
+
+    if (isReturnLabel) {
+        // For a return label, the shipment is FROM SwiftBuyBack TO the buyer
+        shipFromAddress = swiftBuyBackAddress;
+        shipToAddress = buyerAddress;
+    } else {
+        // For the initial label, the shipment is FROM the buyer TO SwiftBuyBack
+        shipFromAddress = buyerAddress;
+        shipToAddress = swiftBuyBackAddress;
+    }
+
+    // Use the custom five-digit order ID for tracking on the label
+    const customOrderIdForLabel = order.customOrderId || 'N/A';
+
+    const payload = {
+        shipment: {
+            service_code: "usps_priority_mail", // Or adjust as needed for returns
+            ship_to: shipToAddress,
+            ship_from: shipFromAddress,
+            packages: [{
+                weight: { value: 1, unit: "ounce" }, // Default weight, adjust if needed
+                // Add the custom order ID to the label messages for easier tracking.
+                // This will typically appear as a reference number on the physical label.
+                label_messages: {
+                    reference1: `OrderRef: ${customOrderIdForLabel}`
+                }
+            }]
+        }
+    };
+    if (isSandbox) payload.testLabel = true; // Use test label for sandbox environment
+
+    // IMPORTANT: Ensure you have configured this environment variable:
+    // firebase functions:config:set shipengine.key="YOUR_SHIPENGINE_API_KEY"
+    const shipEngineApiKey = functions.config().shipengine.key;
+    if (!shipEngineApiKey) {
+        throw new Error("ShipEngine API key not configured. Please set 'shipengine.key' environment variable.");
+    }
+
+    const response = await axios.post(
+        "https://api.shipengine.com/v1/labels",
+        payload, {
+            headers: {
+                "API-Key": shipEngineApiKey, // Using config object for ShipEngine API key
+                "Content-Type": "application/json"
+            }
+        }
+    );
+    return response.data;
+}
+
+// Generate initial shipping label and send email to buyer
+// Frontend should call: POST https://<cloud-function-url>/api/generate-label/:id
+app.post("/generate-label/:id", async (req, res) => {
+    try {
+        const doc = await ordersCollection.doc(req.params.id).get();
+        if (!doc.exists) return res.status(404).json({ error: "Order not found" });
+
+        const order = { id: doc.id, ...doc.data() };
+        // Generate the initial label (buyer to SwiftBuyBack)
+        const labelData = await createShipStationLabel(order, false); // Explicitly false for initial label
+
+        const trackingNumber = labelData.tracking_number;
+
+        await ordersCollection.doc(req.params.id).update({
+            status: "label_generated",
+            uspsLabelUrl: labelData.label_download?.pdf,
+            trackingNumber: trackingNumber
+        });
+
+        const mailOptions = {
+            from: functions.config().email.user,
+            to: order.shippingInfo.email,
+            subject: 'Your SwiftBuyBack Shipping Label',
+            html: `
+                <p>Hello ${order.shippingInfo.fullName},</p>
+                <p>Your shipping label for order **${order.customOrderId}** is ready!</p>
+                <p>Tracking Number: <strong>${trackingNumber || 'N/A'}</strong></p>
+                <p>Please use the link below to download and print your label:</p>
+                <a href="${labelData.label_download?.pdf}">Download Label</a>
+                <p>Thank you,</p>
+                <p>The SwiftBuyBack Team</p>
+            `
+        };
+
+        try {
+            await transporter.sendMail(mailOptions);
+            console.log('Shipping label email sent successfully with Nodemailer.');
+        } catch (emailErr) {
+            console.error('Failed to send shipping label email:', emailErr);
+        }
+
+        res.json({
+            message: "Label generated",
+            uspsLabelUrl: labelData.label_download?.pdf,
+            trackingNumber: trackingNumber,
+            customOrderId: order.customOrderId // Include custom order ID in response
+        });
+    } catch (err) {
+        console.error("Error generating label:", err.response?.data || err);
+        res.status(500).json({ error: "Failed to generate label" });
+    }
+});
+
+// Update order status
+// Frontend should call: PUT https://<cloud-function-url>/api/orders/:id/status
+app.put("/orders/:id/status", async (req, res) => {
+    try {
+        const { status } = req.body;
+        if (!status) return res.status(400).json({ error: "Status is required" });
+        await ordersCollection.doc(req.params.id).update({ status });
+        res.json({ message: `Order marked as ${status}` });
+    } catch (err) {
+        console.error("Error updating status:", err);
+        res.status(500).json({ error: "Failed to update status" });
+    }
+});
+
+// Submit a re-offer (Updated to send email to customer via Zendesk)
+// Frontend should call: POST https://<cloud-function-url>/api/orders/:id/re-offer
+app.post("/orders/:id/re-offer", async (req, res) => {
+    try {
+        const { newPrice, reasons, comments } = req.body;
+        const orderId = req.params.id; // This is the Firestore document ID
+
+        if (!newPrice || !reasons || !Array.isArray(reasons) || reasons.length === 0) {
+            return res.status(400).json({ error: "New price and at least one reason are required" });
+        }
+        const orderRef = ordersCollection.doc(orderId);
+        const orderDoc = await orderRef.get();
+        if (!orderDoc.exists) {
+            return res.status(404).json({ error: "Order not found" });
+        }
+        const order = orderDoc.data();
+        await orderRef.update({
+            reOffer: {
+                newPrice,
+                reasons,
+                comments,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                // Set auto-acceptance date 7 days from now
+                autoAcceptDate: admin.firestore.Timestamp.fromMillis(Date.now() + (7 * 24 * 60 * 60 * 1000))
+            },
+            status: "re-offered-pending"
+        });
+
+        // HTML content for the Zendesk public comment
+        let reasonString = reasons.join(', ');
+        if (comments) {
+            reasonString += `; ${comments}`;
+        }
+        const zendeskHtmlContent = `
+        <div style="font-family: 'system-ui','-apple-system','BlinkMacSystemFont','Segoe UI','Roboto','Oxygen-Sans','Ubuntu','Cantarell','Helvetica Neue','Arial','sans-serif'; font-size: 14px; line-height: 1.5; color: #444444;">
+          <h2 style="color: #0056b3; font-weight: bold; text-transform: none; font-size: 20px; line-height: 26px; margin: 5px 0 10px;">Hello ${order.shippingInfo.fullName},</h2>
+          <p style="color: #2b2e2f; line-height: 22px; margin: 15px 0;">We've received your device for Order #${order.customOrderId} and after inspection, we have a revised offer for you.</p>
+          <p style="color: #2b2e2f; line-height: 22px; margin: 15px 0;"><strong>Original Quote:</strong> $${order.estimatedQuote.toFixed(2)}</p>
+          <p style="font-size: 1.2em; color: #d9534f; font-weight: bold; line-height: 22px; margin: 15px 0;">
+            <strong>New Offer Price:</strong> $${newPrice.toFixed(2)}
+          </p>
+          <p style="color: #2b2e2f; line-height: 22px; margin: 15px 0;"><strong>Reason for New Offer:</strong></p>
+          <p style="background-color: #f8f8f8; border-left-width: 5px; border-left-color: #d9534f; border-left-style: solid; color: #2b2e2f; line-height: 22px; margin: 15px 0; padding: 10px;">
+            <em>"${reasonString}"</em>
+          </p>
+          <p style="color: #2b2e2f; line-height: 22px; margin: 15px 0;">Please review the new offer. You have two options:</p>
+          <table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 20px; border-collapse: collapse; font-size: 1em; width: 100%;">
+            <tbody>
+              <tr>
+                <td align="center" style="vertical-align: top; padding: 0 10px;" valign="top">
+                  <table cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; font-size: 1em;">
+                    <tbody>
+                      <tr>
+                        <td style="border-radius: 5px; background-color: #a7f3d0; text-align: center; vertical-align: top; padding: 5px; border: 1px solid #ddd;" align="center" bgcolor="#a7f3d0" valign="top">
+                          <a href="${functions.config().app.frontend_url}/reoffer-action.html?orderId=${orderId}&action=accept" style="border-radius: 5px; font-size: 16px; color: #065f46; text-decoration: none; font-weight: bold; display: block; padding: 15px 25px; border: 1px solid #6ee7b7;" rel="noreferrer">
+                            Accept Offer ($${newPrice.toFixed(2)})
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td align="center" style="vertical-align: top; padding: 0 10px;" valign="top">
+                  <table cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; font-size: 1em;">
+                    <tbody>
+                      <tr>
+                        <td style="border-radius: 5px; background-color: #fecaca; text-align: center; vertical-align: top; padding: 5px; border: 1px solid #ddd;" align="center" bgcolor="#fecaca" valign="top">
+                          <a href="${functions.config().app.frontend_url}/reoffer-action.html?orderId=${orderId}&action=return" style="border-radius: 5px; font-size: 16px; color: #991b1b; text-decoration: none; font-weight: bold; display: block; padding: 15px 25px; border: 1px solid #fca5a5;" rel="noreferrer">
+                            Return Phone Now
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="color: #2b2e2f; line-height: 22px; margin: 30px 0 15px;">If you have any questions, please reply to this email.</p>
+          <p style="color: #2b2e2f; line-height: 22px; margin: 15px 0;">Thank you,<br>The SwiftBuyBack Team</p>
+        </div>
+        `;
+
+        const zendeskPayload = {
+            ticket: {
+                subject: `Re-offer for Order #${order.customOrderId} - New Offer!`,
+                comment: {
+                    html_body: zendeskHtmlContent,
+                    public: true
+                },
+                priority: 'high',
+                requester: { name: order.shippingInfo.fullName, email: order.shippingInfo.email }
+            }
+        };
+
+        try {
+            // IMPORTANT: Ensure you have configured these environment variables:
+            // firebase functions:config:set zendesk.url="YOUR_ZENDESK_API_URL" zendesk.token="YOUR_BASE64_ENCODED_API_TOKEN"
+            // firebase functions:config:set app.frontend_url="https://buyback-a0f05.web.app"
+            const zendeskUrl = functions.config().zendesk.url;
+            const zendeskToken = functions.config().zendesk.token;
+            if (!zendeskUrl || !zendeskToken) {
+                throw new Error("Zendesk configuration not complete. Please set 'zendesk.url' and 'zendesk.token'.");
+            }
+            await axios.post(zendeskUrl + '/tickets.json', zendeskPayload, {
+                headers: {
+                    'Authorization': `Basic ${zendeskToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('Zendesk ticket created successfully.');
+        } catch (zendeskErr) {
+            console.error('Failed to create Zendesk ticket:', zendeskErr.response?.data || zendeskErr.message);
+        }
+
+        res.json({ message: "Re-offer submitted successfully", newPrice, customOrderId: order.customOrderId });
+    } catch (err) {
+        console.error("Error submitting re-offer:", err);
+        res.status(500).json({ error: "Failed to submit re-offer" });
+    }
+});
+
+// Generate return shipping label and send email to buyer
+// Frontend should call: POST https://<cloud-function-url>/api/orders/:id/return-label
+app.post("/orders/:id/return-label", async (req, res) => {
+    try {
+        const doc = await ordersCollection.doc(req.params.id).get();
         if (!doc.exists) return res.status(404).json({ error: "Order not found" });
         const order = { id: doc.id, ...doc.data() };
 
-        const returnLabelUrl = await createReturnShipmentAndLabel(order.id, order);
+        // Generate the return label (SwiftBuyBack to buyer)
+        const returnLabelData = await createShipStationLabel(order, true); // Pass true for a return label
 
-        await docRef.update({
-            status: "return_label_generated",
-            returnLabelUrl: returnLabelUrl,
+        const returnTrackingNumber = returnLabelData.tracking_number;
+
+        await ordersCollection.doc(req.params.id).update({
+            status: "return-label-generated",
+            returnLabelUrl: returnLabelData.label_download?.pdf,
+            returnTrackingNumber: returnTrackingNumber
         });
 
-        res.status(200).json({ message: "Return label generated successfully.", returnLabelUrl });
+        const mailOptions = {
+            from: functions.config().email.user,
+            to: order.shippingInfo.email,
+            subject: 'Your SwiftBuyBack Return Label',
+            html: `
+                <p>Hello ${order.shippingInfo.fullName},</p>
+                <p>As requested, here is your return shipping label for your device (Order ID: ${order.customOrderId}):</p>
+                <p>Return Tracking Number: <strong>${returnTrackingNumber || 'N/A'}</strong></p>
+                <a href="${returnLabelData.label_download?.pdf}">Download Return Label</a>
+                <p>Thank you,</p>
+                <p>The SwiftBuyBack Team</p>
+            `
+        };
+        await transporter.sendMail(mailOptions);
+
+        res.json({
+            message: "Return label generated successfully.",
+            returnLabelUrl: returnLabelData.label_download?.pdf,
+            returnTrackingNumber: returnTrackingNumber,
+            customOrderId: order.customOrderId // Include custom order ID in response
+        });
     } catch (err) {
-        console.error("Error generating return label:", err);
-        res.status(500).json({ error: err.message || "Failed to generate return label." });
+        console.error("Error generating return label:", err.response?.data || err);
+        res.status(500).json({ error: "Failed to generate return label" });
     }
 });
 
+// New endpoint to handle offer acceptance
+// Frontend should call: POST https://<cloud-function-url>/api/accept-offer-action
+app.post("/accept-offer-action", async (req, res) => {
+    try {
+        const { orderId } = req.body; // This is the Firestore document ID
+        if (!orderId) {
+            return res.status(400).json({ error: "Order ID is required" });
+        }
+        const docRef = ordersCollection.doc(orderId);
+        const doc = await docRef.get();
+        if (!doc.exists) {
+            return res.status(404).json({ error: "Order not found" });
+        }
 
-// NEW ROUTE: POST to send a custom email to the buyer via Zendesk
-app.post("/orders/:id/send-custom-email", async (req, res) => {
-  try {
-    const { subject, body } = req.body;
-    if (!subject || !body) {
-      return res.status(400).json({ error: "Email subject and body are required." });
+        const orderData = doc.data();
+        if (orderData.status !== "re-offered-pending") {
+            return res.status(409).json({ error: "This offer has already been accepted or declined." });
+        }
+
+        await docRef.update({
+            status: "re-offered-accepted",
+            acceptedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Send email as a Zendesk public comment for accepted offer
+        const zendeskPayload = {
+            ticket: {
+                comment: {
+                    html_body: `
+                        <p>The customer has **accepted** the revised offer of **$${orderData.reOffer.newPrice.toFixed(2)}** for Order #${orderData.customOrderId}.</p>
+                        <p>Please proceed with payment processing.</p>
+                    `,
+                    public: true
+                },
+                priority: 'high',
+                requester: { name: orderData.shippingInfo.fullName, email: orderData.shippingInfo.email }
+            }
+        };
+
+        try {
+            const zendeskUrl = functions.config().zendesk.url;
+            const zendeskToken = functions.config().zendesk.token;
+            if (!zendeskUrl || !zendeskToken) {
+                throw new Error("Zendesk configuration not complete. Please set 'zendesk.url' and 'zendesk.token'.");
+            }
+            await axios.post(zendeskUrl + '/tickets.json', zendeskPayload, {
+                headers: {
+                    'Authorization': `Basic ${zendeskToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('Zendesk ticket comment for accepted offer created successfully.');
+        } catch (zendeskErr) {
+            console.error('Failed to create Zendesk ticket comment:', zendeskErr.response?.data || zendeskErr.message);
+        }
+
+        res.json({ message: "Offer accepted successfully.", customOrderId: orderData.customOrderId });
+    } catch (err) {
+        console.error("Error accepting offer:", err);
+        res.status(500).json({ error: "Failed to accept offer" });
     }
-
-    const docRef = ordersCollection.doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) return res.status(404).json({ error: "Order not found." });
-    const orderData = doc.data();
-
-    const buyerEmail = orderData.shippingInfo.email;
-    const buyerName = orderData.shippingInfo.fullName;
-    const zendeskTicketId = orderData.zendeskTicketId; // Get existing ticket ID
-
-    if (buyerEmail) {
-      if (zendeskTicketId) {
-        // If an existing ticket is found, add a comment to it
-        await addCommentToZendeskTicket(zendeskTicketId, `Custom email from admin: ${body}`, buyerEmail, buyerName);
-        res.status(200).json({ message: "Custom email sent as a comment to existing Zendesk ticket." });
-      } else {
-        // If no existing ticket, create a new one
-        await sendCustomEmailViaZendesk(req.params.id, buyerEmail, buyerName, subject, body);
-        res.status(200).json({ message: "Custom email sent successfully via Zendesk (new ticket created)." });
-      }
-    } else {
-      console.warn(`No email found for order #${req.params.id}. Custom email not sent.`);
-      res.status(400).json({ error: "Buyer email not found for this order." });
-    }
-  } catch (err) {
-    console.error("Error sending custom email:", err.response?.data || err);
-    res.status(500).json({ error: "Failed to send custom email." });
-  }
 });
 
-// NEW ROUTE: POST to add a buyer's reply to an existing Zendesk ticket
-app.post("/orders/:id/add-buyer-reply", async (req, res) => {
-  const { orderId } = req.params;
-  const { replyMessage } = req.body;
+// New endpoint to handle return requests
+// Frontend should call: POST https://<cloud-function-url>/api/return-phone-action
+app.post("/return-phone-action", async (req, res) => {
+    try {
+        const { orderId } = req.body; // This is the Firestore document ID
+        if (!orderId) {
+            return res.status(400).json({ error: "Order ID is required" });
+        }
+        const docRef = ordersCollection.doc(orderId);
+        const doc = await docRef.get();
+        if (!doc.exists) {
+            return res.status(404).json({ error: "Order not found" });
+        }
 
-  if (!replyMessage) {
-    return res.status(400).json({ error: "Reply message is required." });
-  }
+        const orderData = doc.data();
+        if (orderData.status !== "re-offered-pending") {
+            return res.status(409).json({ error: "This offer has already been accepted or declined." });
+        }
 
-  try {
-    const docRef = ordersCollection.doc(orderId);
-    const doc = await docRef.get();
+        // Renamed status to 're-offered-declined'
+        await docRef.update({
+            status: "re-offered-declined",
+            declinedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
 
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found." });
+        // Send email as a Zendesk public comment for declined offer (return request)
+        const zendeskPayload = {
+            ticket: {
+                comment: {
+                    html_body: `
+                        <p>The customer has **declined** the revised offer for Order #${orderData.customOrderId} and has requested that their phone be returned.</p>
+                        <p>Please initiate the return process and send a return shipping label.</p>
+                    `,
+                    public: true
+                },
+                priority: 'high',
+                requester: { name: orderData.shippingInfo.fullName, email: orderData.shippingInfo.email }
+            }
+        };
+
+        try {
+            const zendeskUrl = functions.config().zendesk.url;
+            const zendeskToken = functions.config().zendesk.token;
+            if (!zendeskUrl || !zendeskToken) {
+                throw new Error("Zendesk configuration not complete. Please set 'zendesk.url' and 'zendesk.token'.");
+            }
+            await axios.post(zendeskUrl + '/tickets.json', zendeskPayload, {
+                headers: {
+                    'Authorization': `Basic ${zendeskToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('Zendesk ticket comment for return request created successfully.');
+        } catch (zendeskErr) {
+            console.error('Failed to create Zendesk ticket comment:', zendeskErr.response?.data || zendeskErr.message);
+        }
+
+        res.json({ message: "Return requested successfully.", customOrderId: orderData.customOrderId });
+    } catch (err) {
+        console.error("Error requesting return:", err);
+        res.status(500).json({ error: "Failed to request return" });
     }
-
-    const orderData = doc.data();
-    const zendeskTicketId = orderData.zendeskTicketId;
-    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com';
-    const buyerName = orderData.shippingInfo?.fullName || 'Customer';
-
-    if (!zendeskTicketId) {
-      console.warn(`No Zendesk Ticket ID found for Order #${orderId}. Cannot add reply.`);
-      return res.status(400).json({ error: "No associated Zendesk ticket found for this order." });
-    }
-
-    // Add the buyer's reply as a public comment to the existing Zendesk ticket
-    await addCommentToZendeskTicket(zendeskTicketId, `Buyer's Reply: ${replyMessage}`, buyerEmail, buyerName);
-
-    res.status(200).json({ message: "Reply sent successfully." });
-  } catch (err) {
-    console.error(`Error adding buyer reply for Order #${orderId}:`, err);
-    res.status(500).json({ error: "Failed to process your request to add reply." });
-  }
 });
 
+// New Cloud Function to run every 24 hours to check for expired offers
+exports.autoAcceptOffers = functions.pubsub.schedule('every 24 hours').onRun(async (context) => {
+    const now = admin.firestore.Timestamp.now();
+    const expiredOffers = await ordersCollection
+        .where('status', '==', 're-offered-pending')
+        .where('reOffer.autoAcceptDate', '<=', now)
+        .get();
 
-// NEW API ENDPOINT: POST to handle the 'Accept Offer' action from the static page
-app.post("/api/accept-offer-action", async (req, res) => {
-  const { orderId } = req.body;
+    const updates = expiredOffers.docs.map(async doc => { // Added async here
+        const orderRef = ordersCollection.doc(doc.id);
+        const orderData = doc.data();
 
-  if (!orderId) {
-    return res.status(400).json({ error: "Order ID is required." });
-  }
+        // Prepare Zendesk payload for auto-acceptance
+        const zendeskPayload = {
+            ticket: {
+                comment: {
+                    html_body: `
+                        <p>The revised offer of **$${orderData.reOffer.newPrice.toFixed(2)}** for Order #${orderData.customOrderId} has been **auto-accepted** due to no response from the customer within the 7-day period.</p>
+                        <p>Please proceed with payment processing.</p>
+                    `,
+                    public: true
+                },
+                priority: 'high',
+                requester: { name: orderData.shippingInfo.fullName, email: orderData.shippingInfo.email }
+            }
+        };
 
-  try {
-    const docRef = ordersCollection.doc(orderId);
-    const doc = await docRef.get();
+        try { // Added try-catch for Zendesk call within map
+            const zendeskUrl = functions.config().zendesk.url;
+            const zendeskToken = functions.config().zendesk.token;
+            if (!zendeskUrl || !zendeskToken) {
+                throw new Error("Zendesk configuration not complete. Please set 'zendesk.url' and 'zendesk.token'.");
+            }
+            // Send a public comment to the Zendesk ticket
+            await axios.post(zendeskUrl + '/tickets.json', zendeskPayload, {
+                headers: {
+                    'Authorization': `Basic ${zendeskToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log(`Zendesk ticket comment for auto-accept created for order ID: ${doc.customOrderId}`);
+        } catch (err) {
+            console.error(`Failed to create Zendesk ticket comment for auto-accept for order ID: ${doc.customOrderId}: ${err.response?.data || err.message}`);
+        }
 
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found." });
-    }
 
-    const orderData = doc.data();
-    const newPrice = orderData.reofferDetails?.newPrice || orderData.estimatedQuote;
-    const reason = orderData.reofferDetails?.reason || 'N/A';
-    const buyerName = orderData.shippingInfo?.fullName || 'Customer';
-    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com';
-    const zendeskTicketId = orderData.zendeskTicketId;
-
-    await docRef.update({
-      status: "offer_accepted",
-      acceptedAt: admin.firestore.FieldValue.serverTimestamp(),
+        console.log(`Auto-accepting expired offer for order ID: ${orderData.customOrderId}`);
+        return orderRef.update({
+            status: 're-offered-auto-accepted',
+            acceptedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
     });
 
-    if (zendeskTicketId) {
-      await addCommentToZendeskTicket(zendeskTicketId, `Buyer (${buyerName}) has accepted the new offer of $${newPrice.toFixed(2)} for Order #${orderId}. Reason for re-offer: "${reason}".`, buyerEmail, buyerName);
-    }
-
-    res.status(200).json({ message: "Offer accepted successfully." });
-  } catch (err) {
-    console.error(`Error accepting offer action for Order #${orderId}:`, err);
-    res.status(500).json({ error: "Failed to process your request to accept the offer." });
-  }
+    await Promise.all(updates);
+    console.log(`Auto-accepted ${updates.length} expired offers.`);
+    return null;
 });
 
-// NEW API ENDPOINT: POST to handle the 'Return Phone' action from the static page
-app.post("/api/return-phone-action", async (req, res) => {
-  const { orderId } = req.body;
-
-  if (!orderId) {
-    return res.status(400).json({ error: "Order ID is required." });
-  }
-
-  try {
-    const docRef = ordersCollection.doc(orderId);
-    const doc = await docRef.get();
-
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Order not found." });
-    }
-
-    const orderData = doc.data();
-    const newPrice = orderData.reofferDetails?.newPrice || orderData.estimatedQuote;
-    const reason = orderData.reofferDetails?.reason || 'N/A';
-    const buyerName = orderData.shippingInfo?.fullName || 'Customer';
-    const buyerEmail = orderData.shippingInfo?.email || 'unknown@example.com';
-    const zendeskTicketId = orderData.zendeskTicketId;
-
-    await docRef.update({
-      status: "return_requested",
-      returnRequestedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    if (zendeskTicketId) {
-      await addCommentToZendeskTicket(zendeskTicketId, `Buyer (${buyerName}) has declined the new offer of $${newPrice.toFixed(2)} and requested phone return for Order #${orderId}. Reason for re-offer: "${reason}".`, buyerEmail, buyerName);
-    }
-
-    res.status(200).json({ message: "Return phone requested successfully." });
-  } catch (err) {
-    console.error(`Error requesting phone return action for Order #${orderId}:`, err);
-    res.status(500).json({ error: "Failed to process your request to return the phone." });
-  }
-});
-
-
-// Export the Express app as a Firebase Cloud Function
+// Expose the Express app as a single Cloud Function
 exports.api = functions.https.onRequest(app);

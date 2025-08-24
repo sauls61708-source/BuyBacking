@@ -1,855 +1,841 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SwiftBuyBack Admin</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-    body { font-family: 'Inter', sans-serif; }
-    .modal-font { font-family: 'Montserrat', sans-serif; }
-    .nav-item.active {
-        @apply bg-gray-700 text-white;
-    }
-    .sub-nav-item {
-        @apply pl-8; /* Indent sub-items */
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f4f7f6;
+        }
+        .sidebar {
+            width: 250px;
+            transition: width 0.3s ease-in-out;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 50;
+        }
+        .main-content {
+            margin-left: 250px; 
+            flex-grow: 1; 
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                box-shadow: none;
+                overflow-y: visible;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        .status-link.active {
+            @apply bg-blue-600 text-white;
+        }
+        .dashboard-card {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .submenu-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .submenu-container.open {
+            max-height: 200px;
+        }
+        /* New styling for status bubbles */
+        .status-bubble {
+            @apply px-2.5 py-1 rounded-full text-xs font-semibold flex flex-col justify-center items-center;
+        }
+        .status-bubble-text {
+            @apply block;
+        }
+        .status-bubble-subtext {
+            @apply block text-xs mt-0.5;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-900 min-h-screen flex">
+<body class="flex flex-col md:flex-row min-h-screen">
 
-    <aside class="w-64 bg-gray-800 text-white p-6 flex flex-col items-center">
-        <h1 class="text-3xl font-bold mb-8">Swift Admin</h1>
-        <div class="mb-6 w-full">
-            <input type="text" id="searchInput" placeholder="Search orders..." class="w-full p-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <aside class="sidebar bg-gray-800 text-gray-200 p-6 flex flex-col rounded-r-lg shadow-lg">
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold text-white">Admin Panel</h1>
+            <p class="text-gray-400 text-sm">Order Management</p>
+            <p class="text-xs text-gray-500 mt-2">User ID: <span id="display-user-id">Loading...</span></p>
         </div>
-        <nav class="w-full">
-            <ul class="space-y-2">
+
+        <div class="mb-6">
+            <label for="search-orders" class="block text-gray-400 text-sm mb-2">Search Orders</label>
+            <div class="relative">
+                <input type="text" id="search-orders" placeholder="Search by ID, Customer, or Tracking..."
+                       class="w-full pl-10 pr-4 py-2 rounded-md bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-grow">
+            <ul class="space-y-3">
                 <li>
-                    <a href="#" class="nav-item active flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="dashboard">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 01-8 8v-8H2z" />
-                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
-                        </svg>
-                        Dashboard
+                    <a href="#" data-status="all" class="status-link block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 active">
+                        <i class="fas fa-list mr-3"></i> All Orders
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="pending_shipment">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M2 4a1 1 0 011-1h2.5a1 1 0 01.8.4L7 4.75V11a1 1 0 001 1h5.5a1 1 0 00.8-.4L16 10.25V13a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 00-1-1H2z" />
-                        </svg>
-                        Awaiting Shipment
+                    <a href="#" data-status="pending_shipment" class="status-link block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">
+                        <i class="fas fa-box-open mr-3"></i> Awaiting Shipment
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="label_generated">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-5.787-8.103L7.337 12.33l6.506-6.485a.5.5 0 00-.708-.708l-6.505 6.505a.5.5 0 01-.707 0l-1.92-1.92a.5.5 0 00-.707.707l1.92 1.92a.5.5 0 00.707 0z" clip-rule="evenodd" />
-                        </svg>
-                        Shipped
+                    <a href="#" data-status="label_generated" class="status-link block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">
+                        <i class="fas fa-file-invoice mr-3"></i> Label Generated
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="received">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 110-6 3 3 0 010 6z" />
-                        </svg>
-                        Received
+                    <a href="#" data-status="received" class="status-link block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">
+                        <i class="fas fa-truck mr-3"></i> Received
                     </a>
                 </li>
-                <li>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="reoffered_parent">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 110-6 3 3 0 010 6z" />
-                        </svg>
-                        Re-offered
+                <li class="reoffer-menu-item">
+                    <a href="#" class="reoffer-parent block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">
+                        <i class="fas fa-dollar-sign mr-3"></i> Reoffer
                     </a>
-                    <ul class="sub-menu ml-4 hidden">
+                    <ul class="submenu-container pl-6 space-y-2">
                         <li>
-                            <a href="#" class="nav-item sub-nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="re-offered">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-                                Pending
+                            <a href="#" data-status="re-offered-pending" class="status-link block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">
+                                <i class="fas fa-hourglass-half mr-3"></i> Reoffer Pending
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="nav-item sub-nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="offer_accepted">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                                Accepted
+                            <a href="#" data-status="re-offered-accepted" class="status-link block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">
+                                <i class="fas fa-handshake mr-3"></i> Reoffer Accepted
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="nav-item sub-nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="return_requested">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
-                                Declined
+                            <a href="#" data-status="re-offered-declined" class="status-link block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">
+                                <i class="fas fa-times-circle mr-3"></i> Reoffer Declined
                             </a>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg hover:bg-gray-700 transition duration-200" data-status="completed">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm2 1a1 1 0 100-2 1 1 0 000 2zm4-1a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        Completed
+                    <a href="#" data-status="return-label-generated" class="status-link block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">
+                        <i class="fas fa-undo-alt mr-3"></i> Return Label Generated
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-status="completed" class="status-link block py-2 px-4 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200">
+                        <i class="fas fa-check-circle mr-3"></i> Completed
                     </a>
                 </li>
             </ul>
         </nav>
     </aside>
 
-    <main class="flex-1 p-8">
-        <header class="flex justify-between items-center mb-6">
-            <h2 class="text-3xl font-bold text-gray-800" id="mainTitle">Dashboard</h2>
-            <button id="refreshOrdersBtn" class="bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M4 2a1 1 0 011-1h10a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V2zm5 2a1 1 0 100 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
-                </svg>
-                Refresh Orders
-            </button>
+    <main class="main-content flex-grow p-8">
+        <header class="mb-8">
+            <h2 class="text-4xl font-bold text-gray-800">Order Dashboard</h2>
+            <p class="text-gray-600">Overview of all current and past orders.</p>
         </header>
 
-        <div id="contentContainer" class="bg-white p-6 rounded-lg shadow-md">
-            <div id="dashboardContent" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-blue-100 p-6 rounded-lg text-center cursor-pointer" data-status="total">
-                        <h3 class="text-3xl font-bold text-blue-800" id="totalOrdersCount">0</h3>
-                        <p class="text-sm text-blue-600 font-semibold">Total Orders</p>
-                    </div>
-                    <div class="bg-yellow-100 p-6 rounded-lg text-center cursor-pointer" data-status="pending_shipment">
-                        <h3 class="text-3xl font-bold text-yellow-800" id="awaitingShipmentCount">0</h3>
-                        <p class="text-sm text-yellow-600 font-semibold">Awaiting Shipment</p>
-                    </div>
-                    <div class="bg-green-100 p-6 rounded-lg text-center cursor-pointer" data-status="label_generated">
-                        <h3 class="text-3xl font-bold text-green-800" id="shippedCount">0</h3>
-                        <p class="text-sm text-green-600 font-semibold">Shipped</p>
-                    </div>
-                    <div class="bg-purple-100 p-6 rounded-lg text-center cursor-pointer" data-status="completed">
-                        <h3 class="text-3xl font-bold text-purple-800" id="completedCount">0</h3>
-                        <p class="text-sm text-purple-600 font-semibold">Completed</p>
-                    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div id="card-pending_shipment" data-status="pending_shipment" class="dashboard-card bg-blue-500 text-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-semibold opacity-80">Awaiting Shipment</div>
+                    <div id="pending-shipment-count" class="text-4xl font-extrabold mt-1">0</div>
                 </div>
+                <i class="fas fa-box-open text-5xl opacity-40"></i>
             </div>
-
-            <div id="ordersListContent" class="hidden">
-                <div id="ordersList" class="space-y-4">
-                    <p class="text-gray-500" id="loadingMessage">Loading orders...</p>
+            <div id="card-label_generated" data-status="label_generated" class="dashboard-card bg-yellow-500 text-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-semibold opacity-80">Label Generated</div>
+                    <div id="label-generated-count" class="text-4xl font-extrabold mt-1">0</div>
                 </div>
-                <p id="errorMessage" class="text-red-600 mt-4 hidden">Error loading orders.</p>
+                <i class="fas fa-file-invoice text-5xl opacity-40"></i>
+            </div>
+            <div id="card-received" data-status="received" class="dashboard-card bg-green-500 text-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-semibold opacity-80">Received</div>
+                    <div id="received-count" class="text-4xl font-extrabold mt-1">0</div>
+                </div>
+                <i class="fas fa-truck text-5xl opacity-40"></i>
+            </div>
+            <div id="card-completed" data-status="completed" class="dashboard-card bg-purple-500 text-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-semibold opacity-80">Completed Orders</div>
+                    <div id="completed-count" class="text-4xl font-extrabold mt-1">0</div>
+                </div>
+                <i class="fas fa-check-circle text-5xl opacity-40"></i>
+            </div>
+            <div id="card-re-offered-pending" data-status="re-offered-pending" class="dashboard-card bg-orange-500 text-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-semibold opacity-80">Reoffer Pending</div>
+                    <div id="re-offered-pending-count" class="text-4xl font-extrabold mt-1">0</div>
+                </div>
+                <i class="fas fa-hourglass-half text-5xl opacity-40"></i>
+            </div>
+            <div id="card-re-offered-accepted" data-status="re-offered-accepted" class="dashboard-card bg-teal-500 text-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-semibold opacity-80">Reoffer Accepted</div>
+                    <div id="re-offered-accepted-count" class="text-4xl font-extrabold mt-1">0</div>
+                </div>
+                <i class="fas fa-handshake text-5xl opacity-40"></i>
+            </div>
+            <div id="card-re-offered-declined" data-status="re-offered-declined" class="dashboard-card bg-red-500 text-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-semibold opacity-80">Reoffer Declined</div>
+                    <div id="re-offered-declined-count" class="text-4xl font-extrabold mt-1">0</div>
+                </div>
+                <i class="fas fa-times-circle text-5xl opacity-40"></i>
+            </div>
+            <div id="card-return-label-generated" data-status="return-label-generated" class="dashboard-card bg-gray-500 text-white p-6 rounded-lg shadow-lg flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-semibold opacity-80">Return Label Generated</div>
+                    <div id="return-label-generated-count" class="text-4xl font-extrabold mt-1">0</div>
+                </div>
+                <i class="fas fa-undo-alt text-5xl opacity-40"></i>
             </div>
         </div>
+
+        <section class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Orders List</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full table-auto divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Order ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/12">Customer Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/12">Item</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/12">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Tracking #</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/12">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200">
+                        <tr><td colspan="6" class="text-center text-gray-500 py-8">Loading orders...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="no-orders-message" class="text-center text-gray-500 py-8 hidden">No orders found for this status.</div>
+        </section>
     </main>
 
-    <div id="orderDetailModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-font relative" id="modalContent">
-            <button id="closeModalBtn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-800">Order Details: <span id="modalOrderId"></span></h3>
+    <div id="order-details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto">
+            <button id="close-modal" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Order Details <span id="modal-order-id" class="text-blue-600"></span></h3>
+            <div class="space-y-3 text-gray-700">
+                <p><strong>Customer:</strong> <span id="modal-customer-name"></span></p>
+                <p><strong>Email:</strong> <span id="modal-customer-email"></span></p>
+                <p><strong>Item:</strong> <span id="modal-item"></span></p>
+                <p><strong>Storage:</strong> <span id="modal-storage"></span></p>
+                <p><strong>Carrier:</strong> <span id="modal-carrier"></span></p>
+                <p><strong>Estimated Payout:</strong> $<span id="modal-price"></span></p>
+                <p><strong>Payment Method:</strong> <span id="modal-payment-method"></span></p>
+                <p id="modal-venmo-username-row" class="hidden"><strong>Venmo Username:</strong> <span id="modal-venmo-username"></span></p>
+                <p><strong>Shipping Address:</strong> <span id="modal-shipping-address"></span></p>
+                <p><strong>Conditions:</strong>
+                    <ul class="list-disc list-inside ml-4 text-sm">
+                        <li>Powers On: <span id="modal-condition-power-on"></span></li>
+                        <li>Fully Functional: <span id="modal-condition-functional"></span></li>
+                        <li>No Cracks: <span id="modal-condition-cracks"></span></li>
+                        <li>Cosmetic: <span id="modal-condition-cosmetic"></span></li>
+                    </ul>
+                </p>
+                <p><strong>Current Status:</strong> <span id="modal-status" class="font-semibold px-2 py-1 rounded-full text-xs"></span></p>
+                <p id="modal-label-row" class="hidden"><strong>Shipping Label:</strong> <a id="modal-label-link" href="#" target="_blank" class="text-blue-500 hover:underline">View Label</a> (<span id="modal-tracking-number"></span>)</p>
+                <p id="modal-return-label-row" class="hidden"><strong>Return Label:</strong> <a id="modal-return-label-link" href="#" target="_blank" class="text-red-500 hover:underline">View Return Label</a></p>
+                <p id="modal-loading-message" class="text-center text-blue-500 hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Processing request...</p>
             </div>
-            <div class="space-y-4 text-gray-700">
-                <p><strong>Estimated Quote:</strong> <span id="modalEstimatedQuote"></span></p>
-                <h4 class="text-lg font-semibold mt-4 mb-2">Device Details:</h4>
-                <p><strong>Model:</strong> <span id="modalDeviceModel"></span></p>
-                <p><strong>Carrier:</strong> <span id="modalDeviceCarrier"></span></p>
-                <p><strong>Storage:</strong> <span id="modalDeviceStorage"></span></p>
-                <p><strong>Condition:</strong></p>
-                <ul class="list-disc list-inside ml-4">
-                    <li>Power On: <span id="modalConditionPowerOn"></span></li>
-                    <li>Fully Functional: <span id="modalConditionFunctional"></span></li>
-                    <li>No Cracks: <span id="modalConditionCracks"></span></li>
-                    <li>Cosmetic: <span id="modalConditionCosmetic"></span></li>
-                </ul>
-                <h4 class="text-lg font-semibold mt-4 mb-2">Payment Details:</h4>
-                <p><strong>Method:</strong> <span id="modalPaymentMethod"></span></p>
-                <p><strong>Account:</strong> <span id="modalPaymentValue"></span></p>
-                <h4 class="text-lg font-semibold mt-4 mb-2">Shipping Details:</h4>
-                <p><strong>Name:</strong> <span id="modalShippingName"></span></p>
-                <p><strong>Address:</strong> <span id="modalShippingAddress"></span></p>
-                <p><strong>Email:</strong> <span id="modalShippingEmail"></span></p>
-                <h4 class="text-lg font-semibold mt-4 mb-2">Current Status: <span id="modalOrderStatus" class="font-bold"></span></h4>
-                <p id="modalLabelUrl" class="hidden"><strong>USPS Label:</strong> <a href="#" target="_blank" class="text-blue-600 hover:underline">View Label</a></p>
-                <p id="modalReturnLabelUrl" class="hidden"><strong>Return Label:</strong> <a href="#" target="_blank" class="text-blue-600 hover:underline">View Return Label</a></p>
-                
-                <div class="mt-6 space-y-3">
-                    <button id="completeOrderBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
-                        Complete Order
-                    </button>
-                    <button id="openReofferFormBtn" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
-                        Send New Offer
-                    </button>
-                    <button id="openContactBuyerFormBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
-                        Contact Buyer
-                    </button>
-                    <button id="generateLabelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
-                        Generate USPS Label
-                    </button>
-                    <button id="markReceivedBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
-                        Mark as Received
-                    </button>
-                    <button id="sendPhoneBackBtn" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
-                        Send Phone Back
-                    </button>
-                    <button id="payNowBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 hidden">
-                        Pay Now
-                    </button>
-                    <p id="modalMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></p>
-                </div>
 
-                <div id="reofferFormSection" class="mt-6 space-y-3 p-4 border rounded-lg bg-gray-50 hidden">
-                    <h4 class="text-lg font-semibold mb-2">Create New Offer</h4>
-                    <p class="text-sm text-gray-500">Adjust the offer based on device condition.</p>
+            <div id="reoffer-form-container" class="mt-6 p-4 border border-gray-200 rounded-lg hidden">
+                <h4 class="text-lg font-semibold text-gray-800 mb-4">Propose New Offer</h4>
+                <div class="space-y-4">
                     <div>
-                        <label for="reofferPrice" class="block text-sm font-medium text-gray-700">New Offer Price ($)</label>
-                        <input type="number" id="reofferPrice" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="e.g., 250.00">
+                        <label for="reoffer-new-price" class="block text-sm font-medium text-gray-700">New Offer Price ($)</label>
+                        <input type="number" id="reoffer-new-price" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="e.g., 150.00">
                     </div>
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Reason for New Offer:</label>
-                        <div class="space-y-2">
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" id="reasonCracked" class="form-checkbox h-5 w-5 text-blue-600" value="Cracked Screen" data-reason-type="checkbox">
-                                <span class="ml-2 text-gray-700">Cracked Screen</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" id="reasonDeepScratches" class="form-checkbox h-5 w-5 text-blue-600" value="Deep Scratches" data-reason-type="checkbox">
-                                <span class="ml-2 text-gray-700">Deep Scratches</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" id="reasonFunctionalityIssues" class="form-checkbox h-5 w-5 text-blue-600" value="Functionality Issues" data-reason-type="checkbox">
-                                <span class="ml-2 text-gray-700">Functionality Issues</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" id="reasonMissingAccessories" class="form-checkbox h-5 w-5 text-blue-600" value="Missing Accessories" data-reason-type="checkbox">
-                                <span class="ml-2 text-gray-700">Missing Accessories</span>
-                            </label>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Reasons</label>
+                        <div class="mt-1 space-y-2">
+                            <div class="flex items-center">
+                                <input id="reason-cracked" name="reoffer-reasons" type="checkbox" value="cracked" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                <label for="reason-cracked" class="ml-2 block text-sm text-gray-900">Cracked</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="reason-deep-scratches" name="reoffer-reasons" type="checkbox" value="deep-scratches" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                <label for="reason-deep-scratches" class="ml-2 block text-sm text-gray-900">Deep Scratches</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="reason-non-functional" name="reoffer-reasons" type="checkbox" value="non-functional" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                <label for="reason-non-functional" class="ml-2 block text-sm text-gray-900">Non-Functional Component</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="reason-other" name="reoffer-reasons" type="checkbox" value="other" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                <label for="reason-other" class="ml-2 block text-sm text-gray-900">Other</label>
+                            </div>
                         </div>
                     </div>
                     <div>
-                        <label for="reofferAdditionalComment" class="block text-sm font-medium text-gray-700 mt-4">Additional Comments</label>
-                        <textarea id="reofferAdditionalComment" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="e.g., Device has deep scratches on the screen not mentioned in the quote."></textarea>
+                        <label for="reoffer-comments" class="block text-sm font-medium text-gray-700">Additional Comments</label>
+                        <textarea id="reoffer-comments" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="Enter additional details here..."></textarea>
                     </div>
-                    <button id="submitNewReofferBtn" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
-                        Submit New Offer to Buyer
+                </div>
+                <div class="mt-4 flex justify-end gap-3">
+                    <button id="cancel-reoffer-btn" type="button" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                        Cancel
+                    </button>
+                    <button id="submit-reoffer-btn" type="button" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                        Send Re-offer
                     </button>
                 </div>
-
-                <div id="contactBuyerFormSection" class="mt-6 space-y-3 p-4 border rounded-lg bg-gray-50 hidden">
-                    <h4 class="text-lg font-semibold mb-2">Send Custom Email to Buyer</h4>
-                    <div>
-                        <label for="emailSubject" class="block text-sm font-medium text-gray-700">Subject</label>
-                        <input type="text" id="emailSubject" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="e.g., Your Order Update">
-                    </div>
-                    <div>
-                        <label for="emailBody" class="block text-sm font-medium text-gray-700 mt-4">Email Message</label>
-                        <textarea id="emailBody" rows="6" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Write your message here..."></textarea>
-                    </div>
-                    <button id="sendCustomEmailBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300">
-                        Send Email
-                    </button>
-                </div>
-
-                <div id="paymentModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
-                    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md modal-font relative">
-                        <button id="closePaymentModalBtn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-6">Process Payment</h3>
-                        <div class="space-y-4 text-gray-700">
-                            <p><strong>Order ID:</strong> <span id="paymentModalOrderId"></span></p>
-                            <p><strong>Amount to Pay:</strong> <span id="paymentModalAmount" class="font-bold text-green-700 text-xl"></span></p>
-                            <p><strong>Payment Method:</strong> <span id="paymentModalMethod"></span></p>
-                            <p><strong>Recipient Account:</strong> <span id="paymentModalRecipient"></span></p>
-                            <button id="initiatePaymentBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-semibold transition duration-300 mt-6">
-                                Initiate Payment
-                            </button>
-                            <p id="paymentModalMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></p>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+
+            <div id="modal-action-buttons" class="mt-6 flex flex-col sm:flex-row gap-3">
+            </div>
+            <div id="modal-message" class="mt-4 p-3 text-sm rounded-md hidden"></div>
         </div>
-    </aside>
+    </div>
 
-    <script>
-        const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net/api';
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
+            authDomain: "buyback-a0f05.firebaseapp.com",
+            projectId: "buyback-a0f05",
+            storageBucket: "buyback-a0f05.firebasestorage.app",
+            messagingSenderId: "876430429098",
+            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
+            measurementId: "G-6WWQN44JHT"
+        };
+        
+        // Corrected to include the base path for Cloud Functions
+        const BACKEND_BASE_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net/api';
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const navItems = document.querySelectorAll('.nav-item');
-            const searchInput = document.getElementById('searchInput');
-            const ordersList = document.getElementById('ordersList');
-            const loadingMessage = document.getElementById('loadingMessage');
-            const errorMessage = document.getElementById('errorMessage');
-            const refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
-            const orderDetailModal = document.getElementById('orderDetailModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const generateLabelBtn = document.getElementById('generateLabelBtn');
-            const markReceivedBtn = document.getElementById('markReceivedBtn');
-            const modalMessage = document.getElementById('modalMessage');
-            const modalLabelUrl = document.getElementById('modalLabelUrl');
-            const modalReturnLabelUrl = document.getElementById('modalReturnLabelUrl'); // New element
-            const mainTitle = document.getElementById('mainTitle');
-            const dashboardContent = document.getElementById('dashboardContent');
-            const ordersListContent = document.getElementById('ordersListContent');
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        let firebaseApp;
+        let db;
+        let auth;
+        let currentUserId = 'anonymous_user';
+        
+        const ordersTableBody = document.getElementById('orders-table-body');
+        const noOrdersMessage = document.getElementById('no-orders-message');
+        const searchInput = document.getElementById('search-orders');
+        const statusLinks = document.querySelectorAll('.status-link');
+        const displayUserId = document.getElementById('display-user-id');
+        const dashboardCards = document.querySelectorAll('.dashboard-card');
+
+        const pendingShipmentCount = document.getElementById('pending-shipment-count');
+        const labelGeneratedCount = document.getElementById('label-generated-count');
+        const receivedCount = document.getElementById('received-count');
+        const completedCount = document.getElementById('completed-count');
+        const reofferedPendingCount = document.getElementById('re-offered-pending-count');
+        const reofferedAcceptedCount = document.getElementById('re-offered-accepted-count');
+        const reofferedDeclinedCount = document.getElementById('re-offered-declined-count');
+        const returnLabelGeneratedCount = document.getElementById('return-label-generated-count');
+        
+        const orderDetailsModal = document.getElementById('order-details-modal');
+        const closeModalButton = document.getElementById('close-modal');
+        const modalOrderId = document.getElementById('modal-order-id');
+        const modalCustomerName = document.getElementById('modal-customer-name');
+        const modalCustomerEmail = document.getElementById('modal-customer-email');
+        const modalItem = document.getElementById('modal-item');
+        const modalStorage = document.getElementById('modal-storage');
+        const modalCarrier = document.getElementById('modal-carrier');
+        const modalPrice = document.getElementById('modal-price');
+        const modalPaymentMethod = document.getElementById('modal-payment-method');
+        const modalVenmoUsernameRow = document.getElementById('modal-venmo-username-row');
+        const modalVenmoUsername = document.getElementById('modal-venmo-username');
+        const modalShippingAddress = document.getElementById('modal-shipping-address');
+        const modalConditionPowerOn = document.getElementById('modal-condition-power-on');
+        const modalConditionFunctional = document.getElementById('modal-condition-functional');
+        const modalConditionCracks = document.getElementById('modal-condition-cracks');
+        const modalConditionCosmetic = document.getElementById('modal-condition-cosmetic');
+        const modalStatus = document.getElementById('modal-status');
+        const modalLabelRow = document.getElementById('modal-label-row');
+        const modalLabelLink = document.getElementById('modal-label-link');
+        const modalTrackingNumber = document.getElementById('modal-tracking-number');
+        const modalReturnLabelRow = document.getElementById('modal-return-label-row');
+        const modalReturnLabelLink = document.getElementById('modal-return-label-link');
+        const modalActionButtons = document.getElementById('modal-action-buttons');
+        const modalLoadingMessage = document.getElementById('modal-loading-message');
+        const modalMessage = document.getElementById('modal-message');
+
+        const reofferFormContainer = document.getElementById('reoffer-form-container');
+        const reofferNewPrice = document.getElementById('reoffer-new-price');
+        const reofferComments = document.getElementById('reoffer-comments');
+        const submitReofferBtn = document.getElementById('submit-reoffer-btn');
+        const cancelReofferBtn = document.getElementById('cancel-reoffer-btn');
+        
+        const reofferParentLink = document.querySelector('.reoffer-parent');
+        const reofferSubmenu = document.querySelector('.submenu-container');
+
+        let allOrders = [];
+        let currentActiveStatus = 'all';
+        let refreshInterval = null;
+
+        orderDetailsModal.addEventListener('click', (event) => {
+            if (event.target === orderDetailsModal) {
+                closeOrderDetailsModal();
+            }
+        });
+
+        function updateDashboardCounts(ordersData) {
+            pendingShipmentCount.textContent = ordersData.filter(o => o.status === 'pending_shipment').length;
+            labelGeneratedCount.textContent = ordersData.filter(o => o.status === 'label_generated').length;
+            receivedCount.textContent = ordersData.filter(o => o.status === 'received').length;
+            completedCount.textContent = ordersData.filter(o => o.status === 'completed').length;
+            reofferedPendingCount.textContent = ordersData.filter(o => o.status === 're-offered-pending').length;
+            reofferedAcceptedCount.textContent = ordersData.filter(o => o.status === 're-offered-accepted').length;
+            reofferedDeclinedCount.textContent = ordersData.filter(o => o.status === 're-offered-declined').length;
+            returnLabelGeneratedCount.textContent = ordersData.filter(o => o.status === 'return-label-generated').length;
+        }
+
+        function renderOrders(ordersToDisplay) {
+            ordersTableBody.innerHTML = '';
+            if (ordersToDisplay.length === 0) {
+                noOrdersMessage.classList.remove('hidden');
+                return;
+            }
+            noOrdersMessage.classList.add('hidden');
+
+            ordersToDisplay.forEach(order => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                const customerName = order.shippingInfo ? order.shippingInfo.fullName : 'N/A';
+                const itemDescription = `${order.device} ${order.storage}`;
+                const displayId = order.id;
+                
+                let reofferTimer = '';
+                let statusText = formatStatus(order.status);
+                if (order.status === 're-offered-pending' && order.reOffer && order.reOffer.autoAcceptDate) {
+                    const autoAcceptDate = new Date(order.reOffer.autoAcceptDate._seconds * 1000);
+                    const timeLeft = autoAcceptDate.getTime() - Date.now();
+                    if (timeLeft > 0) {
+                        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                        reofferTimer = `<span class="status-bubble-subtext text-gray-500">Auto-accept in ${days} days</span>`;
+                    } else {
+                        reofferTimer = `<span class="status-bubble-subtext text-red-500">Auto-accept overdue</span>`;
+                    }
+                }
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-normal text-sm font-medium text-gray-900">${displayId}</td>
+                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${customerName}</td>
+                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${itemDescription}</td>
+                    <td class="px-6 py-4 whitespace-normal text-sm">
+                        <span class="${getStatusClass(order.status)}">
+                           <span class="status-bubble-text">${statusText}</span>
+                           ${reofferTimer}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${order.trackingNumber || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-normal text-sm font-medium">
+                        <button data-order-id="${order.id}" class="view-details-btn text-blue-600 hover:text-blue-900 rounded-md py-1 px-3 border border-blue-600 hover:border-blue-900 transition-colors duration-200">View Details</button>
+                    </td>
+                `;
+                ordersTableBody.appendChild(row);
+            });
+
+            document.querySelectorAll('.view-details-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const orderId = event.target.dataset.orderId;
+                    openOrderDetailsModal(orderId);
+                });
+            });
+        }
+
+        function formatStatus(status) {
+            return status.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+
+        function formatCondition(condition) {
+            return condition.charAt(0).toUpperCase() + condition.slice(1);
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'pending_shipment': return 'bg-blue-100 text-blue-800 status-bubble';
+                case 'label_generated': return 'bg-yellow-100 text-yellow-800 status-bubble';
+                case 'received': return 'bg-green-100 text-green-800 status-bubble';
+                case 'completed': return 'bg-purple-100 text-purple-800 status-bubble';
+                case 're-offered-pending': return 'bg-orange-100 text-orange-800 status-bubble';
+                case 're-offered-accepted': return 'bg-teal-100 text-teal-800 status-bubble';
+                case 're-offered-declined': return 'bg-red-100 text-red-800 status-bubble';
+                case 'return-label-generated': return 'bg-gray-400 text-gray-800 status-bubble';
+                default: return 'bg-gray-100 text-gray-800 status-bubble';
+            }
+        }
+
+        async function openOrderDetailsModal(orderId) {
+            modalActionButtons.innerHTML = '';
+            modalLoadingMessage.classList.add('hidden');
+            modalMessage.classList.add('hidden');
+            modalMessage.textContent = '';
+            modalLabelRow.classList.add('hidden');
+            modalReturnLabelRow.classList.add('hidden');
+            modalVenmoUsernameRow.classList.add('hidden');
+            reofferFormContainer.classList.add('hidden');
             
-            // New/updated elements
-            const completeOrderBtn = document.getElementById('completeOrderBtn');
-            const openReofferFormBtn = document.getElementById('openReofferFormBtn');
-            const openContactBuyerFormBtn = document.getElementById('openContactBuyerFormBtn');
-            const reofferFormSection = document.getElementById('reofferFormSection');
-            const contactBuyerFormSection = document.getElementById('contactBuyerFormSection');
-            const submitNewReofferBtn = document.getElementById('submitNewReofferBtn');
-            const reofferPriceInput = document.getElementById('reofferPrice');
-            const reofferReasonCheckboxes = document.querySelectorAll('#reofferFormSection input[type="checkbox"]');
-            const reofferAdditionalComment = document.getElementById('reofferAdditionalComment');
-            const emailSubjectInput = document.getElementById('emailSubject');
-            const emailBodyInput = document.getElementById('emailBody');
-            const sendCustomEmailBtn = document.getElementById('sendCustomEmailBtn');
-            const sendPhoneBackBtn = document.getElementById('sendPhoneBackBtn'); // New button
-            const payNowBtn = document.getElementById('payNowBtn'); // New button
+            orderDetailsModal.classList.remove('hidden');
 
-            // Payment Modal elements
-            const paymentModal = document.getElementById('paymentModal');
-            const closePaymentModalBtn = document.getElementById('closePaymentModalBtn');
-            const paymentModalOrderId = document.getElementById('paymentModalOrderId');
-            const paymentModalAmount = document.getElementById('paymentModalAmount');
-            const paymentModalMethod = document.getElementById('modalPaymentMethod');
-            const paymentModalRecipient = document.getElementById('paymentModalRecipient');
-            const initiatePaymentBtn = document.getElementById('initiatePaymentBtn');
-            const paymentModalMessage = document.getElementById('paymentModalMessage');
+            try {
+                modalLoadingMessage.classList.remove('hidden');
+                // CORRECTED: Removed the extra /api/ prefix. BACKEND_BASE_URL already includes /api.
+                const url = `${BACKEND_BASE_URL}/orders/${orderId}`; 
+                console.log("Fetching order details from:", url); // Log the URL being fetched
+                const response = await fetch(url);
 
-            // Dashboard cards for click events
-            const dashboardCards = document.querySelectorAll('#dashboardContent > div > div');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Backend error response:", response.status, errorText);
+                    throw new Error(`Failed to fetch order details: ${response.status} - ${errorText.substring(0, 100)}`); // Limit error text length
+                }
+                const order = await response.json();
 
-            const dashboardCounts = {
-                totalOrders: 0,
-                awaitingShipment: 0,
-                shipped: 0,
-                completed: 0,
-                reofferedPending: 0,
-                reofferedAccepted: 0,
-                reofferedDeclined: 0
+                modalOrderId.textContent = order.id;
+                modalCustomerName.textContent = order.shippingInfo ? order.shippingInfo.fullName : 'N/A';
+                modalCustomerEmail.textContent = order.shippingInfo ? order.shippingInfo.email : 'N/A';
+                modalItem.textContent = order.device;
+                modalStorage.textContent = order.storage;
+                modalCarrier.textContent = order.carrier;
+                modalPrice.textContent = order.estimatedQuote ? order.estimatedQuote.toFixed(2) : '0.00';
+
+                modalPaymentMethod.textContent = order.paymentMethod ? formatCondition(order.paymentMethod) : 'N/A';
+                if (order.paymentMethod === 'venmo' && order.paymentDetails && order.paymentDetails.venmoUsername) {
+                    modalVenmoUsername.textContent = order.paymentDetails.venmoUsername;
+                    modalVenmoUsernameRow.classList.remove('hidden');
+                }
+
+                const shippingInfo = order.shippingInfo;
+                if (shippingInfo) {
+                    modalShippingAddress.textContent = `${shippingInfo.streetAddress}, ${shippingInfo.city}, ${shippingInfo.state}, ${shippingInfo.zipCode}`;
+                } else {
+                    modalShippingAddress.textContent = 'N/A';
+                }
+
+                modalConditionPowerOn.textContent = order.condition_power_on ? formatCondition(order.condition_power_on) : 'N/A';
+                modalConditionFunctional.textContent = order.condition_functional ? formatCondition(order.condition_functional) : 'N/A';
+                modalConditionCracks.textContent = order.condition_cracks ? formatCondition(order.condition_cracks) : 'N/A';
+                modalConditionCosmetic.textContent = order.condition_cosmetic ? formatCondition(order.condition_cosmetic) : 'N/A';
+
+                modalStatus.textContent = formatStatus(order.status);
+                modalStatus.className = `font-semibold px-2 py-1 rounded-full text-xs ${getStatusClass(order.status)}`;
+
+                if (order.uspsLabelUrl) {
+                    modalLabelLink.href = order.uspsLabelUrl;
+                    modalTrackingNumber.textContent = order.trackingNumber || 'N/A';
+                    modalLabelRow.classList.remove('hidden');
+                }
+
+                renderActionButtons(order);
+                modalLoadingMessage.classList.add('hidden');
+
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                displayModalMessage(`Error fetching order details: ${error.message}. Please try again.`, 'error');
+                modalLoadingMessage.classList.add('hidden');
+            }
+        }
+
+        function renderActionButtons(order) {
+            modalActionButtons.innerHTML = '';
+            const createButton = (text, onClick, className = 'bg-blue-600 hover:bg-blue-700') => {
+                const button = document.createElement('button');
+                button.textContent = text;
+                button.className = `${className} text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 shadow`;
+                button.onclick = onClick;
+                return button;
             };
 
-            let allOrders = [];
-            let currentOrderId = null;
-            let currentOrderDetails = null; // Store full order details for modal actions
-            let currentStatusFilter = 'dashboard';
+            const currentStatus = order.status;
+            switch (currentStatus) {
+                case 'pending_shipment':
+                    modalActionButtons.appendChild(createButton('Generate USPS Label', () => handleAction(order.id, 'generateLabel')));
+                    break;
+                case 'label_generated':
+                    modalActionButtons.appendChild(createButton('Mark as Received', () => handleAction(order.id, 'markReceived')));
+                    break;
+                case 'received':
+                    modalActionButtons.appendChild(createButton('Mark as Completed', () => handleAction(order.id, 'markCompleted', 'bg-gray-600 hover:bg-gray-700')));
+                    modalActionButtons.appendChild(createButton('Propose Re-offer', () => showReofferForm(order.id), 'bg-orange-600 hover:bg-orange-700'));
+                    break;
+                case 're-offered-pending':
+                    if (order.reOffer && order.reOffer.newPrice) {
+                        const reOfferDiv = document.createElement('div');
+                        reOfferDiv.className = 'p-3 bg-gray-100 rounded-md';
+                        reOfferDiv.innerHTML = `<p><strong>Proposed New Price:</strong> $${order.reOffer.newPrice.toFixed(2)}</p><p><strong>Reasons:</strong> ${order.reOffer.reasons.join(', ')}</p><p><strong>Comments:</strong> ${order.reOffer.comments}</p>`;
+                        modalActionButtons.appendChild(reOfferDiv);
+                    }
+                    break;
+                case 're-offered-accepted':
+                    modalActionButtons.appendChild(createButton('Pay Now', () => handleAction(order.id, 'payNow', 'bg-teal-600 hover:bg-teal-700')));
+                    break;
+                case 're-offered-declined':
+                    modalActionButtons.appendChild(createButton('Send Return Label', () => handleAction(order.id, 'sendReturnLabel', 'bg-red-600 hover:bg-red-700')));
+                    break;
+                case 'return-label-generated':
+                case 'completed':
+                    break;
+            }
+        }
+        
+        function showReofferForm(orderId) {
+            modalActionButtons.classList.add('hidden');
+            reofferFormContainer.classList.remove('hidden');
+            submitReofferBtn.onclick = () => submitReOfferFromForm(orderId);
+            cancelReofferBtn.onclick = () => {
+                reofferFormContainer.classList.add('hidden');
+                modalActionButtons.classList.remove('hidden');
+            };
+        }
 
-            function showModalMessage(msg, type) {
-                modalMessage.textContent = msg;
-                modalMessage.className = 'mt-4 p-3 rounded-md text-sm text-center';
-                if (type === 'error') modalMessage.classList.add('bg-red-100', 'text-red-700');
-                if (type === 'success') modalMessage.classList.add('bg-green-100', 'text-green-700');
-                modalMessage.classList.remove('hidden');
+        async function submitReOfferFromForm(orderId) {
+            const newPrice = reofferNewPrice.value;
+            const comments = reofferComments.value;
+            const reasons = Array.from(document.querySelectorAll('input[name="reoffer-reasons"]:checked')).map(cb => cb.value);
+
+            if (!newPrice || isNaN(parseFloat(newPrice)) || reasons.length === 0) {
+                displayModalMessage('Please enter a valid price and select at least one reason.', 'error');
+                return;
             }
 
-            function updateDashboardCounts() {
-                dashboardCounts.totalOrders = allOrders.length;
-                dashboardCounts.awaitingShipment = allOrders.filter(o => o.status === 'pending_shipment').length;
-                dashboardCounts.shipped = allOrders.filter(o => o.status === 'label_generated').length;
-                dashboardCounts.completed = allOrders.filter(o => o.status === 'completed').length;
-                dashboardCounts.reofferedPending = allOrders.filter(o => o.status === 're-offered').length;
-                dashboardCounts.reofferedAccepted = allOrders.filter(o => o.status === 'offer_accepted').length;
-                dashboardCounts.reofferedDeclined = allOrders.filter(o => o.status === 'return_requested').length;
-            
-                document.getElementById('totalOrdersCount').textContent = dashboardCounts.totalOrders;
-                document.getElementById('awaitingShipmentCount').textContent = dashboardCounts.awaitingShipment;
-                document.getElementById('shippedCount').textContent = dashboardCounts.shipped;
-                document.getElementById('completedCount').textContent = dashboardCounts.completed;
-            }
-            
-            function renderOrders(ordersToRender) {
-                ordersList.innerHTML = '';
-                if (ordersToRender.length === 0) {
-                    ordersList.innerHTML = '<p class="text-gray-600">No orders found.</p>';
-                } else {
-                    ordersToRender.forEach(order => {
-                        const div = document.createElement('div');
-                        div.className = 'bg-gray-50 p-4 rounded-md shadow-sm flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200';
-                        div.innerHTML = `
-                            <div>
-                                <p class="font-bold text-lg">Order ID: ${order.id}</p>
-                                <p class="text-sm text-gray-600">Device: ${order.device} (${order.storage})</p>
-                                <p class="text-sm text-gray-600">Status: <span class="font-medium">${order.status}</span></p>
-                            </div>
-                            <button class="view-details-btn bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm transition duration-300" data-order-id="${order.id}">View Details</button>
-                        `;
-                        ordersList.appendChild(div);
-                    });
-            
-                    document.querySelectorAll('.view-details-btn').forEach(button => {
-                        button.addEventListener('click', async e => {
-                            const id = e.target.dataset.orderId;
-                            const resp = await fetch(`${BACKEND_URL}/orders/${id}`);
-                            const data = await resp.json();
-                            openOrderDetailModal(id, data);
-                        });
-                    });
-                }
-            }
+            modalLoadingMessage.classList.remove('hidden');
+            reofferFormContainer.classList.add('hidden');
+            modalMessage.classList.add('hidden');
 
-            async function fetchAllOrders() {
-                loadingMessage.classList.remove('hidden');
-                errorMessage.classList.add('hidden');
-                modalMessage.classList.add('hidden');
-                try {
-                    const response = await fetch(`${BACKEND_URL}/orders`);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    allOrders = await response.json();
-                    updateDashboardCounts();
-                    filterAndRenderOrders();
-                } catch (err) {
-                    console.error('Error fetching orders:', err);
-                    loadingMessage.classList.add('hidden');
-                    errorMessage.textContent = `Error: ${err.message}`;
-                    errorMessage.classList.remove('hidden');
-                }
-            }
-
-            function filterAndRenderOrders() {
-                loadingMessage.classList.add('hidden');
-                ordersList.innerHTML = '';
-                const searchTerm = searchInput.value.toLowerCase();
-                let filteredOrders = allOrders.filter(order => {
-                    const matchesStatus = (currentStatusFilter === 'dashboard' || currentStatusFilter === 'total') ||
-                                          (currentStatusFilter === 'reoffered_parent' && (order.status === 're-offered' || order.status === 'offer_accepted' || order.status === 'return_requested' || order.status === 'return_label_generated')) ||
-                                          (currentStatusFilter === order.status);
-                    
-                    const matchesSearch = Object.values(order).some(val => 
-                        String(val).toLowerCase().includes(searchTerm)
-                    );
-                    return matchesStatus && matchesSearch;
+            try {
+                // CORRECTED: Removed the extra /api/ prefix. BACKEND_BASE_URL already includes /api.
+                const url = `${BACKEND_BASE_URL}/orders/${orderId}/re-offer`;
+                console.log("Submitting re-offer to:", url); // Log the URL being fetched
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newPrice: parseFloat(newPrice), reasons, comments })
                 });
 
-                if (currentStatusFilter === 'dashboard') {
-                    dashboardContent.classList.remove('hidden');
-                    ordersListContent.classList.add('hidden');
-                } else {
-                    dashboardContent.classList.add('hidden');
-                    ordersListContent.classList.remove('hidden');
-                    renderOrders(filteredOrders);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Backend error response for re-offer:", response.status, errorText);
+                    throw new Error(errorText || `Failed to send re-offer: ${response.status} - ${errorText.substring(0, 100)}`);
                 }
+                const result = await response.json();
+                
+                displayModalMessage(result.message, 'success');
+                openOrderDetailsModal(orderId);
+
+            } catch (error) {
+                console.error("Action error:", error);
+                displayModalMessage(`Error: ${error.message}`, 'error');
+            } finally {
+                modalLoadingMessage.classList.add('hidden');
             }
+        }
 
-            function openOrderDetailModal(id, order) {
-                currentOrderId = id;
-                currentOrderDetails = order; // Store full order details
-                document.getElementById('modalOrderId').textContent = id;
-                document.getElementById('modalEstimatedQuote').textContent = `$${order.estimatedQuote?.toFixed(2) || '0.00'}`;
-                document.getElementById('modalDeviceModel').textContent = order.device || '';
-                document.getElementById('modalDeviceCarrier').textContent = order.carrier || '';
-                document.getElementById('modalDeviceStorage').textContent = order.storage || '';
-                document.getElementById('modalConditionPowerOn').textContent = order.condition_power_on || '';
-                document.getElementById('modalConditionFunctional').textContent = order.condition_functional || '';
-                document.getElementById('modalConditionCracks').textContent = order.condition_cracks || '';
-                document.getElementById('modalConditionCosmetic').textContent = order.condition_cosmetic || '';
-                document.getElementById('modalPaymentMethod').textContent = order.paymentMethod || '';
-                document.getElementById('modalPaymentValue').textContent = order.paymentDetails?.venmoUsername || order.paymentDetails?.paypalEmail || 'N/A';
-                document.getElementById('modalShippingName').textContent = order.shippingInfo?.fullName || '';
-                document.getElementById('modalShippingAddress').textContent = order.shippingInfo
-                    ? `${order.shippingInfo.streetAddress}, ${order.shippingInfo.city}, ${order.shippingInfo.state} ${order.shippingInfo.zipCode}`
-                    : '';
-                document.getElementById('modalShippingEmail').textContent = order.shippingInfo?.email || '';
-                document.getElementById('modalOrderStatus').textContent = order.status || '';
-            
-                const labelLink = modalLabelUrl.querySelector('a');
-                if (order.uspsLabelUrl) {
-                    labelLink.href = order.uspsLabelUrl;
-                    modalLabelUrl.classList.remove('hidden');
-                } else modalLabelUrl.classList.add('hidden');
+        async function handleAction(orderId, actionType) {
+            modalLoadingMessage.classList.remove('hidden');
+            modalActionButtons.classList.add('hidden');
+            modalMessage.classList.add('hidden');
+            modalMessage.textContent = '';
 
-                const returnLabelLink = modalReturnLabelUrl.querySelector('a');
-                if (order.returnLabelUrl) { // Check for new returnLabelUrl
-                    returnLabelLink.href = order.returnLabelUrl;
-                    modalReturnLabelUrl.classList.remove('hidden');
-                } else modalReturnLabelUrl.classList.add('hidden');
-            
-                // Hide all action buttons and sections initially
-                generateLabelBtn.classList.add('hidden');
-                markReceivedBtn.classList.add('hidden');
-                completeOrderBtn.classList.add('hidden');
-                openReofferFormBtn.classList.add('hidden');
-                openContactBuyerFormBtn.classList.add('hidden');
-                reofferFormSection.classList.add('hidden');
-                contactBuyerFormSection.classList.add('hidden');
-                sendPhoneBackBtn.classList.add('hidden'); // Hide new button
-                payNowBtn.classList.add('hidden'); // Hide new button
+            try {
+                let url;
+                let method = 'PUT';
+                let body = {};
 
-
-                // Show actions based on status
-                if (order.status === 'pending_shipment') {
-                    generateLabelBtn.classList.remove('hidden');
-                } else if (order.status === 'label_generated') {
-                    markReceivedBtn.classList.remove('hidden');
-                } else if (order.status === 'received') {
-                    completeOrderBtn.classList.remove('hidden');
-                    openReofferFormBtn.classList.remove('hidden');
-                    openContactBuyerFormBtn.classList.remove('hidden');
-                } else if (order.status === 're-offered') { // Pending re-offer
-                    completeOrderBtn.classList.remove('hidden');
-                    openReofferFormBtn.classList.remove('hidden');
-                    openContactBuyerFormBtn.classList.remove('hidden');
-                    // Display re-offer details
-                    reofferFormSection.classList.remove('hidden');
-                    reofferFormSection.innerHTML = `
-                        <h4 class="text-lg font-semibold mt-4 mb-2">Current Re-offer</h4>
-                        <p><strong>New Price:</strong> $${order.reofferDetails.newPrice.toFixed(2)}</p>
-                        <p><strong>Reason:</strong> ${order.reofferDetails.reason}</p>
-                        <p class="text-sm text-gray-500 mt-2">Status: <span class="font-bold">${order.status}</span></p>
-                        <p class="text-sm text-gray-500 mt-2">Awaiting buyer response.</p>
-                    `;
-                } else if (order.status === 'offer_accepted') { // Re-offer Accepted
-                    completeOrderBtn.classList.remove('hidden');
-                    openContactBuyerFormBtn.classList.remove('hidden');
-                    payNowBtn.classList.remove('hidden'); // Show Pay Now button
-                    // Display re-offer details
-                    reofferFormSection.classList.remove('hidden');
-                    reofferFormSection.innerHTML = `
-                        <h4 class="text-lg font-semibold mt-4 mb-2">Accepted Offer Details</h4>
-                        <p><strong>New Price:</strong> $${order.reofferDetails.newPrice.toFixed(2)}</p>
-                        <p><strong>Reason:</strong> ${order.reofferDetails.reason}</p>
-                        <p class="text-sm text-gray-500 mt-2">Status: <span class="font-bold">${order.status}</span></p>
-                    `;
-                } else if (order.status === 'return_requested') { // Re-offer Declined
-                    completeOrderBtn.classList.remove('hidden');
-                    openContactBuyerFormBtn.classList.remove('hidden');
-                    sendPhoneBackBtn.classList.remove('hidden'); // Show Send Phone Back button
-                    // Display re-offer details
-                    reofferFormSection.classList.remove('hidden');
-                    reofferFormSection.innerHTML = `
-                        <h4 class="text-lg font-semibold mt-4 mb-2">Declined Offer Details</h4>
-                        <p><strong>New Price:</strong> $${order.reofferDetails.newPrice.toFixed(2)}</p>
-                        <p><strong>Reason:</strong> ${order.reofferDetails.reason}</p>
-                        <p class="text-sm text-gray-500 mt-2">Status: <span class="font-bold">${order.status}</span></p>
-                    `;
-                } else if (order.status === 'completed') { // Completed order
-                    payNowBtn.classList.remove('hidden'); // Show Pay Now button
-                    openContactBuyerFormBtn.classList.remove('hidden');
-                }
-            
-                orderDetailModal.classList.remove('hidden');
-            }
-            
-            navItems.forEach(item => {
-                item.addEventListener('click', e => {
-                    e.preventDefault();
-
-                    const isSubItem = item.classList.contains('sub-nav-item');
-                    const parentItem = item.closest('ul').previousElementSibling;
-
-                    // Deactivate all nav items and hide all sub-menus initially
-                    navItems.forEach(i => i.classList.remove('active'));
-                    document.querySelectorAll('.sub-menu').forEach(sub => sub.classList.add('hidden'));
-
-                    // Set active class for the clicked item and its parent
-                    item.classList.add('active');
-                    if (isSubItem && parentItem) {
-                        parentItem.classList.add('active');
-                        item.closest('.sub-menu').classList.remove('hidden');
-                    }
-
-                    currentStatusFilter = item.dataset.status;
-                    mainTitle.textContent = item.textContent.trim();
-
-                    // If a main nav item is clicked, check for sub-menu
-                    if (item.dataset.status === 'reoffered_parent') {
-                        const subMenu = item.nextElementSibling;
-                        if (subMenu) {
-                            subMenu.classList.toggle('hidden');
+                switch(actionType) {
+                    case 'generateLabel':
+                        // CORRECTED: Removed the extra /api/ prefix. BACKEND_BASE_URL already includes /api.
+                        url = `${BACKEND_BASE_URL}/generate-label/${orderId}`;
+                        method = 'POST';
+                        break;
+                    case 'markReceived':
+                        // CORRECTED: Removed the extra /api/ prefix. BACKEND_BASE_URL already includes /api.
+                        url = `${BACKEND_BASE_URL}/orders/${orderId}/status`;
+                        body = { status: 'received' };
+                        break;
+                    case 'markCompleted':
+                        // CORRECTED: Removed the extra /api/ prefix. BACKEND_BASE_URL already includes /api.
+                        url = `${BACKEND_BASE_URL}/orders/${orderId}/status`;
+                        body = { status: 'completed' };
+                        break;
+                    case 'payNow':
+                        const order = allOrders.find(o => o.id === orderId);
+                        if (!order) {
+                            throw new Error('Order data not found locally.');
                         }
-                        // Do not filter when just opening the parent menu
-                        ordersListContent.classList.add('hidden');
-                        dashboardContent.classList.remove('hidden');
+                        const paymentLink = generatePaymentLink(order);
+                        if (paymentLink) {
+                            window.open(paymentLink, '_blank');
+                            displayModalMessage('Payment link generated and opened in a new tab.', 'success');
+                            await handleAction(orderId, 'markCompleted');
+                        } else {
+                            throw new Error('Could not generate payment link.');
+                        }
+                        modalLoadingMessage.classList.add('hidden');
+                        modalActionButtons.classList.remove('hidden');
                         return;
-                    }
+                    case 'sendReturnLabel':
+                         // CORRECTED: Removed the extra /api/ prefix. BACKEND_BASE_URL already includes /api.
+                         url = `${BACKEND_BASE_URL}/orders/${orderId}/return-label`;
+                         method = 'POST';
+                         break;
+                    default:
+                        throw new Error('Unknown action.');
+                }
 
-                    // Otherwise, filter and render orders
-                    filterAndRenderOrders();
+                console.log(`Performing action ${actionType} to:`, url); // Log the URL being fetched
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: Object.keys(body).length > 0 ? JSON.stringify(body) : null
                 });
-            });
 
-            // Handle dashboard card clicks
-            dashboardCards.forEach(card => {
-                card.addEventListener('click', e => {
-                    const status = card.dataset.status;
-                    const navItem = document.querySelector(`.nav-item[data-status="${status}"]`);
-                    if (navItem) {
-                        // Simulate a click on the corresponding nav item to reuse logic
-                        navItem.click();
-                    }
-                });
-            });
-
-            closeModalBtn.addEventListener('click', () => {
-                orderDetailModal.classList.add('hidden');
-                currentOrderId = null;
-                currentOrderDetails = null;
-                fetchAllOrders();
-            });
-
-            // Close modal when clicking outside the modal content
-            orderDetailModal.addEventListener('click', (e) => {
-                if (e.target.id === 'orderDetailModal') {
-                    closeModalBtn.click();
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Backend error response for action:", response.status, errorText);
+                    throw new Error(errorText || `Failed to perform action: ${response.status} - ${errorText.substring(0, 100)}`);
                 }
-            });
-            
-            refreshOrdersBtn.addEventListener('click', () => {
-                fetchAllOrders();
-            });
-
-            searchInput.addEventListener('input', () => {
-                filterAndRenderOrders();
-            });
-
-            generateLabelBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                showModalMessage('Generating label...', 'success');
-                try {
-                    const resp = await fetch(`${BACKEND_URL}/generate-label/${currentOrderId}`, { method: 'POST' });
-                    const result = await resp.json();
-                    if (!resp.ok) throw new Error(result.error || 'Failed to generate label');
-                    showModalMessage(result.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'label_generated';
-                    modalLabelUrl.querySelector('a').href = result.uspsLabelUrl;
-                    modalLabelUrl.classList.remove('hidden');
-                    generateLabelBtn.classList.add('hidden');
-                    markReceivedBtn.classList.remove('hidden');
-                    fetchAllOrders(); // Refresh orders to update status in list
-                } catch (err) {
-                    showModalMessage(`Error: ${err.message}`, 'error');
-                }
-            });
-
-            markReceivedBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                showModalMessage('Marking as received...', 'success');
-                try {
-                    const resp = await fetch(`${BACKEND_URL}/orders/${currentOrderId}/status`, {
-                        method: 'PUT',
-                        headers: {'Content-Type':'application/json'},
-                        body: JSON.stringify({status:'received'})
-                    });
-                    const res = await resp.json();
-                    if (!resp.ok) throw new Error(res.error || 'Failed');
-                    showModalMessage(res.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'received';
-                    markReceivedBtn.classList.add('hidden');
-                    // Show new buttons for 'received' status
-                    completeOrderBtn.classList.remove('hidden');
-                    openReofferFormBtn.classList.remove('hidden');
-                    openContactBuyerFormBtn.classList.remove('hidden');
-                    fetchAllOrders(); // Refresh orders to update status in list
-                } catch (err) {
-                    showModalMessage(`Error: ${err.message}`, 'error');
-                }
-            });
-
-            // Handle "Complete Order" button click
-            completeOrderBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                showModalMessage('Marking as completed...', 'success');
-                try {
-                    const resp = await fetch(`${BACKEND_URL}/orders/${currentOrderId}/status`, {
-                        method: 'PUT',
-                        headers: {'Content-Type':'application/json'},
-                        body: JSON.stringify({status:'completed'})
-                    });
-                    const res = await resp.json();
-                    if (!resp.ok) throw new Error(res.error || 'Failed');
-                    showModalMessage(res.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'completed';
-                    completeOrderBtn.classList.add('hidden');
-                    openReofferFormBtn.classList.add('hidden');
-                    openContactBuyerFormBtn.classList.add('hidden');
-                    reofferFormSection.classList.add('hidden');
-                    contactBuyerFormSection.classList.add('hidden');
-                    payNowBtn.classList.remove('hidden'); // Show Pay Now button for completed
-                    fetchAllOrders(); // Refresh orders to update status in list
-                } catch (err) {
-                    showModalMessage(`Error: ${err.message}`, 'error');
-                }
-            });
-
-            // Toggle Re-offer form visibility
-            openReofferFormBtn.addEventListener('click', () => {
-                reofferFormSection.classList.toggle('hidden');
-                contactBuyerFormSection.classList.add('hidden'); // Hide other form
-                // Clear previous inputs
-                reofferPriceInput.value = '';
-                reofferReasonCheckboxes.forEach(checkbox => checkbox.checked = false);
-                reofferAdditionalComment.value = '';
-            });
-
-            // Toggle Contact Buyer form visibility
-            openContactBuyerFormBtn.addEventListener('click', () => {
-                contactBuyerFormSection.classList.toggle('hidden');
-                reofferFormSection.classList.add('hidden'); // Hide other form
-                // Clear previous inputs
-                emailSubjectInput.value = '';
-                emailBodyInput.value = '';
-            });
-
-            // Submit New Re-offer button click
-            submitNewReofferBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                const newPrice = reofferPriceInput.value;
+                const result = await response.json();
                 
-                const selectedReasons = Array.from(reofferReasonCheckboxes)
-                                             .filter(checkbox => checkbox.checked)
-                                             .map(checkbox => checkbox.value);
-                const additionalComment = reofferAdditionalComment.value.trim();
-                
-                let reason = selectedReasons.join(', ');
-                if (additionalComment) {
-                    reason += (reason ? '; ' : '') + additionalComment;
-                }
+                displayModalMessage(result.message, 'success');
+                openOrderDetailsModal(orderId);
 
-                if (!newPrice || !reason) {
-                    showModalMessage('Please enter a new price and at least one reason.', 'error');
-                    return;
-                }
+            } catch (error) {
+                console.error("Action error:", error);
+                displayModalMessage(`Error: ${error.message}`, 'error');
+            } finally {
+                modalLoadingMessage.classList.add('hidden');
+                modalActionButtons.classList.remove('hidden');
+            }
+        }
 
-                showModalMessage('Submitting new re-offer...', 'success');
+        function generatePaymentLink(order) {
+            const amount = order.reOffer?.newPrice
+                            ? order.reOffer.newPrice.toFixed(2)
+                            : (order.estimatedQuote ? order.estimatedQuote.toFixed(2) : '0.00');
+            const customerName = order.shippingInfo ? order.shippingInfo.fullName : 'Customer';
+            const venmoUsername = order.paymentDetails?.venmoUsername;
 
-                try {
-                    const resp = await fetch(`${BACKEND_URL}/orders/${currentOrderId}/reoffer`, {
-                        method: 'PUT',
-                        headers: {'Content-Type':'application/json'},
-                        body: JSON.stringify({
-                            newPrice: parseFloat(newPrice),
-                            reason: reason
-                        })
-                    });
+            if (order.paymentMethod === 'venmo' && venmoUsername) {
+                const note = `Payment for ${order.device} - Order ${order.id}`;
+                return `https://venmo.com/?txn=pay&aud_id=${venmoUsername}&amount=${amount}&note=${encodeURIComponent(note)}`;
+            }
+            return null;
+        }
 
-                    const res = await resp.json();
-                    if (!resp.ok) throw new Error(res.error || 'Failed to submit re-offer');
+        function displayModalMessage(message, type) {
+            modalMessage.textContent = message;
+            modalMessage.className = `mt-4 p-3 text-sm rounded-md`;
+            if (type === 'success') {
+                modalMessage.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'error') {
+                modalMessage.classList.add('bg-red-100', 'text-red-700');
+            }
+            modalMessage.classList.remove('hidden');
+        }
 
-                    showModalMessage(res.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 're-offered';
-
-                    // Update the reoffer section to show the submitted details
-                    reofferFormSection.innerHTML = `
-                        <h4 class="text-lg font-semibold mt-4 mb-2">Current Re-offer</h4>
-                        <p><strong>New Price:</strong> $${parseFloat(newPrice).toFixed(2)}</p>
-                        <p><strong>Reason:</strong> ${reason}</p>
-                        <p class="text-sm text-gray-500 mt-2">Awaiting buyer response.</p>
-                    `;
-                    // Hide the other action buttons as re-offer is now pending
-                    openReofferFormBtn.classList.add('hidden');
-                    openContactBuyerFormBtn.classList.add('hidden');
-                    completeOrderBtn.classList.remove('hidden'); // Still allow completion
-                    fetchAllOrders(); // Refresh orders to update status in list
-                } catch (err) {
-                    showModalMessage(`Error: ${err.message}`, 'error');
-                }
-            });
-
-            // Send Custom Email button click
-            sendCustomEmailBtn.addEventListener('click', async () => {
-                if (!currentOrderId) return;
-                const subject = emailSubjectInput.value.trim();
-                const body = emailBodyInput.value.trim();
-
-                if (!subject || !body) {
-                    showModalMessage('Please enter both a subject and a message body for the email.', 'error');
-                    return;
-                }
-
-                showModalMessage('Sending custom email...', 'success');
-
-                try {
-                    const resp = await fetch(`${BACKEND_URL}/orders/${currentOrderId}/send-custom-email`, {
-                        method: 'POST',
-                        headers: {'Content-Type':'application/json'},
-                        body: JSON.stringify({ subject, body })
-                    });
-
-                    const res = await resp.json();
-                    if (!resp.ok) throw new Error(res.error || 'Failed to send custom email');
-
-                    showModalMessage(res.message, 'success');
-                    // Optionally clear the form or hide it after sending
-                    emailSubjectInput.value = '';
-                    emailBodyInput.value = '';
-                    contactBuyerFormSection.classList.add('hidden');
-                } catch (err) {
-                    showModalMessage(`Error: ${err.message}`, 'error');
-                }
-            });
-
-            // NEW: Send Phone Back button click (for Declined offers)
-            sendPhoneBackBtn.addEventListener('click', async () => {
-                if (!currentOrderId || !currentOrderDetails) return;
-                showModalMessage('Generating return label...', 'success');
-                try {
-                    const resp = await fetch(`${BACKEND_URL}/api/generate-return-label/${currentOrderId}`, { method: 'POST' });
-                    const result = await resp.json();
-                    if (!resp.ok) throw new Error(result.error || 'Failed to generate return label');
-                    showModalMessage(result.message, 'success');
-                    document.getElementById('modalOrderStatus').textContent = 'return_label_generated'; // Update status
-                    modalReturnLabelUrl.querySelector('a').href = result.returnLabelUrl;
-                    modalReturnLabelUrl.classList.remove('hidden');
-                    sendPhoneBackBtn.classList.add('hidden'); // Hide button after generating
-                    fetchAllOrders(); // Refresh orders to update status in list
-                } catch (err) {
-                    showModalMessage(`Error: ${err.message}`, 'error');
-                }
-            });
-
-            // NEW: Pay Now button click (for Accepted and Completed orders)
-            payNowBtn.addEventListener('click', () => {
-                if (!currentOrderId || !currentOrderDetails) return;
-
-                paymentModalOrderId.textContent = currentOrderId;
-                paymentModalAmount.textContent = `$${currentOrderDetails.reofferDetails?.newPrice?.toFixed(2) || currentOrderDetails.estimatedQuote?.toFixed(2) || '0.00'}`;
-                paymentModalMethod.textContent = currentOrderDetails.paymentMethod || 'N/A';
-                paymentModalRecipient.textContent = currentOrderDetails.paymentDetails?.venmoUsername || currentOrderDetails.paymentDetails?.paypalEmail || 'N/A';
-                
-                paymentModalMessage.classList.add('hidden'); // Clear previous messages
-                paymentModal.classList.remove('hidden'); // Show the payment modal
-            });
-
-            // Close Payment Modal
-            closePaymentModalBtn.addEventListener('click', () => {
-                paymentModal.classList.add('hidden');
-            });
-
-            // Initiate Payment button inside modal
-            initiatePaymentBtn.addEventListener('click', () => {
-                if (!currentOrderDetails) return;
-
-                const amount = currentOrderDetails.reofferDetails?.newPrice || currentOrderDetails.estimatedQuote;
-                const paymentMethod = currentOrderDetails.paymentMethod;
-                const recipient = currentOrderDetails.paymentDetails?.venmoUsername || currentOrderDetails.paymentDetails?.paypalEmail;
-                const orderNote = `Payment for SwiftBuyBack Order #${currentOrderId}`;
-
-                let paymentLink = '';
-
-                if (paymentMethod === 'Venmo' && recipient && amount) {
-                    paymentLink = `venmo://pay?recipients=${recipient.replace('@', '')}&amount=${amount.toFixed(2)}&note=${encodeURIComponent(orderNote)}`;
-                } else if (paymentMethod === 'PayPal' && recipient && amount) {
-                    // PayPal.me link for direct payment (requires recipient to have a PayPal.me link)
-                    // Or a more complex PayPal API integration for actual payment initiation.
-                    // For simplicity, we'll use a generic link or instruct admin.
-                    paymentLink = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${recipient}&amount=${amount.toFixed(2)}&item_name=${encodeURIComponent(orderNote)}`;
-                    paymentModalMessage.textContent = "Note: PayPal payment might require manual entry if recipient doesn't have PayPal.me or direct API is not set up.";
-                    paymentModalMessage.classList.remove('hidden');
-                } else {
-                    paymentModalMessage.textContent = 'Unable to generate direct payment link. Please process manually.';
-                    paymentModalMessage.classList.remove('hidden');
-                    return;
-                }
-
-                if (paymentLink) {
-                    window.open(paymentLink, '_blank'); // Open payment app/page
-                    paymentModalMessage.textContent = 'Payment link opened. Please complete the transaction.';
-                    paymentModalMessage.classList.remove('hidden');
-                }
-            });
-
-
-            fetchAllOrders();
+        function closeOrderDetailsModal() {
+            orderDetailsModal.classList.add('hidden');
+        }
+        
+        reofferParentLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            reofferSubmenu.classList.toggle('open');
         });
+
+        statusLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                currentActiveStatus = link.dataset.status;
+                statusLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                filterAndRenderOrders(currentActiveStatus, searchInput.value);
+            });
+        });
+        
+        dashboardCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const statusToFilter = card.dataset.status;
+                const targetLink = document.querySelector(`.status-link[data-status="${statusToFilter}"]`);
+                if (targetLink) {
+                    targetLink.click();
+                }
+            });
+        });
+
+        searchInput.addEventListener('input', () => {
+            filterAndRenderOrders(currentActiveStatus, searchInput.value);
+        });
+
+        closeModalButton.addEventListener('click', closeOrderDetailsModal);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                firebaseApp = initializeApp(firebaseConfig);
+                db = getFirestore(firebaseApp);
+                auth = getAuth(firebaseApp);
+                await signInAnonymously(auth);
+                currentUserId = auth.currentUser.uid;
+                displayUserId.textContent = currentUserId;
+                fetchAndRenderOrders();
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                ordersTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-red-500 py-4">Failed to load orders.</td></tr>`;
+            }
+        });
+
+        async function fetchAndRenderOrders() {
+            try {
+                const ordersCollectionRef = collection(db, "orders");
+                onSnapshot(ordersCollectionRef, (snapshot) => {
+                    allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    updateDashboardCounts(allOrders);
+                    filterAndRenderOrders(currentActiveStatus, searchInput.value);
+                });
+            } catch (error) {
+                console.error('Error fetching real-time orders:', error);
+                ordersTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-red-500 py-4">Failed to load orders.</td></tr>`;
+            }
+        }
+
+        function filterAndRenderOrders(status, searchTerm) {
+            let filtered = allOrders;
+
+            if (status !== 'all') {
+                filtered = filtered.filter(order => order.status === status);
+            }
+
+            if (searchTerm) {
+                const lowerCaseSearchTerm = searchTerm.toLowerCase();
+                filtered = filtered.filter(order =>
+                    order.id.toLowerCase().includes(lowerCaseSearchTerm) ||
+                    (order.shippingInfo && order.shippingInfo.fullName.toLowerCase().includes(lowerCaseSearchTerm)) ||
+                    (order.device && order.device.toLowerCase().includes(lowerCaseSearchTerm)) ||
+                    (order.storage && order.storage.toLowerCase().includes(lowerCaseSearchTerm)) ||
+                    (order.trackingNumber && order.trackingNumber.toLowerCase().includes(lowerCaseSearchTerm))
+                );
+            }
+            renderOrders(filtered);
+        }
     </script>
 </body>
 </html>

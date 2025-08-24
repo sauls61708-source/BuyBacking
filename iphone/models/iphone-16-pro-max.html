@@ -5,13 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwiftBuyBack - Sell iPhone 16 Pro Max</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase SDKs - Updated to modular version -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            signInWithPopup,
+            GoogleAuthProvider,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            updateProfile // Import updateProfile
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js"; // Optional: if you plan to use analytics
+        
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
+            authDomain: "buyback-a0f05.firebaseapp.com",
+            projectId: "buyback-a0f05",
+            storageBucket: "buyback-a0f05.firebasestorage.app",
+            messagingSenderId: "876430429098",
+            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
+            measurementId: "G-6WWQN44JHT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        // const analytics = getAnalytics(app); // If you want to use analytics
+        
+        // Expose Firebase auth and provider globally for use in DOMContentLoaded
+        window.firebaseAuth = auth;
+        window.GoogleAuthProvider = GoogleAuthProvider;
+        window.signInWithPopup = signInWithPopup;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.updateProfile = updateProfile;
+
+    </script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+
         /* Custom styles for hidden radio buttons and clickable images */
         .carrier-option input[type="radio"],
         .payment-option input[type="radio"] {
@@ -28,18 +72,20 @@
             align-items: center; /* Center horizontally */
             justify-content: center; /* Center vertically */
             height: 100%; /* Ensure label takes full height of grid item */
+            text-align: center; /* Center text within the label */
         }
         .carrier-option input[type="radio"]:checked + label,
         .payment-option input[type="radio"]:checked + label {
             border-color: #4f46e5; /* Indigo-600 for checked state */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg equivalent */
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); /* shadow-lg equivalent with indigo tint */
             transform: scale(1.02); /* Slight scale on selection */
+            background-color: #e0e7ff; /* Light indigo background on checked */
         }
         .carrier-option label:hover,
         .payment-option label:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* shadow-lg on hover */
         }
-        
+
         /* Basic styling for radio buttons that are visually hidden but still accessible */
         .sr-only {
             position: absolute;
@@ -52,322 +98,1034 @@
             white-space: nowrap;
             border-width: 0;
         }
+
+        /* Modal specific styles */
+        .modal {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-out;
+        }
+        .modal.is-visible .modal-content {
+            transform: translateY(0);
+        }
+
+        /* Quote Modal specific styles for fizzle-in effect */
+        #quoteModal {
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out, visibility 0.4s ease-out;
+            opacity: 0;
+            transform: scale(0.9);
+            visibility: hidden;
+        }
+        #quoteModal.is-visible {
+            opacity: 1;
+            transform: scale(1);
+            visibility: visible;
+        }
+
+
+        /* Custom Checkbox Style */
+        .custom-checkbox input[type="checkbox"] {
+            display: none;
+        }
+        .custom-checkbox .checkmark {
+            display: inline-block;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #94a3b8;
+            border-radius: 0.25rem;
+            position: relative;
+            transition: all 0.2s ease;
+            flex-shrink: 0; /* Prevent checkmark from shrinking */
+        }
+        .custom-checkbox input[type="checkbox"]:checked + .checkmark {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+        .custom-checkbox input[type="checkbox"]:checked + .checkmark::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0.5rem;
+            height: 1rem;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            transform: translate(-50%, -60%) rotate(45deg);
+        }
+
+        /* Enhanced button styles */
+        .btn-primary-blue {
+            background-color: #2563eb; /* Tailwind blue-600 */
+            color: white;
+            padding: 1rem 2rem; /* px-8 py-4 */
+            border-radius: 9999px; /* rounded-full */
+            font-weight: 700; /* font-bold */
+            font-size: 1.125rem; /* text-lg */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            transition: all 0.3s ease; /* transition duration-300 */
+            transform: scale(1); /* initial transform */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none; /* remove default button border */
+            cursor: pointer;
+        }
+        .btn-primary-blue:hover {
+            background-color: #1d4ed8; /* Tailwind blue-700 */
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+        .btn-primary-blue:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.5); /* focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 */
+        }
+
+        .btn-secondary-green {
+            background-color: #22c55e; /* Tailwind green-500 */
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 1.125rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            transform: scale(1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-secondary-green:hover {
+            background-color: #16a34a; /* Tailwind green-600 */
+            transform: scale(1.05);
+        }
+        .btn-secondary-green:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.5);
+        }
+
+        .btn-google-style {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background-color: white;
+            color: #475569; /* slate-700 */
+            padding: 0.75rem 1rem; /* py-3 */
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 1px solid #cbd5e1; /* border border-slate-300 */
+            font-weight: 600; /* font-semibold */
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            cursor: pointer;
+        }
+        .btn-google-style:hover {
+            background-color: #f8fafc; /* slate-50 */
+        }
+
+        .btn-dark-slate {
+            width: 100%;
+            background-color: #1e293b; /* slate-800 */
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-dark-slate:hover {
+            background-color: #0f172a; /* slate-900 */
+        }
+
+        .btn-red-logout {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem; /* text-sm */
+            color: #dc2626; /* red-600 */
+            background-color: transparent;
+            border: none;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-red-logout:hover {
+            background-color: #fef2f2; /* red-50 */
+        }
+
+        /* Specific styling for the send phone button (indigo) */
+        .btn-primary-indigo {
+            background-color: #4f46e5; /* Ensures primary color */
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 1.125rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            transform: scale(1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary-indigo:hover {
+            background-color: #4338ca; /* Darker indigo on hover */
+            transform: scale(1.05);
+        }
+        .btn-primary-indigo:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #94a3b8 !important; /* slate-400 */
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Responsive adjustments for quote section on smaller screens */
+        @media (max-width: 1023px) { /* Target screens smaller than large (lg) breakpoint */
+            .main-content-layout {
+                flex-direction: column-reverse; /* Put info column above image column */
+            }
+            .quote-display-mobile-first {
+                order: -1; /* Make quote visible first on mobile */
+                margin-bottom: 2rem; /* Add some space below it */
+            }
+            .main-content-layout > div:nth-child(1) { /* Target the image/quote column */
+                margin-top: 2rem; /* Add spacing above image */
+            }
+        }
+        @media (min-width: 1024px) { /* Adjust breakpoint as needed for larger screens */
+            .lg\:text-left .question-group .flex {
+                justify-content: flex-start; /* Align left on large screens */
+            }
+            .quote-display-mobile-first {
+                order: unset; /* Reset order for larger screens */
+            }
+        }
+
+        /* Highlight missing fields */
+        .highlight-missing {
+            border-color: #ef4444 !important; /* Red-500 */
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5) !important; /* Red shadow */
+        }
+        /* For radio/checkbox labels, apply highlight directly to label */
+        .carrier-option input[type="radio"]:not(:checked) + label.highlight-missing,
+        .payment-option input[type="radio"]:not(:checked) + label.highlight-missing {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5) !important;
+        }
+        /* For checkbox, highlight the checkmark wrapper */
+        .custom-checkbox input[type="checkbox"]:not(:checked) + .checkmark.highlight-missing {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5) !important;
+        }
+
+        /* Monogram styling */
+        .user-monogram {
+            @apply flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-800 font-bold text-lg cursor-pointer select-none;
+        }
+        .auth-dropdown {
+            @apply absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
+    <!-- Header -->
     <header class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
             <nav class="space-x-4">
-                <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
-                <a href="login.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login</a>
+                <a href="sell-device.html" class="text-slate-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <!-- Authentication Status Container -->
+                <div id="authStatusContainer" class="relative inline-block">
+                    <!-- This will be dynamically updated by JS -->
+                    <a href="#" id="loginNavBtn" class="text-slate-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login/Sign Up</a>
+
+                    <!-- Monogram and Dropdown (initially hidden) -->
+                    <div id="userMonogram" class="user-monogram hidden">
+                        <!-- Initials will go here -->
+                    </div>
+                    <div id="authDropdown" class="auth-dropdown hidden">
+                        <a href="my-account.html" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">My Account</a>
+                        <button id="logoutBtn" class="btn-red-logout">Logout</button>
+                    </div>
+                </div>
             </nav>
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="flex-grow container mx-auto px-4 py-12">
-        <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row items-start justify-center gap-8">
-            <div class="w-full md:w-2/5 text-center">
-                <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/refs/heads/main/iphone/assets/i16pm.webp" alt="iPhone 16 Pro Max" class="mx-auto mb-6 rounded-lg shadow-md w-full max-w-sm">
+        <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col lg:flex-row items-center justify-center gap-12 main-content-layout">
+            <!-- Image & Pricing Column -->
+            <div class="w-full lg:w-2/5 text-center quote-display-mobile-first">
+                <div class="relative w-full max-w-sm mx-auto mb-6 rounded-3xl shadow-lg overflow-hidden transform transition-transform duration-500 hover:scale-105">
+                    <img src="https://raw.githubusercontent.com/ToratYosef/BuyBacking/main/iphone/assets/i16pm.webp" alt="iPhone 16 Pro Max" class="w-full h-full object-cover">
+                </div>
+                <!-- The quote display on the main page is now visible after quote popup is dismissed -->
+                <div class="bg-indigo-600 text-white p-6 rounded-2xl shadow-lg hidden" id="mainQuoteDisplay">
+                    <h2 class="text-3xl font-extrabold mb-2">Your Instant Quote</h2>
+                    <p class="text-5xl font-extrabold" id="finalQuoteAmountMain">$0</p>
+                    <p class="text-sm mt-2 opacity-80">Final offer subject to certified inspection.</p>
+                </div>
             </div>
-            <div class="w-full md:w-3/5 text-center md:text-left">
-                <h1 class="text-4xl font-bold text-gray-800 mb-4">Sell Your iPhone 16 Pro Max</h1>
-                <p class="text-xl text-indigo-600 font-semibold mb-6">Get up to $800!</p>
-                <p class="text-gray-700 mb-6">
+
+            <!-- Form & Information Column -->
+            <div class="w-full lg:w-3/5 text-center lg:text-left">
+                <h1 class="text-4xl font-extrabold text-slate-900 mb-4">Sell Your iPhone 16 Pro Max</h1>
+                <p class="text-lg text-slate-600 mb-8 max-w-xl mx-auto lg:mx-0">
                     Ready to sell your iPhone 16 Pro Max? Get an instant, competitive quote for your device today.
                     We offer a quick, transparent, and hassle-free process with free shipping and certified inspection.
-                    Turn your old phone into cash quickly and easily!
                 </p>
 
+                <!-- Carrier Selection -->
+                <div class="mb-8" id="carrierSection">
+                    <label class="block text-xl font-bold text-slate-800 mb-4">1. Select Your Carrier</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4" id="carrierOptions">
+                        <div class="carrier-option">
+                            <input type="radio" id="att" name="carrier" value="ATT">
+                            <label for="att" class="bg-slate-50 p-4 rounded-xl text-center hover:bg-slate-200 transition duration-200">
+                                <i class="fa-solid fa-signal text-3xl text-indigo-600 mb-2"></i>
+                                <span class="block text-slate-700 font-medium">AT&T</span>
+                            </label>
+                        </div>
+                        <div class="carrier-option">
+                            <input type="radio" id="tmobile" name="carrier" value="TMobile">
+                            <label for="tmobile" class="bg-slate-50 p-4 rounded-xl text-center hover:bg-slate-200 transition duration-200">
+                                <i class="fa-solid fa-mobile-screen-button text-3xl text-pink-600 mb-2"></i>
+                                <span class="block text-slate-700 font-medium">T-Mobile</span>
+                            </label>
+                        </div>
+                        <div class="carrier-option">
+                            <input type="radio" id="verizon" name="carrier" value="Verizon">
+                            <label for="verizon" class="bg-slate-50 p-4 rounded-xl text-center hover:bg-slate-200 transition duration-200">
+                                <i class="fa-solid fa-wifi text-3xl text-red-600 mb-2"></i>
+                                <span class="block text-slate-700 font-medium">Verizon</span>
+                            </label>
+                        </div>
+                        <div class="carrier-option">
+                            <input type="radio" id="unlocked" name="carrier" value="Unlocked">
+                            <label for="unlocked" class="bg-slate-50 p-4 rounded-xl text-center hover:bg-slate-200 transition duration-200">
+                                <i class="fa-solid fa-lock-open text-3xl text-teal-600 mb-2"></i>
+                                <span class="block text-slate-700 font-medium">Unlocked</span>
+                            </label>
+                        </div>
+                        <div class="carrier-option">
+                            <input type="radio" id="other-carrier" name="carrier" value="Other">
+                            <label for="other-carrier" class="bg-slate-50 p-4 rounded-xl text-center hover:bg-slate-200 transition duration-200">
+                                <i class="fa-solid fa-globe text-3xl text-yellow-600 mb-2"></i>
+                                <span class="block text-slate-700 font-medium">Other</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Storage Selection -->
+                <div class="mb-8" id="storageSection">
+                    <label class="block text-xl font-bold text-slate-800 mb-4">2. Select Storage Amount</label>
+                    <div class="flex justify-center lg:justify-start"> <!-- Added for centering on small screens -->
+                        <select id="storage" class="mt-1 block w-full md:w-1/2 px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">Select Storage</option>
+                            <option value="128GB">128GB</option>
+                            <option value="256GB">256GB</option>
+                            <option value="512GB">512GB</option>
+                            <option value="1TB">1TB</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Condition Questions -->
                 <div class="mb-8">
-                    <label class="block text-2xl font-bold text-gray-800 mb-4">Select Your Carrier</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 justify-center">
-                        <div class="carrier-option">
-                            <input type="radio" id="att" name="carrier" value="ATT" class="sr-only">
-                            <label for="att" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=AT%26T" alt="AT&T Logo" class="mx-auto mb-2 rounded-lg w-20 h-20">
-                                <span class="block text-gray-700 font-medium">AT&T</span>
-                            </label>
-                        </div>
-                        <div class="carrier-option">
-                            <input type="radio" id="tmobile" name="carrier" value="TMobile" class="sr-only">
-                            <label for="tmobile" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=T-Mobile" alt="T-Mobile Logo" class="mx-auto mb-2 rounded-lg w-20 h-20">
-                                <span class="block text-gray-700 font-medium">T-Mobile</span>
-                            </label>
-                        </div>
-                        <div class="carrier-option">
-                            <input type="radio" id="verizon" name="carrier" value="Verizon" class="sr-only">
-                            <label for="verizon" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=Verizon" alt="Verizon Logo" class="mx-auto mb-2 rounded-lg w-20 h-20">
-                                <span class="block text-gray-700 font-medium">Verizon</span>
-                            </label>
-                        </div>
-                        <div class="carrier-option">
-                            <input type="radio" id="unlocked" name="carrier" value="Unlocked" class="sr-only">
-                            <label for="unlocked" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=Unlocked" alt="Unlocked Phone Icon" class="mx-auto mb-2 rounded-lg w-20 h-20">
-                                <span class="block text-gray-700 font-medium">Unlocked</span>
-                            </label>
-                        </div>
-                        <div class="carrier-option">
-                            <input type="radio" id="other-carrier" name="carrier" value="Other" class="sr-only">
-                            <label for="other-carrier" class="block bg-gray-100 p-4 rounded-xl text-center hover:bg-gray-200 transition duration-200">
-                                <img src="https://placehold.co/80x80/ffffff/000000?text=Other" alt="Other Carrier Icon" class="mx-auto mb-2 rounded-lg w-20 h-20">
-                                <span class="block text-gray-700 font-medium">Other</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-8">
-                    <label for="storage" class="block text-2xl font-bold text-gray-800 mb-4">Select Storage Amount</label>
-                    <select id="storage" class="mt-1 block w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-base">
-                        <option value="">Select Storage</option>
-                        <option value="128GB">128GB</option>
-                        <option value="256GB">256GB</option>
-                        <option value="512GB">512GB</option>
-                        <option value="1TB">1TB</option>
-                    </select>
-                </div>
-
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Let’s determine the condition</h2>
-                    <div class="mb-6 bg-gray-50 p-6 rounded-lg shadow-sm">
-                        <p class="text-lg font-semibold text-gray-700 mb-3">1. Does the device power on?</p>
-                        <div class="flex space-x-4">
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="q1_power_on" value="yes" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">Yes</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="q1_power_on" value="no" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">No</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="mb-6 bg-gray-50 p-6 rounded-lg shadow-sm">
-                        <p class="text-lg font-semibold text-gray-700 mb-3">2. Is the screen fully functional and free of defects?</p>
-                        <ul class="list-disc list-inside text-gray-600 mb-4 ml-4">
-                            <li>Screen fully lights up and works</li>
-                            <li>All exterior buttons respond</li>
-                            <li>Front and back cameras, and flash work</li>
-                            <li>Speakers and microphones function</li>
-                            <li>Headphone jack and charging port work</li>
-                            <li>Cellular, Wi-Fi, Bluetooth, and GPS connect</li>
-                            <li>Touchscreen and voice commands respond</li>
-                            <li>Facial recognition and fingerprint sensor work</li>
-                            <li>Battery health is good and holds a charge</li>
-                        </ul>
-                        <p class="text-sm text-gray-500 mb-3">Please select "Yes" only if *all* of the above are fully working.</p>
-                        <div class="flex space-x-4">
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="q2_fully_functional" value="yes" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">Yes</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="q2_fully_functional" value="no" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">No</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="mb-6 bg-gray-50 p-6 rounded-lg shadow-sm">
-                        <p class="text-lg font-semibold text-gray-700 mb-3">3. Are the front and back free of cracks?</p>
-                        <div class="flex space-x-4">
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="q3_no_cracks" value="yes" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">Yes</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="q3_no_cracks" value="no" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">No</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="mb-6 bg-gray-50 p-6 rounded-lg shadow-sm">
-                        <p class="text-lg font-semibold text-gray-700 mb-3">4. What’s the overall cosmetic condition?</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                            <label class="flex items-center p-3 border border-gray-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
-                                <input type="radio" name="q4_cosmetic_condition" value="flawless" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">Flawless</span>
-                            </label>
-                            <label class="flex items-center p-3 border border-gray-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
-                                <input type="radio" name="q4_cosmetic_condition" value="good" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">Good</span>
-                            </label>
-                            <label class="flex items-center p-3 border border-gray-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
-                                <input type="radio" name="q4_cosmetic_condition" value="fair" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">Fair</span>
-                            </label>
-                            <label class="flex items-center p-3 border border-gray-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
-                                <input type="radio" name="q4_cosmetic_condition" value="poor" class="form-radio text-indigo-600 h-5 w-5">
-                                <span class="ml-2 text-gray-700">Poor</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <button id="getQuoteBtn" class="w-full bg-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
-                    Get My Instant Quote!
-                </button>
-
-                <div id="quoteDisplay" class="mt-8 p-6 bg-indigo-50 rounded-xl shadow-inner hidden">
-                    <h3 class="text-2xl font-bold text-indigo-800 mb-2">Estimated Buyback Quote:</h3>
-                    <p class="text-4xl font-extrabold text-indigo-600" id="finalQuoteAmount">$0</p>
-                    <p class="text-sm text-gray-600 mt-2">This is an estimate. Final offer subject to certified inspection.</p>
-                </div>
-                <div id="quoteMessage" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
-
-                <div id="nextSteps" class="mt-12 hidden">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">How would you like to get paid?</h2>
-
-                    <div class="mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="payment-option">
-                            <input type="radio" id="venmo" name="payment_method" value="venmo" class="sr-only">
-                            <label for="venmo" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
-                                <span class="text-3xl block mb-2">📱</span>
-                                <span class="font-semibold block">Venmo</span>
-                            </label>
-                        </div>
-                        <div class="payment-option">
-                            <input type="radio" id="zelle" name="payment_method" value="zelle" class="sr-only">
-                            <label for="zelle" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
-                                <span class="text-3xl block mb-2">💸</span>
-                                <span class="font-semibold block">Zelle</span>
-                            </label>
-                        </div>
-                        <div class="payment-option">
-                            <input type="radio" id="paypal" name="payment_method" value="paypal" class="sr-only">
-                            <label for="paypal" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
-                                <span class="text-3xl block mb-2">🅿️</span>
-                                <span class="font-semibold block">PayPal</span>
-                            </label>
-                        </div>
-                        <div class="payment-option">
-                            <input type="radio" id="echeck" name="payment_method" value="echeck" class="sr-only">
-                            <label for="echeck" class="p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition-colors duration-200">
-                                <span class="text-3xl block mb-2">🏦</span>
-                                <span class="font-semibold block">eCheck</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div id="venmoFields" class="mb-8 p-6 bg-gray-50 rounded-lg shadow-sm hidden">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Venmo Details</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label for="venmoUsername" class="block text-sm font-medium text-gray-700">Venmo Username</label>
-                                <input type="text" id="venmoUsername" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6">3. Let’s determine the condition</h2>
+                    <div class="space-y-6">
+                        <div class="p-6 rounded-lg bg-slate-50 border border-slate-200 shadow-sm question-group" id="powerOnSection">
+                            <p class="text-lg font-semibold text-slate-700 mb-3 text-center lg:text-left">Does the device power on?</p>
+                            <div class="flex space-x-6 justify-center lg:justify-start" id="q1Options">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="q1_power_on" value="yes" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">Yes</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="q1_power_on" value="no" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">No</span>
+                                </label>
                             </div>
-                            <div>
-                                <label for="venmoUsernameConfirm" class="block text-sm font-medium text-gray-700">Verify Venmo Username</label>
-                                <input type="text" id="venmoUsernameConfirm" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="p-6 rounded-lg bg-slate-50 border border-slate-200 shadow-sm question-group" id="functionalSection">
+                            <p class="text-lg font-semibold text-slate-700 mb-3 text-center lg:text-left flex items-center justify-center lg:justify-start">
+                                Is the screen fully functional and free of defects?
+                            </p>
+                            <div id="functionalDetails" class="mt-2 p-3 bg-blue-50 rounded-md text-sm text-blue-800 text-left">
+                                <p class="font-semibold mb-2">For "Fully Functional", all of these must work correctly:</p>
+                                <ul class="list-disc list-inside ml-4 space-y-1">
+                                    <li>Screen works and fully lights up (no dead pixels, discoloration, **image burn or black dot/LCD dead pixels**)</li>
+                                    <li>All exterior buttons (power, volume, mute)</li>
+                                    <li>Front/back camera and flashes</li>
+                                    <li>Speakers and microphones</li>
+                                    <li>Headphone jack and charging port</li>
+                                    <li>Cellular, Wi-Fi, Bluetooth and GPS</li>
+                                    <li>Touchscreen and voice commands</li>
+                                    <li>Facial recognition and fingerprint sensor</li>
+                                    <li>The battery health is sufficient, and the device can hold a charge</li>
+                                </ul>
+                            </div>
+                            <div class="flex space-x-6 justify-center lg:justify-start" id="q2Options">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="q2_fully_functional" value="yes" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">Yes</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="q2_fully_functional" value="no" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">No</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="p-6 rounded-lg bg-slate-50 border border-slate-200 shadow-sm question-group" id="cracksSection">
+                            <p class="text-lg font-semibold text-slate-700 mb-3 text-center lg:text-left">Are the front and back free of cracks?</p>
+                            <div class="flex space-x-6 justify-center lg:justify-start" id="q3Options">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="q3_no_cracks" value="yes" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">Yes</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="q3_no_cracks" value="no" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">No</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="p-6 rounded-lg bg-slate-50 border border-slate-200 shadow-sm question-group" id="cosmeticSection">
+                            <p class="text-lg font-semibold text-slate-700 mb-3 text-center lg:text-left">What’s the overall cosmetic condition?</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="q4Options">
+                                <label class="flex items-center p-3 border border-slate-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                                    <input type="radio" name="q4_cosmetic_condition" value="flawless" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">Flawless</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-slate-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                                    <input type="radio" name="q4_cosmetic_condition" value="good" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">Good</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-slate-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                                    <input type="radio" name="q4_cosmetic_condition" value="fair" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">Fair</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-slate-300 rounded-md hover:bg-indigo-50 transition-colors duration-200 cursor-pointer">
+                                    <input type="radio" name="q4_cosmetic_condition" value="damaged" class="form-radio text-indigo-600 h-5 w-5">
+                                    <span class="ml-2 text-slate-700">Damaged</span>
+                                </label>
+                            </div>
+                            <div id="cosmeticConditionDescription" class="mt-4 p-3 bg-slate-100 rounded-md text-sm text-slate-700 text-left hidden">
+                                <!-- Description will be dynamically inserted here -->
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h2>
-                    <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input type="text" id="fullName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                        </div>
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                            <input type="email" id="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="streetAddress" class="block text-sm font-medium text-gray-700">Street Address</label>
-                            <input type="text" id="streetAddress" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                        </div>
-                        <div>
-                            <label for="city" class="block text-sm font-medium text-gray-700">City</label>
-                            <input type="text" id="city" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                        </div>
-                        <div>
-                            <label for="state" class="block text-sm font-medium text-gray-700">State</label>
-                            <input type="text" id="state" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                        </div>
-                        <div>
-                            <label for="zipCode" class="block text-sm font-medium text-gray-700">ZIP Code</label>
-                            <input type="text" id="zipCode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                        </div>
-                    </div>
+                <div id="cta-section" class="flex flex-col items-center">
+                    <button id="getQuoteBtn" class="btn-primary-blue w-full max-w-sm">
+                        Get My Instant Quote!
+                    </button>
+                    <div id="quoteMessage" class="mt-4 p-3 rounded-lg text-sm text-center hidden w-full max-w-sm"></div>
+                </div>
 
-                    <div id="orderOverview" class="mt-8 p-6 bg-indigo-50 rounded-xl shadow-inner hidden">
-                        <h3 class="text-2xl font-bold text-indigo-800 mb-4">Order Overview</h3>
-                        <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Device:</span> iPhone 16 Pro Max</p>
-                        <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Estimated Payout:</span> <span id="overviewQuote" class="text-indigo-600">$0</span></p>
-                        <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Payment Method:</span> <span id="overviewPayment">Not Selected</span></p>
-                        <p class="text-lg text-gray-700 mb-2"><span class="font-semibold">Shipping Address:</span> <span id="overviewAddress">Not Entered</span></p>
+                <!-- Next Steps Container (holds Payment/Shipping) -->
+                <div id="nextSteps" class="mt-12 hidden flex flex-col items-center gap-8">
+                    <!-- Payment and Shipping Section (Hidden by default, shown after quote popup and login/continue) -->
+                    <div id="paymentAndShipping" class="hidden w-full">
+                        <hr class="my-10 border-slate-200">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6">4. How would you like to get paid?</h2>
 
-                        <div class="mt-6 border p-4 rounded-lg bg-white shadow-sm">
-                            <label class="flex items-start">
-                                <input type="checkbox" id="termsAccepted" class="form-checkbox h-5 w-5 text-indigo-600 mt-1">
-                                <span class="ml-2 text-sm text-gray-700">I accept the terms and conditions and certify that this device is not lost or stolen.</span>
-                            </label>
+                        <!-- Payment Options -->
+                        <div class="mb-8 grid grid-cols-2 md:grid-cols-4 gap-4" id="paymentOptions">
+                            <div class="payment-option">
+                                <input type="radio" id="venmo" name="payment_method" value="venmo">
+                                <label for="venmo" class="p-4 bg-slate-50 rounded-xl text-center hover:bg-slate-200 transition-colors duration-200">
+                                    <i class="fa-brands fa-venmo text-4xl text-sky-500 mb-2"></i>
+                                    <span class="font-semibold block">Venmo</span>
+                                </label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" id="zelle" name="payment_method" value="zelle">
+                                <label for="zelle" class="p-4 bg-slate-50 rounded-xl text-center hover:bg-slate-200 transition-colors duration-200">
+                                    <i class="fa-solid fa-money-bill-transfer text-4xl text-green-600 mb-2"></i>
+                                    <span class="font-semibold block">Zelle</span>
+                                </label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" id="paypal" name="payment_method" value="paypal">
+                                <label for="paypal" class="p-4 bg-slate-50 rounded-xl text-center hover:bg-slate-200 transition-colors duration-200">
+                                    <i class="fa-brands fa-paypal text-4xl text-blue-600 mb-2"></i>
+                                    <span class="font-semibold block">PayPal</span>
+                                </label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" id="echeck" name="payment_method" value="echeck">
+                                <label for="echeck" class="p-4 bg-slate-50 rounded-xl text-center hover:bg-slate-200 transition-colors duration-200">
+                                    <i class="fa-solid fa-building-columns text-4xl text-gray-700 mb-2"></i>
+                                    <span class="font-semibold block">eCheck</span>
+                                </label>
+                            </div>
                         </div>
 
-                        <button id="sendPhoneBtn" class="w-full mt-6 bg-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
-                            Send Phone In Now
-                        </button>
+                        <!-- Payment Fields (Hidden by default, shown based on selection) -->
+                        <div id="venmoFields" class="mb-8 p-6 bg-slate-50 rounded-lg shadow-sm hidden">
+                            <h3 class="text-lg font-semibold text-slate-700 mb-3">Venmo Details</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="venmoUsername" class="block text-sm font-medium text-slate-700">Venmo Username</label>
+                                    <input type="text" id="venmoUsername" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label for="venmoUsernameConfirm" class="block text-sm font-medium text-slate-700">Verify Venmo Username</label>
+                                    <input type="text" id="venmoUsernameConfirm" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="zelleFields" class="mb-8 p-6 bg-slate-50 rounded-lg shadow-sm hidden">
+                            <h3 class="text-lg font-semibold text-slate-700 mb-3">Zelle Details</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="zelleIdentifier" class="block text-sm font-medium text-slate-700">Zelle Email or Phone Number</label>
+                                    <input type="text" id="zelleIdentifier" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="paypalFields" class="mb-8 p-6 bg-slate-50 rounded-lg shadow-sm hidden">
+                            <h3 class="text-lg font-semibold text-slate-700 mb-3">PayPal Details</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="paypalEmail" class="block text-sm font-medium text-slate-700">PayPal Email Address</label>
+                                    <input type="email" id="paypalEmail" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="echeckFields" class="mb-8 p-6 bg-slate-50 rounded-lg shadow-sm hidden">
+                            <h3 class="text-lg font-semibold text-slate-700 mb-3">eCheck Details</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="bankName" class="block text-sm font-medium text-slate-700">Bank Name</label>
+                                    <input type="text" id="bankName" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label for="accountHolderName" class="block text-sm font-medium text-slate-700">Account Holder Name</label>
+                                    <input type="text" id="accountHolderName" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label for="accountNumber" class="block text-sm font-medium text-slate-700">Account Number</label>
+                                    <input type="text" id="accountNumber" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label for="routingNumber" class="block text-sm font-medium text-slate-700">Routing Number</label>
+                                    <input type="text" id="routingNumber" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6">5. Shipping Information</h2>
+                        <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="fullName" class="block text-sm font-medium text-slate-700">Full Name</label>
+                                <input type="text" id="fullName" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-slate-700">Email Address</label>
+                                <input type="email" id="email" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="streetAddress" class="block text-sm font-medium text-slate-700">Street Address</label>
+                                <input type="text" id="streetAddress" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2">
+                            </div>
+                            <div>
+                                <label for="city" class="block text-sm font-medium text-slate-700">City</label>
+                                <input type="text" id="city" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2">
+                            </div>
+                            <div>
+                                <label for="state" class="block text-sm font-medium text-slate-700">State</label>
+                                <input type="text" id="state" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2">
+                            </div>
+                            <div>
+                                <label for="zipCode" class="block text-sm font-medium text-slate-700">ZIP Code</label>
+                                <input type="text" id="zipCode" class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm p-2">
+                            </div>
+                        </div>
+
+                        <!-- Order Overview -->
+                        <div id="orderOverview" class="mt-8 p-6 bg-indigo-50 rounded-xl shadow-inner">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">Order Overview</h3>
+                            <div class="space-y-2 text-lg text-slate-700">
+                                <p><span class="font-semibold">Device:</span> <span id="overviewDevice">iPhone 16 Pro Max</span></p>
+                                <p><span class="font-semibold">Estimated Payout:</span> <span id="overviewQuote" class="text-indigo-600 font-bold">$0</span></p>
+                                <p><span class="font-semibold">Payment Method:</span> <span id="overviewPayment">Not Selected</span></p>
+                                <p><span class="font-semibold">Shipping Address:</span> <span id="overviewAddress">Not Entered</span></p>
+                            </div>
+
+                            <div class="mt-6 p-4 rounded-lg bg-white shadow-sm">
+                                <label class="custom-checkbox flex items-start cursor-pointer">
+                                    <input type="checkbox" id="termsAccepted">
+                                    <span class="checkmark mt-1"></span>
+                                    <span class="ml-4 text-sm text-slate-700">I accept the terms and conditions and certify that this device is not lost or stolen.</span>
+                                </label>
+                            </div>
+
+                            <button id="sendPhoneBtn" class="btn-primary-indigo w-full mt-6">
+                                Send Phone In Now
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="bg-gray-800 text-white py-12 mt-8 w-full">
+    <!-- Modal for Quote Display -->
+    <div id="quoteModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0, 0, 0, 0.6);">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 relative modal-content text-center">
+            <h2 class="text-3xl font-extrabold text-indigo-800 mb-4">Your Instant Quote!</h2>
+            <p class="text-5xl font-extrabold text-indigo-600 mb-4" id="finalQuoteAmountPopup">$0</p>
+            <p class="text-md text-slate-600 mb-6">This is an estimate. Final offer subject to certified inspection.</p>
+            <button id="quoteModalContinueBtn" class="btn-secondary-green w-full max-w-xs mx-auto">
+                Continue
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Modal for Login/Signup -->
+    <div id="loginModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0, 0, 0, 0.6);">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 relative modal-content">
+            <button id="closeModalBtn" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors duration-200">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Your SwiftBuyBack Account</h2>
+
+            <!-- Tab Navigation for Login/Sign Up -->
+            <div class="flex border-b border-slate-200 mb-6">
+                <button id="loginTabBtn" class="flex-1 py-3 text-center text-lg font-medium border-b-2 border-transparent text-slate-500 hover:text-indigo-600 hover:border-indigo-600 transition-colors duration-200">Login</button>
+                <button id="signupTabBtn" class="flex-1 py-3 text-center text-lg font-medium border-b-2 border-transparent text-slate-500 hover:text-indigo-600 hover:border-indigo-600 transition-colors duration-200">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="space-y-4">
+                <p class="text-slate-600 text-center">Log in to continue with your order.</p>
+                <button type="button" id="googleLoginBtn" class="btn-google-style">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="w-5 h-5">
+                    Login with Google
+                </button>
+                <div class="text-center text-slate-500 relative">
+                    <span class="bg-white px-2 z-10 relative">or</span>
+                    <hr class="absolute inset-0 top-1/2 border-slate-200 -z-10">
+                </div>
+                <div>
+                    <label for="loginEmail" class="sr-only">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="Email Address" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="loginPassword" class="sr-only">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Password" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="current-password">
+                </div>
+                <button type="submit" id="emailLoginBtn" class="btn-dark-slate">Login</button>
+                <p class="text-center text-sm text-slate-600">Forgot your password? <a href="#" class="text-indigo-600 font-semibold hover:underline">Reset it here</a></p>
+            </form>
+
+            <!-- Sign Up Form (Hidden by default) -->
+            <form id="signupForm" class="space-y-4 hidden">
+                <p class="text-slate-600 text-center">Create an account to complete your order.</p>
+                <button type="button" id="googleSignupBtn" class="btn-google-style">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="w-5 h-5">
+                    Sign Up with Google
+                </button>
+                <div class="text-center text-slate-500 relative">
+                    <span class="bg-white px-2 z-10 relative">or</span>
+                    <hr class="absolute inset-0 top-1/2 border-slate-200 -z-10">
+                </div>
+                <div>
+                    <label for="signupName" class="sr-only">Full Name</label>
+                    <input type="text" id="signupName" placeholder="Full Name" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="signupEmail" class="sr-only">Email Address</label>
+                    <input type="email" id="signupEmail" placeholder="Email Address" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="signupPassword" class="sr-only">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Password" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="new-password">
+                </div>
+                <div>
+                    <label for="signupPhone" class="sr-only">Phone Number (Optional)</label>
+                    <input type="tel" id="signupPhone" placeholder="Phone Number (Optional)" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button type="submit" id="emailSignupBtn" class="btn-dark-slate">Sign Up</button>
+                <p class="text-center text-sm text-slate-600">Already have an account? <a href="#" id="switchToLogin" class="text-indigo-600 font-semibold hover:underline">Log in here</a></p>
+            </form>
+            <div id="authMessage" class="mt-4 p-3 rounded-lg text-sm text-center hidden w-full"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-white py-12 mt-8 w-full">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div>
                 <h3 class="text-xl font-bold mb-4">SwiftBuyBack</h3>
-                <p class="text-gray-400">Your trusted partner for selling used smartphones. Quick quotes, fair prices, and hassle-free service.</p>
+                <p class="text-slate-400">Your trusted partner for selling used smartphones. Quick quotes, fair prices, and hassle-free service.</p>
             </div>
             <div>
                 <h3 class="text-xl font-bold mb-4">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
-                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
-                    <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
-                    <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
-                    <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
+                    <li><a href="index.html" class="text-slate-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="sell-device.html" class="text-slate-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="my-account.html" class="text-slate-400 hover:text-white transition duration-300">My Account</a></li>
+                    <li><a href="about-us.html" class="text-slate-400 hover:text-white transition duration-300">About Us</a></li>
+                    <li><a href="contact.html" class="text-slate-400 hover:text-white transition duration-300">Contact</a></li>
                 </ul>
             </div>
             <div class="md:col-span-2 lg:col-span-1">
                 <h3 class="text-xl font-bold mb-4">Contact Us</h3>
-                <p class="text-gray-400">Email: info@swiftbuyback.com</p>
-                <p class="text-gray-400">Phone: (123) 456-7890</p>
-                <p class="text-gray-400 mt-4">&copy; 2025 SwiftBuyBack. All rights reserved.</p>
+                <p class="text-slate-400">Email: info@swiftbuyback.com</p>
+                <p class="text-slate-400">Phone: (123) 456-7890</p>
+                <p class="text-slate-400 mt-4">&copy; 2025 SwiftBuyBack. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Retrieve Firebase auth and provider from window object
+            const auth = window.firebaseAuth;
+            const GoogleAuthProvider = window.GoogleAuthProvider;
+            const signInWithPopup = window.signInWithPopup;
+            const signInWithEmailAndPassword = window.signInWithEmailAndPassword;
+            const createUserWithEmailAndPassword = window.createUserWithEmailAndPassword;
+            const signOut = window.signOut;
+            const onAuthStateChanged = window.onAuthStateChanged;
+            const updateProfile = window.updateProfile;
+
+
             const getQuoteBtn = document.getElementById('getQuoteBtn');
-            const quoteDisplay = document.getElementById('quoteDisplay');
-            const finalQuoteAmount = document.getElementById('finalQuoteAmount');
             const quoteMessage = document.getElementById('quoteMessage');
             const nextSteps = document.getElementById('nextSteps');
+            const finalQuoteAmountMain = document.getElementById('finalQuoteAmountMain'); // For the main page quote (initially hidden)
+            const finalQuoteAmountPopup = document.getElementById('finalQuoteAmountPopup'); // For the popup quote
+            const paymentAndShipping = document.getElementById('paymentAndShipping');
             const venmoFields = document.getElementById('venmoFields');
+            const zelleFields = document.getElementById('zelleFields'); // New
+            const paypalFields = document.getElementById('paypalFields'); // New
+            const echeckFields = document.getElementById('echeckFields'); // New
             const orderOverview = document.getElementById('orderOverview');
             const overviewQuote = document.getElementById('overviewQuote');
             const overviewPayment = document.getElementById('overviewPayment');
             const overviewAddress = document.getElementById('overviewAddress');
             const sendPhoneBtn = document.getElementById('sendPhoneBtn');
+            const loginModal = document.getElementById('loginModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const loginTabBtn = document.getElementById('loginTabBtn');
+            const signupTabBtn = document.getElementById('signupTabBtn');
+            const loginNavBtn = document.getElementById('loginNavBtn');
+            const quoteModal = document.getElementById('quoteModal'); // New
+            const quoteModalContinueBtn = document.getElementById('quoteModalContinueBtn'); // New
 
-            let finalQuote = 0;
+            // Firebase-related elements for nav
+            const authStatusContainer = document.getElementById('authStatusContainer');
+            const userMonogram = document.getElementById('userMonogram');
+            const authDropdown = document.getElementById('authDropdown');
+            const logoutBtn = document.getElementById('logoutBtn');
 
-            const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net';
+            // New elements for functional details and cosmetic descriptions
+            const functionalDetails = document.getElementById('functionalDetails');
+            const cosmeticConditionDescription = document.getElementById('cosmeticConditionDescription');
 
+
+            // Firebase-related elements for modal
+            const googleLoginBtn = document.getElementById('googleLoginBtn');
+            const emailLoginBtn = document.getElementById('emailLoginBtn');
+            const loginEmailInput = document.getElementById('loginEmail');
+            const loginPasswordInput = document.getElementById('loginPassword');
+
+            const googleSignupBtn = document.getElementById('googleSignupBtn');
+            const emailSignupBtn = document.getElementById('emailSignupBtn');
+            const signupNameInput = document.getElementById('signupName');
+            const signupEmailInput = document.getElementById('signupEmail');
+            const signupPasswordInput = document.getElementById('signupPassword');
+            const signupPhoneInput = document.getElementById('signupPhone');
+            const authMessage = document.getElementById('authMessage');
+
+            const loginForm = document.getElementById('loginForm'); // Get the login form element
+            const signupForm = document.getElementById('signupForm'); // Get the signup form element
+            const switchToLogin = document.getElementById('switchToLogin'); // New
+
+
+            // Placeholder for user login status. This will be updated by Firebase Auth.
+            let isUserLoggedIn = false;
+            let finalQuote = 0; // Initialize finalQuote
+
+            // Listen for Firebase Auth state changes
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    isUserLoggedIn = true;
+                    console.log("User is logged in:", user.uid);
+                    loginNavBtn.classList.add('hidden'); // Hide Login/Sign Up link
+                    userMonogram.classList.remove('hidden'); // Show monogram
+
+                    // Get initials for monogram
+                    const displayName = user.displayName;
+                    const email = user.email;
+                    let initials = '';
+                    if (displayName) {
+                        initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                    } else if (email) {
+                        initials = email.charAt(0).toUpperCase();
+                    }
+                    userMonogram.textContent = initials;
+
+                    hideLoginModal(); // Close modal if user logs in
+                } else {
+                    isUserLoggedIn = false;
+                    console.log("User is logged out.");
+                    loginNavBtn.classList.remove('hidden'); // Show Login/Sign Up link
+                    loginNavBtn.textContent = 'Login/Sign Up'; // Ensure it says Login/Sign Up
+                    userMonogram.classList.add('hidden'); // Hide monogram
+                    authDropdown.classList.add('hidden'); // Hide dropdown if user logs out
+                }
+            });
+
+            // Toggle dropdown when monogram is clicked
+            userMonogram.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent document click from immediately closing
+                authDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown if clicking outside
+            document.addEventListener('click', (e) => {
+                if (!authStatusContainer.contains(e.target)) {
+                    authDropdown.classList.add('hidden');
+                }
+            });
+
+            // Logout functionality
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth); // Modular syntax
+                    // onAuthStateChanged will handle UI update and dropdown hiding
+                } catch (error) {
+                    console.error("Logout error:", error);
+                }
+            });
+
+
+            // IMPORTANT: The BACKEND_URL must include '/api' because the Cloud Function is named 'api'.
+            const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net/api';
+
+            // --- Helper for Auth Messages (within modal) ---
+            function showAuthMessage(msg, type) {
+                authMessage.textContent = msg;
+                authMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700');
+                if (type === 'error') {
+                    authMessage.classList.add('bg-red-100', 'text-red-700');
+                } else if (type === 'success') {
+                    authMessage.classList.add('bg-green-100', 'text-green-700');
+                } else if (type === 'info') {
+                    authMessage.classList.add('bg-blue-100', 'text-blue-700');
+                }
+                authMessage.classList.remove('hidden');
+            }
+
+            function clearAuthMessage() {
+                authMessage.classList.add('hidden');
+                authMessage.textContent = '';
+            }
+
+            // --- Modal Functions ---
+            function showLoginModal() {
+                loginModal.classList.add('is-visible');
+                clearAuthMessage(); // Clear messages when modal opens
+                showTab('login');
+            }
+
+            function hideLoginModal() {
+                loginModal.classList.remove('is-visible');
+            }
+
+            function showTab(tabName) {
+                clearAuthMessage(); // Clear messages when switching tabs
+                loginTabBtn.classList.remove('border-indigo-600', 'text-indigo-600');
+                signupTabBtn.classList.remove('border-indigo-600', 'text-indigo-600');
+                loginTabBtn.classList.add('border-transparent', 'text-slate-500');
+                signupTabBtn.classList.add('border-transparent', 'text-slate-500');
+
+                if (tabName === 'login') {
+                    loginForm.classList.remove('hidden');
+                    signupForm.classList.add('hidden');
+                    loginTabBtn.classList.add('border-indigo-600', 'text-indigo-600');
+                } else { // signup
+                    signupForm.classList.remove('hidden');
+                    loginForm.classList.add('hidden');
+                    signupTabBtn.classList.add('border-indigo-600', 'text-indigo-600');
+                }
+            }
+
+            // --- Quote Modal Functions ---
+            function showQuotePopup() {
+                quoteModal.classList.add('is-visible');
+            }
+
+            function hideQuotePopup() {
+                quoteModal.classList.remove('is-visible');
+            }
+
+            // --- Event Listeners for Modals ---
+            closeModalBtn.addEventListener('click', hideLoginModal);
+            loginModal.addEventListener('click', (e) => {
+                if (e.target.id === 'loginModal') { // Clicked outside the modal content
+                    hideLoginModal();
+                }
+            });
+            loginTabBtn.addEventListener('click', () => showTab('login'));
+            signupTabBtn.addEventListener('click', () => showTab('signup'));
+            loginNavBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showLoginModal();
+            });
+            // New: Link to switch from signup to login form
+            switchToLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                showTab('login');
+            });
+
+
+            quoteModalContinueBtn.addEventListener('click', () => {
+                hideQuotePopup();
+                // Make the main quote display visible after the popup is closed
+                document.getElementById('mainQuoteDisplay').classList.remove('hidden');
+                if (isUserLoggedIn) {
+                    nextSteps.classList.remove('hidden');
+                    paymentAndShipping.classList.remove('hidden');
+                    updateOverview();
+                } else {
+                    showLoginModal();
+                }
+            });
+
+
+            // --- Firebase Authentication Logic ---
+
+            // Google Login/Signup
+            const googleProvider = new GoogleAuthProvider(); // Modular syntax
+
+            googleLoginBtn.addEventListener('click', async () => {
+                try {
+                    clearAuthMessage();
+                    showAuthMessage('Signing in with Google...', 'info');
+                    await signInWithPopup(auth, googleProvider); // Modular syntax
+                    // onAuthStateChanged will handle UI update and modal closing
+                } catch (error) {
+                    console.error("Google login error:", error);
+                    showAuthMessage(`Google login failed: ${error.message}`, 'error');
+                }
+            });
+
+            googleSignupBtn.addEventListener('click', async () => {
+                try {
+                    clearAuthMessage();
+                    showAuthMessage('Signing up with Google...', 'info');
+                    await signInWithPopup(auth, googleProvider); // Modular syntax
+                    // onAuthStateChanged will handle UI update and modal closing
+                } catch (error) {
+                    console.error("Google signup error:", error);
+                    showAuthMessage(`Google signup failed: ${error.message}`, 'error');
+                }
+            });
+
+            // Email/Password Login
+            loginForm.addEventListener('submit', async (e) => { // Listen for form submission
+                e.preventDefault(); // Prevent default form submission
+                const email = loginEmailInput.value;
+                const password = loginPasswordInput.value;
+                if (!email || !password) {
+                    showAuthMessage('Please enter both email and password.', 'error');
+                    return;
+                }
+                try {
+                    clearAuthMessage();
+                    showAuthMessage('Logging in...', 'info');
+                    await signInWithEmailAndPassword(auth, email, password); // Modular syntax
+                    // onAuthStateChanged will handle UI update and modal closing
+                } catch (error) {
+                    console.error("Email login error:", error);
+                    showAuthMessage(`Login failed: ${error.message}`, 'error');
+                }
+            });
+
+            // Email/Password Sign Up
+            signupForm.addEventListener('submit', async (e) => { // Listen for form submission
+                e.preventDefault(); // Prevent default form submission
+                const name = signupNameInput.value;
+                const email = signupEmailInput.value;
+                const password = signupPasswordInput.value;
+                const phone = signupPhoneInput.value; // Optional
+
+                if (!name || !email || !password) {
+                    showAuthMessage('Please enter your name, email, and password.', 'error');
+                    return;
+                }
+                if (password.length < 6) {
+                    showAuthMessage('Password should be at least 6 characters.', 'error');
+                    return;
+                }
+
+                try {
+                    clearAuthMessage();
+                    showAuthMessage('Creating account...', 'info');
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password); // Modular syntax
+                    await updateProfile(userCredential.user, { // Modular syntax
+                        displayName: name
+                    });
+                    // You might want to store phone in Firestore if provided
+                    if (phone) {
+                        // Example: Call a Cloud Function to save phone number to Firestore
+                        // const response = await fetch(`${BACKEND_URL}/save-user-profile`, {
+                        //      method: 'POST',
+                        //      headers: { 'Content-Type': 'application/json' },
+                        //      body: JSON.stringify({ uid: userCredential.user.uid, phone: phone })
+                        // });
+                        // if (!response.ok) console.error("Failed to save phone number");
+                    }
+                    showAuthMessage('Account created successfully! You are now logged in.', 'success');
+                    // onAuthStateChanged will handle UI update and modal closing
+                } catch (error) {
+                    console.error("Email signup error:", error);
+                    showAuthMessage(`Sign up failed: ${error.message}`, 'error');
+                }
+            });
+
+
+            // --- Helper for Quote Messages (main page) ---
             function showQuoteMessage(msg, type) {
                 quoteMessage.textContent = msg;
-                quoteMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+                quoteMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700');
                 if (type === 'error') {
                     quoteMessage.classList.add('bg-red-100', 'text-red-700');
                 } else if (type === 'success') {
                     quoteMessage.classList.add('bg-green-100', 'text-green-700');
+                } else if (type === 'info') {
+                    quoteMessage.classList.add('bg-blue-100', 'text-blue-700');
                 }
                 quoteMessage.classList.remove('hidden');
             }
@@ -377,25 +1135,101 @@
                 quoteMessage.textContent = '';
             }
 
+            // Function to remove highlight from all elements
+            function clearHighlights() {
+                document.querySelectorAll('.highlight-missing').forEach(el => {
+                    el.classList.remove('highlight-missing');
+                });
+                // Also clear highlights from radio group labels
+                document.querySelectorAll('.carrier-option label, .payment-option label').forEach(label => {
+                    label.classList.remove('highlight-missing');
+                });
+                    document.querySelectorAll('.custom-checkbox .checkmark').forEach(checkmark => {
+                    checkmark.classList.remove('highlight-missing');
+                });
+            }
+
+            // Helper to get first missing radio group element for scrolling
+            function getFirstMissingRadioGroup(groupName, sectionId) {
+                if (!document.querySelector(`input[name="${groupName}"]:checked`)) {
+                    return document.getElementById(sectionId);
+                }
+                return null;
+            }
+
+            // Cosmetic condition descriptions mapping
+            const cosmeticDescriptions = {
+                'flawless': 'Looks new with no signs of use. This is the best condition a used device can be in. There are no scratches, scuffs, or any other cosmetic imperfections visible to the naked eye. The device appears as if it just came out of its original packaging, offering a pristine aesthetic and feel.',
+                'good': 'There may be a few light scuffs or scratches that are smaller than the size of a pencil eraser. These minor imperfections are typically on the casing or screen, but do not affect the device\'s functionality or overall aesthetic significantly. They are generally only noticeable upon close inspection and do not detract from the device\'s premium feel.',
+                'fair': 'There are noticeable scratches or scuffs on the front and back. These could include multiple visible scratches, minor dents, or paint chips on the frame or back glass. While these cosmetic issues are more prominent, they do not impede the device\'s core functions, and the screen remains fully usable despite the marks.',
+                'damaged': 'Major cosmetic damage includes being bent, chipped, dented, or sunbleached. This category also covers devices with significant wear and tear, deep scratches, or other substantial visual defects that clearly impact the device\'s appearance. These issues are immediately apparent and go beyond normal wear, affecting the overall integrity and look of the device.'
+            };
+
+            // Event listener for cosmetic condition radio buttons to show description
+            document.querySelectorAll('input[name="q4_cosmetic_condition"]').forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    const selectedCondition = event.target.value;
+                    const description = cosmeticDescriptions[selectedCondition];
+                    if (description) {
+                        cosmeticConditionDescription.textContent = description;
+                        cosmeticConditionDescription.classList.remove('hidden');
+                    } else {
+                        cosmeticConditionDescription.classList.add('hidden');
+                        cosmeticConditionDescription.textContent = '';
+                    }
+                });
+            });
+
+            // --- Quote Calculation Logic ---
             getQuoteBtn.addEventListener('click', () => {
                 clearQuoteMessage();
-                quoteDisplay.classList.add('hidden');
-                nextSteps.classList.add('hidden');
+                clearHighlights(); // Clear previous highlights
+                nextSteps.classList.add('hidden'); // Hide next steps until quote is ready
+                paymentAndShipping.classList.add('hidden'); // Ensure payment/shipping is hidden
 
                 const selectedCarrier = document.querySelector('input[name="carrier"]:checked');
-                const selectedStorage = document.getElementById('storage').value;
+                const selectedStorage = document.getElementById('storage');
                 const q1PowerOn = document.querySelector('input[name="q1_power_on"]:checked');
                 const q2Functional = document.querySelector('input[name="q2_fully_functional"]:checked');
                 const q3NoCracks = document.querySelector('input[name="q3_no_cracks"]:checked');
                 const q4Cosmetic = document.querySelector('input[name="q4_cosmetic_condition"]:checked');
 
-                if (!selectedCarrier || !selectedStorage || !q1PowerOn || !q2Functional || !q3NoCracks || !q4Cosmetic) {
+                let firstMissingElement = null;
+
+                // Validate and highlight missing fields
+                if (!selectedCarrier) {
+                    document.getElementById('carrierOptions').classList.add('highlight-missing');
+                    if (!firstMissingElement) firstMissingElement = document.getElementById('carrierSection');
+                }
+                if (selectedStorage.value === '') {
+                    selectedStorage.classList.add('highlight-missing');
+                    if (!firstMissingElement) firstMissingElement = selectedStorage;
+                }
+                if (!q1PowerOn) {
+                    document.getElementById('q1Options').classList.add('highlight-missing');
+                    if (!firstMissingElement) firstMissingElement = document.getElementById('powerOnSection');
+                }
+                if (!q2Functional) {
+                    document.getElementById('q2Options').classList.add('highlight-missing');
+                    if (!firstMissingElement) firstMissingElement = document.getElementById('functionalSection');
+                }
+                if (!q3NoCracks) {
+                    document.getElementById('q3Options').classList.add('highlight-missing');
+                    if (!firstMissingElement) firstMissingElement = document.getElementById('cracksSection');
+                }
+                if (!q4Cosmetic) {
+                    document.getElementById('q4Options').classList.add('highlight-missing');
+                    if (!firstMissingElement) firstMissingElement = document.getElementById('cosmeticSection');
+                }
+
+                if (firstMissingElement) {
                     showQuoteMessage('Please answer all questions to get an accurate quote.', 'error');
+                    firstMissingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return;
                 }
 
                 let currentQuote = 0;
-                switch (selectedStorage) {
+                switch (selectedStorage.value) {
                     case '128GB': currentQuote = 400; break;
                     case '256GB': currentQuote = 500; break;
                     case '512GB': currentQuote = 600; break;
@@ -403,39 +1237,59 @@
                     default: showQuoteMessage('Invalid storage selected.', 'error'); return;
                 }
 
+                // Adjust quote based on conditions
                 if (selectedCarrier.value !== 'Unlocked') { currentQuote -= 25; }
                 if (q1PowerOn.value === 'no') { currentQuote *= 0.50; }
                 if (q2Functional.value === 'no') { currentQuote *= 0.75; }
                 if (q3NoCracks.value === 'no') { currentQuote -= 50; }
                 switch (q4Cosmetic.value) {
-                    case 'poor': currentQuote -= 45; break;
+                    case 'damaged': currentQuote -= 45; break;
                     case 'fair': currentQuote -= 25; break;
                     case 'good': currentQuote -= 15; break;
+                    case 'flawless': /* no deduction */ break;
                 }
 
-                finalQuote = Math.max(0, currentQuote);
-                finalQuoteAmount.textContent = `$${finalQuote.toFixed(2)}`;
-                quoteDisplay.classList.remove('hidden');
-                showQuoteMessage('Your instant quote has been calculated! Please proceed to the next step.', 'success');
-                nextSteps.classList.remove('hidden');
+                finalQuote = Math.max(0, currentQuote); // Ensure quote is not negative
+                finalQuoteAmountMain.textContent = `$${finalQuote.toFixed(2)}`; // Update main page (hidden)
+                finalQuoteAmountPopup.textContent = `$${finalQuote.toFixed(2)}`; // Update popup quote
+
+                showQuotePopup(); // Show the quote popup
             });
 
+            // --- Payment Method Selection ---
             document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
+                    // Hide all specific payment fields
                     venmoFields.classList.add('hidden');
+                    zelleFields.classList.add('hidden');
+                    paypalFields.classList.add('hidden');
+                    echeckFields.classList.add('hidden');
+
+                    // Remove highlight from all payment option labels
+                    document.querySelectorAll('.payment-option label').forEach(label => label.classList.remove('highlight-missing'));
+
+
                     const selectedMethod = e.target.value;
                     if (selectedMethod === 'venmo') {
                         venmoFields.classList.remove('hidden');
+                    } else if (selectedMethod === 'zelle') {
+                        zelleFields.classList.remove('hidden');
+                    } else if (selectedMethod === 'paypal') {
+                        paypalFields.classList.remove('hidden');
+                    } else if (selectedMethod === 'echeck') {
+                        echeckFields.classList.remove('hidden');
                     }
                     updateOverview();
                 });
             });
 
-            const shippingInputs = document.querySelectorAll('#nextSteps input[type="text"], #nextSteps input[type="email"]');
+            // --- Shipping Input Updates (for Order Overview) ---
+            const shippingInputs = document.querySelectorAll('#paymentAndShipping input[type="text"], #paymentAndShipping input[type="email"]');
             shippingInputs.forEach(input => {
                 input.addEventListener('input', updateOverview);
             });
 
+            // --- Update Order Overview ---
             function updateOverview() {
                 const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Not Selected';
                 const fullName = document.getElementById('fullName').value;
@@ -446,39 +1300,79 @@
 
                 overviewQuote.textContent = `$${finalQuote.toFixed(2)}`;
                 overviewPayment.textContent = selectedPayment.charAt(0).toUpperCase() + selectedPayment.slice(1);
-                
+
                 const fullAddress = [streetAddress, city, state, zipCode].filter(Boolean).join(', ');
                 overviewAddress.textContent = fullAddress || 'Not Entered';
-
-                orderOverview.classList.remove('hidden');
             }
 
+            // --- "Send Phone In Now" Button Logic ---
             sendPhoneBtn.addEventListener('click', async () => {
-                const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value;
-                const termsAccepted = document.getElementById('termsAccepted').checked;
-                const fullName = document.getElementById('fullName').value;
-                const streetAddress = document.getElementById('streetAddress').value;
-                const city = document.getElementById('city').value;
-                const state = document.getElementById('state').value;
-                const zipCode = document.getElementById('zipCode').value;
+                clearQuoteMessage(); // Clear any previous messages
+                clearHighlights(); // Clear highlights
 
-                if (!selectedPayment || !fullName || !streetAddress || !city || !state || !zipCode) {
-                    showQuoteMessage('Please fill out all required fields.', 'error');
-                    return;
-                }
-                if (!termsAccepted) {
-                    showQuoteMessage('You must accept the terms and conditions.', 'error');
-                    return;
-                }
-                if (selectedPayment === 'venmo') {
-                    const venmoUsername = document.getElementById('venmoUsername').value;
-                    const venmoUsernameConfirm = document.getElementById('venmoUsernameConfirm').value;
-                    if (!venmoUsername || venmoUsername !== venmoUsernameConfirm) {
-                        showQuoteMessage('Please enter and verify your Venmo username correctly.', 'error');
-                        return;
+                const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+                const termsAccepted = document.getElementById('termsAccepted');
+                const fullName = document.getElementById('fullName');
+                const email = document.getElementById('email');
+                const streetAddress = document.getElementById('streetAddress');
+                const city = document.getElementById('city');
+                const state = document.getElementById('state');
+                const zipCode = document.getElementById('zipCode');
+
+                let firstMissingElement = null;
+
+                // Validate payment method and its specific fields
+                if (!selectedPayment) {
+                    // Highlight the parent container or all payment options
+                    const paymentOptionsContainer = document.getElementById('paymentOptions');
+                    if (paymentOptionsContainer) {
+                        paymentOptionsContainer.classList.add('highlight-missing');
+                        if (!firstMissingElement) firstMissingElement = paymentOptionsContainer;
+                    }
+                } else {
+                    if (selectedPayment.value === 'venmo') {
+                        const venmoUsername = document.getElementById('venmoUsername');
+                        const venmoUsernameConfirm = document.getElementById('venmoUsernameConfirm');
+                        if (!venmoUsername.value) { venmoUsername.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = venmoUsername; }
+                        if (!venmoUsernameConfirm.value || venmoUsername.value !== venmoUsernameConfirm.value) { venmoUsernameConfirm.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = venmoUsernameConfirm; }
+                    } else if (selectedPayment.value === 'zelle') {
+                        const zelleIdentifier = document.getElementById('zelleIdentifier');
+                        if (!zelleIdentifier.value) { zelleIdentifier.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = zelleIdentifier; }
+                    } else if (selectedPayment.value === 'paypal') {
+                        const paypalEmail = document.getElementById('paypalEmail');
+                        if (!paypalEmail.value) { paypalEmail.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = paypalEmail; }
+                    } else if (selectedPayment.value === 'echeck') {
+                        const bankName = document.getElementById('bankName');
+                        const accountHolderName = document.getElementById('accountHolderName');
+                        const accountNumber = document.getElementById('accountNumber');
+                        const routingNumber = document.getElementById('routingNumber');
+                        if (!bankName.value) { bankName.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = bankName; }
+                        if (!accountHolderName.value) { accountHolderName.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = accountHolderName; }
+                        if (!accountNumber.value) { accountNumber.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = accountNumber; }
+                        if (!routingNumber.value) { routingNumber.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = routingNumber; }
                     }
                 }
 
+                // Validate shipping info
+                if (!fullName.value) { fullName.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = fullName; }
+                if (!email.value) { email.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = email; }
+                if (!streetAddress.value) { streetAddress.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = streetAddress; }
+                if (!city.value) { city.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = city; }
+                if (!state.value) { state.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = state; }
+                if (!zipCode.value) { zipCode.classList.add('highlight-missing'); if (!firstMissingElement) firstMissingElement = zipCode; }
+                if (!termsAccepted.checked) {
+                    document.querySelector('#orderOverview .checkmark').classList.add('highlight-missing');
+                    if (!firstMissingElement) firstMissingElement = termsAccepted;
+                }
+
+
+                if (firstMissingElement) {
+                    showQuoteMessage('Please fill out all required fields to proceed.', 'error');
+                    firstMissingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                
+                // Construct order data
                 const orderData = {
                     device: "iPhone 16 Pro Max",
                     carrier: document.querySelector('input[name="carrier"]:checked').value,
@@ -488,25 +1382,37 @@
                     condition_cracks: document.querySelector('input[name="q3_no_cracks"]:checked').value,
                     condition_cosmetic: document.querySelector('input[name="q4_cosmetic_condition"]:checked').value,
                     estimatedQuote: finalQuote,
-                    paymentMethod: selectedPayment,
+                    paymentMethod: selectedPayment.value,
                     paymentDetails: {},
                     shippingInfo: {
-                        fullName,
-                        email: document.getElementById('email').value,
-                        streetAddress,
-                        city,
-                        state,
-                        zipCode
+                        fullName: fullName.value,
+                        email: email.value,
+                        streetAddress: streetAddress.value,
+                        city: city.value,
+                        state: state.value,
+                        zipCode: zipCode.value
                     },
-                    termsAccepted: termsAccepted,
+                    termsAccepted: termsAccepted.checked,
                 };
 
-                if (selectedPayment === 'venmo') {
+                if (selectedPayment.value === 'venmo') {
                     orderData.paymentDetails.venmoUsername = document.getElementById('venmoUsername').value;
+                } else if (selectedPayment.value === 'zelle') {
+                    orderData.paymentDetails.zelleIdentifier = document.getElementById('zelleIdentifier').value;
+                } else if (selectedPayment.value === 'paypal') {
+                    orderData.paymentDetails.paypalEmail = document.getElementById('paypalEmail').value;
+                } else if (selectedPayment.value === 'echeck') {
+                    orderData.paymentDetails.bankName = document.getElementById('bankName').value;
+                    orderData.paymentDetails.accountHolderName = document.getElementById('accountHolderName').value;
+                    orderData.paymentDetails.accountNumber = document.getElementById('accountNumber').value;
+                    orderData.paymentDetails.routingNumber = document.getElementById('routingNumber').value;
                 }
 
+
+                // --- API Call to Submit Order ---
                 try {
-                    showQuoteMessage('Submitting your order...', 'success');
+                    showQuoteMessage('Submitting your order...', 'info'); // Use info type for in-progress messages
+                    // CORRECTED URL: The BACKEND_URL now includes '/api', so we just append the Express route.
                     const response = await fetch(`${BACKEND_URL}/submit-order`, {
                         method: 'POST',
                         headers: {
@@ -524,6 +1430,8 @@
                     showQuoteMessage('Your order has been submitted successfully! We will send a shipping label to your email shortly.', 'success');
                     sendPhoneBtn.disabled = true;
                     sendPhoneBtn.textContent = 'Order Submitted!';
+                    sendPhoneBtn.classList.remove('btn-primary-indigo'); // Remove the indigo class
+                    sendPhoneBtn.classList.add('btn-disabled'); // Apply the disabled class
                 } catch (e) {
                     console.error("Error submitting order: ", e);
                     showQuoteMessage('There was an error submitting your order. Please try again.', 'error');

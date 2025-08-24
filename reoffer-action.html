@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwiftBuyBack Offer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
         .btn-green-light { background-color: #a7f3d0; color: #065f46; } /* Tailwind green-200, green-800 */
         .btn-green-light:hover { background-color: #6ee7b7; } /* Tailwind green-300 */
         .btn-red-light { background-color: #fecaca; color: #991b1b; } /* Tailwind red-200, red-800 */
@@ -15,15 +20,116 @@
         .btn-blue-light { background-color: #bfdbfe; color: #1e40af; } /* Tailwind blue-200, blue-800 */
         .btn-blue-light:hover { background-color: #93c5fd; } /* Tailwind blue-300 */
         .btn-disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Styles for the circular monogram - copied from iphone-16-pro-max.html */
+        .user-monogram {
+            @apply flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-800 font-bold text-lg cursor-pointer select-none;
+        }
+        .auth-dropdown {
+            @apply absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20;
+        }
+
+        /* Modal specific styles - copied from iphone-16-pro-max.html */
+        .modal {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-out;
+        }
+        .modal.is-visible .modal-content {
+            transform: translateY(0);
+        }
+
+        /* Button styles for Google/Email login - copied from iphone-16-pro-max.html */
+        .btn-google-style {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background-color: white;
+            color: #475569; /* slate-700 */
+            padding: 0.75rem 1rem; /* py-3 */
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 1px solid #cbd5e1; /* border border-slate-300 */
+            font-weight: 600; /* font-semibold */
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            cursor: pointer;
+        }
+        .btn-google-style:hover {
+            background-color: #f8fafc; /* slate-50 */
+        }
+
+        .btn-dark-slate {
+            width: 100%;
+            background-color: #1e293b; /* slate-800 */
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-dark-slate:hover {
+            background-color: #0f172a; /* slate-900 */
+        }
+
+        .btn-red-logout {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem; /* text-sm */
+            color: #dc2626; /* red-600 */
+            background-color: transparent;
+            border: none;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-red-logout:hover {
+            background-color: #fef2f2; /* red-50 */
+        }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg text-center">
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- Header - Copied from iphone-16-pro-max.html -->
+    <header class="bg-white shadow-sm py-4 w-full">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-indigo-700 rounded-md p-2">SwiftBuyBack</a>
+            <nav class="space-x-4">
+                <a href="sell-device.html" class="text-slate-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
+                <!-- Authentication Status Container -->
+                <div id="authStatusContainer" class="relative inline-block">
+                    <!-- This will be dynamically updated by JS -->
+                    <a href="#" id="loginNavBtn" class="text-slate-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login/Sign Up</a>
+
+                    <!-- Monogram and Dropdown (initially hidden) -->
+                    <div id="userMonogram" class="user-monogram hidden">
+                        <!-- Initials will go here -->
+                    </div>
+                    <div id="authDropdown" class="auth-dropdown hidden">
+                        <a href="my-account.html" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">My Account</a>
+                        <button id="logoutBtn" class="btn-red-logout">Logout</button>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg text-center mt-8">
         <div id="loadingState" class="mb-4">
             <p class="text-blue-500 text-lg">Loading offer details...</p>
         </div>
 
-        <!-- Initial state: Shows offer details and Yes/No buttons -->
         <div id="offerDetailsState" class="hidden">
             <h2 class="text-3xl font-bold text-gray-800 mb-6">Your SwiftBuyBack Offer</h2>
             <p class="text-xl text-gray-700 mb-4">Hello <span id="buyerName" class="font-semibold"></span>,</p>
@@ -32,6 +138,11 @@
             <div class="space-y-3 text-left bg-gray-50 p-6 rounded-md border border-gray-200 mb-8">
                 <p class="text-lg font-semibold text-gray-800">New Offer Price: <span id="newOfferPrice" class="font-bold text-green-700"></span></p>
                 <p class="text-sm text-gray-600">Reason for re-offer: <em id="reofferReason"></em></p>
+            </div>
+            
+            <div id="countdownContainer" class="bg-blue-100 text-blue-800 p-3 rounded-md mb-6 hidden">
+                <p class="font-semibold">Time remaining to decide:</p>
+                <p id="countdownTimer" class="font-bold text-2xl"></p>
             </div>
 
             <div id="actionButtons" class="space-y-4 md:flex md:space-y-0 md:space-x-4 mb-8">
@@ -44,7 +155,6 @@
             </div>
         </div>
 
-        <!-- Confirmation state: Shows Yes/No status after action -->
         <div id="confirmationState" class="hidden">
             <h2 id="confirmationHeading" class="text-4xl font-bold mb-6"></h2>
             <p id="confirmationMessage" class="text-xl text-gray-700 mb-8"></p>
@@ -54,9 +164,22 @@
             <p id="changeReplyMessage" class="text-sm text-gray-600 mb-8 hidden"></p>
         </div>
 
+        <div id="confirmPrompt" class="hidden bg-white rounded-lg shadow-xl p-6 mt-8">
+            <h3 class="text-2xl font-bold mb-4">Are you sure?</h3>
+            <p id="confirmMessage" class="text-lg text-gray-700 mb-6"></p>
+            <p class="text-red-500 font-semibold mb-6">You cannot change your choice once confirmed!</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirmYesBtn" class="btn-green-light text-center font-bold py-3 px-6 rounded-lg transition duration-300">
+                    Yes, Confirm
+                </button>
+                <button id="confirmCancelBtn" class="btn-red-light text-center font-bold py-3 px-6 rounded-lg transition duration-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
         <div id="errorMessage" class="text-red-600 text-lg mb-4 hidden"></div>
 
-        <!-- Reply section (always visible once order details are loaded) -->
         <div id="replySection" class="mt-8 pt-6 border-t border-gray-200 hidden">
             <h3 class="text-xl font-semibold text-gray-800 mb-4">Have a question or want to add a comment?</h3>
             <form id="replyForm" class="space-y-4">
@@ -74,35 +197,229 @@
         </p>
     </div>
 
-    <script>
-        const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net/api'; // Your Cloud Function URL
-        const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    <!-- Modal for Login/Signup - Copied from iphone-16-pro-max.html -->
+    <div id="loginModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0, 0, 0, 0.6);">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 relative modal-content">
+            <button id="closeModalBtn" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors duration-200">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Your SwiftBuyBack Account</h2>
 
-        document.addEventListener('DOMContentLoaded', async () => {
+            <!-- Tab Navigation for Login/Sign Up -->
+            <div class="flex border-b border-slate-200 mb-6">
+                <button id="loginTabBtn" class="flex-1 py-3 text-center text-lg font-medium border-b-2 border-transparent text-slate-500 hover:text-indigo-600 hover:border-indigo-600 transition-colors duration-200">Login</button>
+                <button id="signupTabBtn" class="flex-1 py-3 text-center text-lg font-medium border-b-2 border-transparent text-slate-500 hover:text-indigo-600 hover:border-indigo-600 transition-colors duration-200">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="space-y-4">
+                <p class="text-slate-600 text-center">Log in to continue with your order.</p>
+                <button type="button" id="googleLoginBtn" class="btn-google-style">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="w-5 h-5">
+                    Login with Google
+                </button>
+                <div class="text-center text-slate-500 relative">
+                    <span class="bg-white px-2 z-10 relative">or</span>
+                    <hr class="absolute inset-0 top-1/2 border-slate-200 -z-10">
+                </div>
+                <div>
+                    <label for="loginEmail" class="sr-only">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="Email Address" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="loginPassword" class="sr-only">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Password" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="current-password">
+                </div>
+                <button type="submit" id="emailLoginBtn" class="btn-dark-slate">Login</button>
+                <p class="text-center text-sm text-slate-600">Forgot your password? <a href="#" class="text-indigo-600 font-semibold hover:underline">Reset it here</a></p>
+            </form>
+
+            <!-- Sign Up Form (Hidden by default) -->
+            <form id="signupForm" class="space-y-4 hidden">
+                <p class="text-slate-600 text-center">Create an account to complete your order.</p>
+                <button type="button" id="googleSignupBtn" class="btn-google-style">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="w-5 h-5">
+                    Sign Up with Google
+                </button>
+                <div class="text-center text-slate-500 relative">
+                    <span class="bg-white px-2 z-10 relative">or</span>
+                    <hr class="absolute inset-0 top-1/2 border-slate-200 -z-10">
+                </div>
+                <div>
+                    <label for="signupName" class="sr-only">Full Name</label>
+                    <input type="text" id="signupName" placeholder="Full Name" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="signupEmail" class="sr-only">Email Address</label>
+                    <input type="email" id="signupEmail" placeholder="Email Address" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="signupPassword" class="sr-only">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Password" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="new-password">
+                </div>
+                <div>
+                    <label for="signupPhone" class="sr-only">Phone Number (Optional)</label>
+                    <input type="tel" id="signupPhone" placeholder="Phone Number (Optional)" class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button type="submit" id="emailSignupBtn" class="btn-dark-slate">Sign Up</button>
+                <p class="text-center text-sm text-slate-600">Already have an account? <a href="#" id="switchToLogin" class="text-indigo-600 font-semibold hover:underline">Log in here</a></p>
+            </form>
+            <div id="authMessage" class="mt-4 p-3 rounded-lg text-sm text-center hidden w-full"></div>
+        </div>
+    </div>
+
+    <!-- Footer - Copied from iphone-16-pro-max.html -->
+    <footer class="bg-gray-800 text-white py-12 mt-8 w-full">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4">SwiftBuyBack</h3>
+                <p class="text-gray-400">Your trusted partner for selling used smartphones. Quick quotes, fair prices, and hassle-free service.</p>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="index.html" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                    <li><a href="sell-device.html" class="text-gray-400 hover:text-white transition duration-300">Sell Your Phone</a></li>
+                    <li><a href="my-account.html" class="text-gray-400 hover:text-white transition duration-300">My Account</a></li>
+                    <li><a href="about-us.html" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
+                    <li><a href="contact.html" class="text-gray-400 hover:text-white transition duration-300">Contact</a></li>
+                </ul>
+            </div>
+            <div class="md:col-span-2 lg:col-span-1">
+                <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                <p class="text-gray-400">Email: info@swiftbuyback.com</p>
+                <p class="text-gray-400">Phone: (123) 456-7890</p>
+                <p class="text-gray-400 mt-4">&copy; 2025 SwiftBuyBack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signOut, 
+            onAuthStateChanged,
+            signInWithPopup,
+            GoogleAuthProvider,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // Your Firebase configuration - Copied from iphone-16-pro-max.html
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmUGWbpbJIWLrBMJpZb8iMpFt-uc24J0k",
+            authDomain: "buyback-a0f05.firebaseapp.com",
+            projectId: "buyback-a0f05",
+            storageBucket: "buyback-a0f05.firebasestorage.app",
+            messagingSenderId: "876430429098",
+            appId: "1:876430429098:web:f6dd64b1960d90461979d3",
+            measurementId: "G-6WWQN44JHT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const BACKEND_URL = 'https://us-central1-buyback-a0f05.cloudfunctions.net/api'; // Your Cloud Function base URL
+        let countdownInterval = null;
+        let pendingAction = null; // To store 'accept-offer' or 'return-phone'
+
+        const loadingState = document.getElementById('loadingState');
+        const offerDetailsState = document.getElementById('offerDetailsState');
+        const confirmationState = document.getElementById('confirmationState');
+        const confirmationHeading = document.getElementById('confirmationHeading');
+        const confirmationMessage = document.getElementById('confirmationMessage');
+        const orderIdDisplay = document.getElementById('orderIdDisplay');
+        const newOfferPrice = document.getElementById('newOfferPrice');
+        const reofferReason = document.getElementById('reofferReason');
+        const buyerNameSpan = document.getElementById('buyerName');
+        const errorMessage = document.getElementById('errorMessage');
+        const acceptOfferBtn = document.getElementById('acceptOfferBtn');
+        const returnPhoneBtn = document.getElementById('returnPhoneBtn');
+        const actionButtonsDiv = document.getElementById('actionButtons');
+        const replySection = document.getElementById('replySection');
+        const replyForm = document.getElementById('replyForm');
+        const replyMessageInput = document.getElementById('replyMessageInput');
+        const replyStatus = document.getElementById('replyStatus');
+        const confirmPrompt = document.getElementById('confirmPrompt');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmYesBtn = document.getElementById('confirmYesBtn');
+        const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+        const countdownContainer = document.getElementById('countdownContainer');
+        const countdownTimer = document.getElementById('countdownTimer');
+
+        // Header Auth Elements
+        const authStatusContainer = document.getElementById('authStatusContainer'); // New
+        const loginNavBtn = document.getElementById('loginNavBtn'); // New
+        const userMonogram = document.getElementById('userMonogram'); // New
+        const authDropdown = document.getElementById('authDropdown'); // New
+        const logoutBtn = document.getElementById('logoutBtn'); // New
+
+        // Login Modal Elements
+        const loginModal = document.getElementById('loginModal'); // New
+        const closeModalBtn = document.getElementById('closeModalBtn'); // New
+        const loginTabBtn = document.getElementById('loginTabBtn'); // New
+        const signupTabBtn = document.getElementById('signupTabBtn'); // New
+        const loginForm = document.getElementById('loginForm'); // New
+        const signupForm = document.getElementById('signupForm'); // New
+        const googleLoginBtn = document.getElementById('googleLoginBtn'); // New
+        const emailLoginBtn = document.getElementById('emailLoginBtn'); // New
+        const loginEmailInput = document.getElementById('loginEmail'); // New
+        const loginPasswordInput = document.getElementById('loginPassword'); // New
+        const googleSignupBtn = document.getElementById('googleSignupBtn'); // New
+        const emailSignupBtn = document.getElementById('emailSignupBtn'); // New
+        const signupNameInput = document.getElementById('signupName'); // New
+        const signupEmailInput = document.getElementById('signupEmail'); // New
+        const signupPasswordInput = document.getElementById('signupPassword'); // New
+        const signupPhoneInput = document.getElementById('signupPhone'); // New
+        const authMessage = document.getElementById('authMessage'); // New
+        const switchToLogin = document.getElementById('switchToLogin'); // New
+
+
+        const formatTimeRemaining = (ms) => {
+            const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+            return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        };
+
+        const renderConfirmationState = (status, orderId) => {
+            offerDetailsState.classList.add('hidden');
+            loadingState.classList.add('hidden');
+            confirmationState.classList.remove('hidden');
+            confirmPrompt.classList.add('hidden');
+            actionButtonsDiv.classList.add('hidden');
+            clearInterval(countdownInterval);
+            countdownContainer.classList.add('hidden');
+
+            const accepted = status === 're-offered-accepted' || status === 're-offered-auto-accepted';
+            const declined = status === 're-offered-declined';
+            
+            if (accepted) {
+                confirmationHeading.textContent = 'Offer Accepted! ✅';
+                confirmationHeading.className = `text-4xl font-bold mb-6 text-green-600`;
+                confirmationMessage.textContent = `You have successfully accepted the revised offer for Order #${orderId}. We will process your payment shortly. This decision is final.`;
+            } else if (declined) {
+                confirmationHeading.textContent = 'Offer Declined. ❌';
+                confirmationHeading.className = `text-4xl font-bold mb-6 text-red-600`;
+                confirmationMessage.textContent = `You have successfully declined the revised offer for Order #${orderId}. We will process the return shipment shortly. This decision is final.`;
+            } else {
+                 // Fallback for any other status, though unlikely with the current logic
+                 confirmationHeading.textContent = 'Decision Finalized.';
+                 confirmationHeading.className = `text-4xl font-bold mb-6 text-gray-600`;
+                 confirmationMessage.textContent = `Your choice for Order #${orderId} has been recorded. This decision is final.`;
+            }
+            
+            replySection.classList.remove('hidden');
+        };
+
+        const loadOfferDetails = async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get('orderId');
-
-            const loadingState = document.getElementById('loadingState');
-            const offerDetailsState = document.getElementById('offerDetailsState');
-            const confirmationState = document.getElementById('confirmationState');
-            const confirmationHeading = document.getElementById('confirmationHeading');
-            const confirmationMessage = document.getElementById('confirmationMessage');
-            const orderIdDisplay = document.getElementById('orderIdDisplay');
-            const newOfferPrice = document.getElementById('newOfferPrice');
-            const reofferReason = document.getElementById('reofferReason');
-            const buyerNameSpan = document.getElementById('buyerName');
-            const errorMessage = document.getElementById('errorMessage');
-            const acceptOfferBtn = document.getElementById('acceptOfferBtn');
-            const returnPhoneBtn = document.getElementById('returnPhoneBtn');
-            const actionButtonsDiv = document.getElementById('actionButtons');
-            const replySection = document.getElementById('replySection');
-            const replyForm = document.getElementById('replyForm');
-            const replyMessageInput = document.getElementById('replyMessageInput'); // Renamed for clarity
-            const replyStatus = document.getElementById('replyStatus');
-            const changeReplyBtn = document.getElementById('changeReplyBtn'); // New button
-            const changeReplyMessage = document.getElementById('changeReplyMessage'); // New message for change reply
-
-            let currentOrderData = null; // Store order data for reply form and status checks
 
             if (!orderId) {
                 errorMessage.textContent = 'Error: Order ID is missing from the URL.';
@@ -111,187 +428,390 @@
                 return;
             }
 
-            orderIdDisplay.textContent = `#${orderId}`;
+            loadingState.classList.remove('hidden');
+            offerDetailsState.classList.add('hidden');
+            confirmationState.classList.add('hidden');
+            confirmPrompt.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            replySection.classList.add('hidden');
+            clearInterval(countdownInterval);
 
-            const renderConfirmationState = (status, timestamp) => {
-                offerDetailsState.classList.add('hidden');
+            try {
+                // CORRECTED: Removed the extra /api/ prefix. BACKEND_URL already includes /api.
+                const orderResponse = await fetch(`${BACKEND_URL}/orders/${orderId}`);
+                if (!orderResponse.ok) {
+                    throw new Error(`Failed to fetch order details: ${orderResponse.statusText}`);
+                }
+                const currentOrderData = await orderResponse.json();
+
+                orderIdDisplay.textContent = `#${orderId}`;
+                newOfferPrice.textContent = `$${currentOrderData.reOffer?.newPrice?.toFixed(2) || currentOrderData.estimatedQuote?.toFixed(2) || 'N/A'}`;
+                reofferReason.textContent = currentOrderData.reOffer?.reasons?.join(', ') || 'N/A';
+                buyerNameSpan.textContent = currentOrderData.shippingInfo?.fullName || 'Customer';
+
                 loadingState.classList.add('hidden');
-                confirmationState.classList.remove('hidden');
-                actionButtonsDiv.classList.add('hidden'); // Hide action buttons
 
-                const accepted = status === 'offer_accepted';
-                confirmationHeading.textContent = accepted ? 'Yes! ✅' : 'No. ❌';
-                confirmationHeading.className = `text-4xl font-bold mb-6 ${accepted ? 'text-green-600' : 'text-red-600'}`;
-                confirmationMessage.textContent = accepted 
-                    ? `Offer accepted for Order #${orderId}. We will process your payment shortly.`
-                    : `Phone return requested for Order #${orderId}. We will process the return shipment shortly.`;
+                if (currentOrderData.status === 're-offered-pending' && currentOrderData.reOffer?.autoAcceptDate) {
+                    offerDetailsState.classList.remove('hidden');
+                    replySection.classList.remove('hidden');
+                    actionButtonsDiv.classList.remove('hidden');
+                    countdownContainer.classList.remove('hidden');
+
+                    const autoAcceptDate = new Date(currentOrderData.reOffer.autoAcceptDate._seconds * 1000);
+                    
+                    if (countdownInterval) clearInterval(countdownInterval);
+
+                    countdownInterval = setInterval(() => {
+                        const now = new Date();
+                        const timeRemaining = autoAcceptDate.getTime() - now.getTime();
+
+                        if (timeRemaining <= 0) {
+                            clearInterval(countdownInterval);
+                            countdownTimer.textContent = 'Offer expired, auto-accepted.';
+                            // A page refresh will trigger the server-side status check
+                            location.reload(); 
+                        } else {
+                            countdownTimer.textContent = formatTimeRemaining(timeRemaining);
+                        }
+                    }, 1000);
+
+                } else if (currentOrderData.status === 're-offered-accepted' || currentOrderData.status === 're-offered-auto-accepted') {
+                    renderConfirmationState('re-offered-accepted', orderId);
+                } else if (currentOrderData.status === 're-offered-declined') { // UPDATED status check
+                    renderConfirmationState('re-offered-declined', orderId); // UPDATED status name
+                } else {
+                    errorMessage.textContent = 'No pending offer found for this order, or it has been processed already.';
+                    errorMessage.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error loading offer page:', error);
+                errorMessage.textContent = `Error: ${error.message}. Please try again or contact support.`;
+                errorMessage.classList.remove('hidden');
+                loadingState.classList.add('hidden');
+            }
+        };
+
+        const handleAction = async (actionType) => {
+            loadingState.classList.remove('hidden');
+            offerDetailsState.classList.add('hidden');
+            confirmPrompt.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            clearInterval(countdownInterval);
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const orderId = urlParams.get('orderId');
+                // CORRECTED: Removed the extra /api/ prefix. BACKEND_URL already includes /api.
+                const actionEndpoint = `${BACKEND_URL}/${actionType}-action`;
+                const response = await fetch(actionEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId: orderId })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Failed to ${actionType} offer.`);
+                }
+
+                await loadOfferDetails(); 
                 
-                // Show/hide and enable/disable Change Reply button based on timestamp
-                if (timestamp) {
-                    const decisionTime = new Date(timestamp._seconds * 1000); // Firestore timestamp to JS Date
-                    const currentTime = new Date();
-                    const timeDifference = currentTime.getTime() - decisionTime.getTime();
-
-                    changeReplyBtn.classList.remove('hidden');
-                    changeReplyMessage.classList.remove('hidden');
-
-                    if (timeDifference < TWENTY_FOUR_HOURS_MS) {
-                        changeReplyBtn.disabled = false;
-                        changeReplyBtn.classList.remove('btn-disabled');
-                        changeReplyMessage.textContent = `You can change your reply within 24 hours of your decision. Time remaining: ${formatTimeRemaining(TWENTY_FOUR_HOURS_MS - timeDifference)}`;
-                    } else {
-                        changeReplyBtn.disabled = true;
-                        changeReplyBtn.classList.add('btn-disabled');
-                        changeReplyMessage.textContent = 'The 24-hour window to change your reply has passed.';
-                    }
-                } else {
-                    changeReplyBtn.classList.add('hidden');
-                    changeReplyMessage.classList.add('hidden');
-                }
-                replySection.classList.remove('hidden'); // Keep reply section visible
-            };
-
-            const formatTimeRemaining = (ms) => {
-                const hours = Math.floor(ms / (1000 * 60 * 60));
-                const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((ms % (1000 * 60)) / 1000);
-                return `${hours}h ${minutes}m ${seconds}s`;
-            };
-
-            const loadOfferDetails = async () => {
-                loadingState.classList.remove('hidden');
-                offerDetailsState.classList.add('hidden');
-                confirmationState.classList.add('hidden');
-                errorMessage.classList.add('hidden');
-                replySection.classList.add('hidden'); // Hide reply section during loading
-
-                try {
-                    const orderResponse = await fetch(`${BACKEND_URL}/orders/${orderId}`);
-                    if (!orderResponse.ok) {
-                        throw new Error(`Failed to fetch order details: ${orderResponse.statusText}`);
-                    }
-                    currentOrderData = await orderResponse.json();
-
-                    newOfferPrice.textContent = `$${currentOrderData.reofferDetails?.newPrice?.toFixed(2) || currentOrderData.estimatedQuote?.toFixed(2) || 'N/A'}`;
-                    reofferReason.textContent = currentOrderData.reofferDetails?.reason || 'N/A';
-                    buyerNameSpan.textContent = currentOrderData.shippingInfo?.fullName || 'Customer';
-                    
-                    loadingState.classList.add('hidden');
-
-                    // Check current status and render accordingly
-                    if (currentOrderData.status === 'offer_accepted') {
-                        renderConfirmationState('offer_accepted', currentOrderData.acceptedAt);
-                    } else if (currentOrderData.status === 'return_requested') {
-                        renderConfirmationState('return_requested', currentOrderData.returnRequestedAt);
-                    } else {
-                        offerDetailsState.classList.remove('hidden');
-                        actionButtonsDiv.classList.remove('hidden'); // Ensure action buttons are visible
-                        replySection.classList.remove('hidden'); // Show reply section
-                    }
-
-                } catch (error) {
-                    console.error('Error loading offer page:', error);
-                    errorMessage.textContent = `Error: ${error.message}. Please try again or contact support.`;
-                    errorMessage.classList.remove('hidden');
-                    loadingState.classList.add('hidden');
-                }
-            };
-
-            // Initial load
-            await loadOfferDetails();
-
-            // Event listener for Change Reply button
-            changeReplyBtn.addEventListener('click', () => {
-                confirmationState.classList.add('hidden');
+            } catch (error) {
+                console.error(`Error during ${actionType} action:`, error);
+                loadingState.classList.add('hidden');
+                errorMessage.textContent = `Error: ${error.message}. Please try again or contact support.`;
+                errorMessage.classList.remove('hidden');
+                // Re-enable offer details view on error
                 offerDetailsState.classList.remove('hidden');
-                actionButtonsDiv.classList.remove('hidden'); // Show action buttons again
-                changeReplyBtn.classList.add('hidden'); // Hide change reply button
-                changeReplyMessage.classList.add('hidden');
-            });
+                replySection.classList.remove('hidden');
+                countdownContainer.classList.remove('hidden');
+            }
+        };
 
-            const disableActionButtons = (disable) => {
-                acceptOfferBtn.disabled = disable;
-                returnPhoneBtn.disabled = disable;
-                if (disable) {
-                    acceptOfferBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    returnPhoneBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                } else {
-                    acceptOfferBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    returnPhoneBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            };
-
-            const handleAction = async (actionType) => {
-                disableActionButtons(true); // Disable buttons immediately
-                loadingState.classList.remove('hidden');
-                offerDetailsState.classList.add('hidden');
-                errorMessage.classList.add('hidden');
-
-                try {
-                    const actionEndpoint = `${BACKEND_URL}/api/${actionType}-action`;
-                    const response = await fetch(actionEndpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orderId: orderId })
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || `Failed to ${actionType} offer.`);
-                    }
-
-                    // Reload order data to get updated timestamp
-                    await loadOfferDetails(); 
-                    
-                } catch (error) {
-                    console.error(`Error during ${actionType} action:`, error);
-                    loadingState.classList.add('hidden');
-                    errorMessage.textContent = `Error: ${error.message}. Please try again or contact support.`;
-                    errorMessage.classList.remove('hidden');
-                    disableActionButtons(false); // Re-enable if action failed
-                    offerDetailsState.classList.remove('hidden'); // Show offer details again if error
-                }
-            };
-
-            acceptOfferBtn.addEventListener('click', () => handleAction('accept-offer'));
-            returnPhoneBtn.addEventListener('click', () => handleAction('return-phone'));
-
-            // Handle reply form submission
-            replyForm.addEventListener('submit', async (event) => {
-                event.preventDefault();
-                const message = replyMessageInput.value.trim();
-                if (!message) {
-                    replyStatus.textContent = 'Please enter a message.';
-                    replyStatus.style.color = 'red';
-                    return;
-                }
-
-                replyStatus.textContent = 'Sending reply...';
-                replyStatus.style.color = 'blue';
-
-                try {
-                    const replyBackendUrl = `${BACKEND_URL}/orders/${orderId}/add-buyer-reply`;
-                    const replyResponse = await fetch(replyBackendUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ replyMessage: message })
-                    });
-
-                    if (replyResponse.ok) {
-                        replyStatus.textContent = 'Reply sent successfully!';
-                        replyStatus.style.color = 'green';
-                        replyMessageInput.value = ''; // Clear the textarea
-                    } else {
-                        const errorText = await replyResponse.text();
-                        throw new Error(errorText || 'Failed to send reply.');
-                    }
-                } catch (error) {
-                    console.error('Error sending reply:', error);
-                    replyStatus.textContent = `Error sending reply: ${error.message}`;
-                    replyStatus.style.color = 'red';
-                }
-            });
+        acceptOfferBtn.addEventListener('click', () => {
+            pendingAction = 'accept-offer';
+            confirmMessage.textContent = 'Do you want to accept the new offer?';
+            confirmPrompt.classList.remove('hidden');
+            actionButtonsDiv.classList.add('hidden');
         });
+
+        returnPhoneBtn.addEventListener('click', () => {
+            pendingAction = 'return-phone';
+            confirmMessage.textContent = 'Do you want to decline the offer and have your phone returned?';
+            confirmPrompt.classList.remove('hidden');
+            actionButtonsDiv.classList.add('hidden');
+        });
+
+        confirmYesBtn.addEventListener('click', () => {
+            if (pendingAction) {
+                handleAction(pendingAction);
+            }
+        });
+
+        confirmCancelBtn.addEventListener('click', () => {
+            confirmPrompt.classList.add('hidden');
+            actionButtonsDiv.classList.remove('hidden');
+            pendingAction = null;
+        });
+
+        replyForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const message = replyMessageInput.value.trim();
+            if (!message) {
+                replyStatus.textContent = 'Please enter a message.';
+                replyStatus.style.color = 'red';
+                return;
+            }
+
+            replyStatus.textContent = 'Sending reply...';
+            replyStatus.style.color = 'blue';
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const orderId = urlParams.get('orderId');
+                // CORRECTED: Removed the extra /api/ prefix. BACKEND_URL already includes /api.
+                const replyBackendUrl = `${BACKEND_URL}/orders/${orderId}/add-buyer-reply`;
+                const replyResponse = await fetch(replyBackendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ replyMessage: message })
+                });
+
+                if (replyResponse.ok) {
+                    replyStatus.textContent = 'Reply sent successfully!';
+                    replyStatus.style.color = 'green';
+                    replyMessageInput.value = '';
+                } else {
+                    const errorText = await replyResponse.text();
+                    throw new Error(errorText || 'Failed to send reply.');
+                }
+            } catch (error) {
+                console.error('Error sending reply:', error);
+                replyStatus.textContent = `Error sending reply: ${error.message}`;
+                replyStatus.style.color = 'red';
+            }
+        });
+
+        // --- Login Modal Functions (Copied from iphone-16-pro-max.html) ---
+        function showLoginModal() {
+            loginModal.classList.add('is-visible');
+            clearAuthMessage(); // Clear messages when modal opens
+            showTab('login');
+        }
+
+        function hideLoginModal() {
+            loginModal.classList.remove('is-visible');
+        }
+
+        function showTab(tabName) {
+            clearAuthMessage(); // Clear messages when switching tabs
+            loginTabBtn.classList.remove('border-indigo-600', 'text-indigo-600');
+            signupTabBtn.classList.remove('border-indigo-600', 'text-indigo-600');
+            loginTabBtn.classList.add('border-transparent', 'text-slate-500');
+            signupTabBtn.classList.add('border-transparent', 'text-slate-500');
+
+            if (tabName === 'login') {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                loginTabBtn.classList.add('border-indigo-600', 'text-indigo-600');
+            } else { // signup
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+                signupTabBtn.classList.add('border-indigo-600', 'text-indigo-600');
+            }
+        }
+
+        function showAuthMessage(msg, type) {
+            authMessage.textContent = msg;
+            authMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700');
+            if (type === 'error') {
+                authMessage.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'success') {
+                authMessage.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'info') {
+                authMessage.classList.add('bg-blue-100', 'text-blue-700');
+            }
+            authMessage.classList.remove('hidden');
+        }
+
+        function clearAuthMessage() {
+            authMessage.classList.add('hidden');
+            authMessage.textContent = '';
+        }
+
+        // --- Event Listeners for Modals and Auth (Copied from iphone-16-pro-max.html) ---
+        closeModalBtn.addEventListener('click', hideLoginModal);
+        loginModal.addEventListener('click', (e) => {
+            if (e.target.id === 'loginModal') { // Clicked outside the modal content
+                hideLoginModal();
+            }
+        });
+        loginTabBtn.addEventListener('click', () => showTab('login'));
+        signupTabBtn.addEventListener('click', () => showTab('signup'));
+        loginNavBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLoginModal();
+        });
+        // Link to switch from signup to login form
+        if (switchToLogin) { // Check if element exists before adding listener
+            switchToLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                showTab('login');
+            });
+        }
+
+
+        // --- Firebase Authentication Logic (Copied from iphone-16-pro-max.html) ---
+
+        // Google Login/Signup
+        const googleProvider = new GoogleAuthProvider();
+
+        googleLoginBtn.addEventListener('click', async () => {
+            try {
+                clearAuthMessage();
+                showAuthMessage('Signing in with Google...', 'info');
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                console.error("Google login error:", error);
+                showAuthMessage(`Google login failed: ${error.message}`, 'error');
+            }
+        });
+
+        googleSignupBtn.addEventListener('click', async () => {
+            try {
+                clearAuthMessage();
+                showAuthMessage('Signing up with Google...', 'info');
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                console.error("Google signup error:", error);
+                showAuthMessage(`Google signup failed: ${error.message}`, 'error');
+            }
+        });
+
+        // Email/Password Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            if (!email || !password) {
+                showAuthMessage('Please enter both email and password.', 'error');
+                return;
+            }
+            try {
+                clearAuthMessage();
+                showAuthMessage('Logging in...', 'info');
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("Email login error:", error);
+                showAuthMessage(`Login failed: ${error.message}`, 'error');
+            }
+        });
+
+        // Email/Password Sign Up
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = signupNameInput.value;
+            const email = signupEmailInput.value;
+            const password = signupPasswordInput.value;
+            const phone = signupPhoneInput.value;
+
+            if (!name || !email || !password) {
+                showAuthMessage('Please enter your name, email, and password.', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showAuthMessage('Password should be at least 6 characters.', 'error');
+                return;
+            }
+
+            try {
+                clearAuthMessage();
+                showAuthMessage('Creating account...', 'info');
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, {
+                    displayName: name
+                });
+                // You might want to store phone in Firestore if provided
+                if (phone) {
+                    // Example: Call a Cloud Function to save phone number to Firestore
+                    // const response = await fetch(`${BACKEND_URL}/save-user-profile`, {
+                    //      method: 'POST',
+                    //      headers: { 'Content-Type': 'application/json' },
+                    //      body: JSON.stringify({ uid: userCredential.user.uid, phone: phone })
+                    // });
+                    // if (!response.ok) console.error("Failed to save phone number");
+                }
+                showAuthMessage('Account created successfully! You are now logged in.', 'success');
+            } catch (error) {
+                console.error("Email signup error:", error);
+                showAuthMessage(`Sign up failed: ${error.message}`, 'error');
+            }
+        });
+
+        // --- Header Auth State Listener (Copied from iphone-16-pro-max.html) ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                loginNavBtn.classList.add('hidden');
+                authStatusContainer.classList.remove('hidden'); // Ensure container is visible
+                userMonogram.classList.remove('hidden');
+
+                // Get initials for monogram
+                const displayName = user.displayName;
+                const email = user.email;
+                let initials = '';
+                if (displayName) {
+                    initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                } else if (email) {
+                    initials = email.charAt(0).toUpperCase();
+                }
+                userMonogram.textContent = initials;
+                userMonogram.style.backgroundColor = getRandomLightColor(); // Set random color
+
+                hideLoginModal(); // Close modal if user logs in
+            } else {
+                // User is signed out
+                loginNavBtn.classList.remove('hidden');
+                authStatusContainer.classList.remove('hidden'); // Ensure container is visible
+                loginNavBtn.textContent = 'Login/Sign Up';
+                userMonogram.classList.add('hidden');
+                authDropdown.classList.add('hidden'); // Hide dropdown if user logs out
+            }
+        });
+
+        // Toggle dropdown when monogram is clicked
+        userMonogram.addEventListener('click', (e) => {
+            e.stopPropagation();
+            authDropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdown if clicking outside
+        document.addEventListener('click', (e) => {
+            if (!authStatusContainer.contains(e.target)) {
+                authDropdown.classList.add('hidden');
+            }
+        });
+
+        // Logout functionality
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        });
+
+        // Function to generate a random light background color for monogram
+        function getRandomLightColor() {
+            const hue = Math.floor(Math.random() * 360); // 0-359
+            const saturation = Math.floor(Math.random() * 30) + 70; // 70-100% saturation
+            const lightness = Math.floor(Math.random() * 20) + 70; // 70-90% lightness
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+
+        // Initial load of offer details
+        loadOfferDetails();
     </script>
 </body>
 </html>

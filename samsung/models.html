@@ -187,11 +187,16 @@
             <nav class="space-x-4">
                 <a href="sell-device.html" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Sell Your Device</a>
                 
+                <!-- Authentication Status Container -->
+                <!-- IMPORTANT: This parent needs 'position: relative' for the dropdown to position correctly -->
                 <div id="authStatusContainer" class="relative inline-block">
+                    <!-- This will be dynamically updated by JS -->
                     <a href="#" id="loginNavBtn" class="text-gray-600 hover:text-indigo-700 font-medium rounded-md px-3 py-2 transition duration-300">Login/Sign Up</a>
 
+                    <!-- Monogram and Dropdown (initially hidden) -->
                     <div id="userMonogram" class="user-monogram hidden">
-                        </div>
+                        <!-- Initials will go here -->
+                    </div>
                     <div id="authDropdown" class="auth-dropdown hidden">
                         <a href="my-account.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Account</a>
                         <button id="logoutBtn" class="btn-red-logout">Logout</button>
@@ -207,6 +212,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
 
+            <!-- Samsung Galaxy S25 Ultra -->
             <a href="samsung-s25-ultra.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s25u_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s25u" alt="Samsung Galaxy S25 Ultra" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -216,6 +222,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S25+ -->
             <a href="samsung-s25-plus.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s25p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s25p" alt="Samsung Galaxy S25+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -225,6 +232,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S25 -->
             <a href="samsung-s25.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s25_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s25" alt="Samsung Galaxy S25" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -234,6 +242,17 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S25 FE (Added) -->
+            <a href="samsung-s25fe.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s25fe_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s25fe" alt="Samsung Galaxy S25 FE" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S25 FE</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $450</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy Z Fold 7 -->
             <a href="samsung-z-fold-7.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="z7f_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/z7f" alt="Samsung Galaxy Z Fold 7" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -243,6 +262,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy Z Flip 7 -->
             <a href="samsung-z-flip-7.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="z7fl_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/z7fl" alt="Samsung Galaxy Z Flip 7" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -252,6 +272,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S24 Ultra -->
             <a href="samsung-s24-ultra.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s24u_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s24u" alt="Samsung Galaxy S24 Ultra" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -261,6 +282,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S24+ -->
             <a href="samsung-s24-plus.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s24p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s24p" alt="Samsung Galaxy S24+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -270,6 +292,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S24 -->
             <a href="samsung-s24.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s24_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s24" alt="Samsung Galaxy S24" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -279,6 +302,17 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S24 FE (Added) -->
+            <a href="samsung-s24fe.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s24fe_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s24fe" alt="Samsung Galaxy S24 FE" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S24 FE</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $400</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy Z Fold 6 -->
             <a href="samsung-z-fold-6.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="z6f_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/z6f" alt="Samsung Galaxy Z Fold 6" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -288,6 +322,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy Z Flip 6 -->
             <a href="samsung-z-flip-6.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="z6fl_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/z6fl" alt="Samsung Galaxy Z Flip 6" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -297,6 +332,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S23 Ultra -->
             <a href="samsung-s23-ultra.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s23u_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s23u" alt="Samsung Galaxy S23 Ultra" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -306,6 +342,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S23+ -->
             <a href="samsung-s23-plus.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s23p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s23p" alt="Samsung Galaxy S23+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -315,6 +352,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S23 -->
             <a href="samsung-s23.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s23_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s23" alt="Samsung Galaxy S23" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -324,6 +362,136 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S23 FE (Added) -->
+            <a href="samsung-s23fe.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s23fe_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s23fe" alt="Samsung Galaxy S23 FE" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S23 FE</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy Z Fold 5 -->
+            <a href="samsung-z-fold-5.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="z5f_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/z5f" alt="Samsung Galaxy Z Fold 5" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy Z Fold 5</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $900</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy Z Flip 5 -->
+            <a href="samsung-z-flip-5.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="z5fl_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/z5fl" alt="Samsung Galaxy Z Flip 5" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy Z Flip 5</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $500</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S22 Ultra -->
+            <a href="samsung-s22-ultra.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s22u_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s22u" alt="Samsung Galaxy S22 Ultra" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S22 Ultra</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S22+ -->
+            <a href="samsung-s22-plus.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s22p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s22p" alt="Samsung Galaxy S22+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S22+</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S22 -->
+            <a href="samsung-s22.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s22_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s22" alt="Samsung Galaxy S22" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S22</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S21 FE (Added) -->
+            <a href="samsung-s21fe.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s21fe_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s21fe" alt="Samsung Galaxy S21 FE" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S21 FE</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $200</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S21 Ultra -->
+            <a href="samsung-s21-ultra.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s21u_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s21u" alt="Samsung Galaxy S21 Ultra" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S21 Ultra</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S21+ -->
+            <a href="samsung-s21-plus.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s21p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s21p" alt="Samsung Galaxy S21+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S21+</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S21 -->
+            <a href="samsung-s21.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s21_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s21" alt="Samsung Galaxy S21" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S21</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S20 Ultra -->
+            <a href="samsung-s20-ultra.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s20u_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s20u" alt="Samsung Galaxy S20 Ultra" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S20 Ultra</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $200</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S20+ -->
+            <a href="samsung-s20-plus.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s20p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s20p" alt="Samsung Galaxy S20+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S20+</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $180</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S20 -->
+            <a href="samsung-s20.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s20_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s20" alt="Samsung Galaxy S20" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S20</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $150</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+            
             <!-- Samsung Galaxy S20 FE -->
             <a href="samsung-s20fe.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
@@ -334,106 +502,7 @@
                 </div>
             </a>
 
-            <a href="samsung-z-fold-5.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="z5f_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/z5f" alt="Samsung Galaxy Z Fold 5" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy Z Fold 5</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $900</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-z-flip-5.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="z5fl_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/z5fl" alt="Samsung Galaxy Z Flip 5" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy Z Flip 5</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $500</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-s22-ultra.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="s22u_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s22u" alt="Samsung Galaxy S22 Ultra" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy S22 Ultra</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $350</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-s22-plus.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="s22p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s22p" alt="Samsung Galaxy S22+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy S22+</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-s22.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="s22_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s22" alt="Samsung Galaxy S22" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy S22</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $250</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-s21-ultra.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="s21u_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s21u" alt="Samsung Galaxy S21 Ultra" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy S21 Ultra</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $300</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-s21-plus.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="s21p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s21p" alt="Samsung Galaxy S21+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy S21+</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $280</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-s21.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="s21_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s21" alt="Samsung Galaxy S21" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy S21</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $220</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-s20-ultra.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="s20u_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s20u" alt="Samsung Galaxy S20 Ultra" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy S20 Ultra</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $200</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-s20-plus.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="s20p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s20p" alt="Samsung Galaxy S20+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy S20+</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $180</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-
-            <a href="samsung-s20.html" class="phone-card-link">
-                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
-                    <img id="s20_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s20" alt="Samsung Galaxy S20" class="mx-auto mb-4 rounded-lg" width="680" height="528">
-                    <h3 class="text-xl font-semibold mb-2">Galaxy S20</h3>
-                    <p class="text-indigo-600 font-bold mb-4">Starting from $150</p>
-                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
-                </div>
-            </a>
-            
-            <!-- ADDED S10, S10+, AND S10E CARDS -->
+            <!-- Samsung Galaxy S10+ -->
             <a href="samsung-s10-plus.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s10p_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s10p" alt="Samsung Galaxy S10+" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -443,6 +512,7 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S10 -->
             <a href="samsung-s10.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s10_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s10" alt="Samsung Galaxy S10" class="mx-auto mb-4 rounded-lg" width="680" height="528">
@@ -452,11 +522,22 @@
                 </div>
             </a>
 
+            <!-- Samsung Galaxy S10e -->
             <a href="samsung-s10e.html" class="phone-card-link">
                 <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
                     <img id="s10e_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s10e" alt="Samsung Galaxy S10e" class="mx-auto mb-4 rounded-lg" width="680" height="528">
                     <h3 class="text-xl font-semibold mb-2">Galaxy S10e</h3>
                     <p class="text-indigo-600 font-bold mb-4">Starting from $90</p>
+                    <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
+                </div>
+            </a>
+
+            <!-- Samsung Galaxy S10 5G (Added) -->
+            <a href="samsung-s10-5g.html" class="phone-card-link">
+                <div class="phone-card-inner bg-white p-6 rounded-xl shadow-lg text-center flex flex-col h-full transition duration-300">
+                    <img id="s105g_img" src="" data-base-src="https://raw.githubusercontent.com/sauls61708-source/BuyBacking/refs/heads/main/samsung/assets/s105g" alt="Samsung Galaxy S10 5G" class="mx-auto mb-4 rounded-lg" width="680" height="528">
+                    <h3 class="text-xl font-semibold mb-2">Galaxy S10 5G</h3>
+                    <p class="text-indigo-600 font-bold mb-4">Starting from $140</p>
                     <button class="bg-gray-200 text-gray-800 px-6 py-2 rounded-full font-medium mt-auto w-full">Sell This</button>
                 </div>
             </a>
@@ -588,7 +669,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Function to load image with fallback extensions
             function loadImageWithFallback(imgElement) {
-                const baseSrc = imgElement.dataset.baseSrc;
+                // Corrected: Access data-base-src using camelCase: dataset.baseSrc
+                const baseSrc = imgElement.dataset.baseSrc; 
                 const extensions = ['.webp', '.png', '.jpeg', '.jpg']; // Order of preference, .webp first
                 let foundImage = false;
 
@@ -645,7 +727,7 @@
             const googleSignupBtn = document.getElementById('googleSignupBtn');
             const emailSignupBtn = document.getElementById('emailSignupBtn');
             const signupNameInput = document.getElementById('signupName');
-            const signupEmailInput = document.getElementById('signupEmail');
+            const signupEmailInput = document = document.getElementById('signupEmail'); // Typo: document = document.getElementById
             const signupPasswordInput = document.getElementById('signupPassword');
             const signupPhoneInput = document.getElementById('signupPhone');
             const authMessage = document.getElementById('authMessage');
@@ -843,7 +925,8 @@
                 } else {
                     // User is signed out
                     loginNavBtn.classList.remove('hidden');
-                    authStatusContainer.classList.remove('hidden'); // Ensure container is visible
+                    // Ensure authStatusContainer is visible to show the loginNavBtn
+                    authStatusContainer.classList.remove('hidden'); 
                     loginNavBtn.textContent = 'Login/Sign Up';
                     userMonogram.classList.add('hidden');
                     authDropdown.classList.add('hidden'); // Hide dropdown if user logs out
